@@ -43,10 +43,15 @@ export class ArtWork {
     title: string;
     imageDetailUrl: string | null;
     imageUrl: string | null;
+    imageThumbnail: string = ''; //preview image
+    // imageSmall: string = '';
+    imageLarge: string = '';
+    // imageBigLarge: string = '';
+    imageOriginal: string = '';
     time: string
     year: string;
-    location: string; 
-    museum: string; 
+    location: string;
+    museum: string;
     dimension: string;
     catNo: string;
 
@@ -56,6 +61,7 @@ export class ArtWork {
         title: string;
         imageDetailUrl: string | null;
         imageUrl: string | null;
+        imageOriginal: string;
         year: string;
         location: string;
         museum: string;
@@ -67,9 +73,10 @@ export class ArtWork {
         this.title = data.title;
         this.imageDetailUrl = data.imageDetailUrl;
         this.imageUrl = data.imageUrl;
+        this.imageOriginal = data.imageOriginal;
         this.year = data.year;
         this.location = data.location;
-        this.museum = data.museum||'';
+        this.museum = data.museum || '';
         this.dimension = data.dimension;
         this.catNo = data.catNo;
     }

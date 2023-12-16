@@ -35,11 +35,17 @@ function getColumn(row, index) {
 }
 var ArtWork = /** @class */ (function () {
     function ArtWork(data) {
+        this.imageThumbnail = ''; //preview image
+        // imageSmall: string = '';
+        this.imageLarge = '';
+        // imageBigLarge: string = '';
+        this.imageOriginal = '';
         this.time = data.time;
         this.artist = data.artist;
         this.title = data.title;
         this.imageDetailUrl = data.imageDetailUrl;
         this.imageUrl = data.imageUrl;
+        this.imageOriginal = data.imageOriginal;
         this.year = data.year;
         this.location = data.location;
         this.museum = data.museum || '';

@@ -33,3 +33,9 @@ crawler-project/
 └── .env                   # 环境变量文件
 
 #Airbnb的JavaScript编程规范：https://github.com/airbnb/javascript
+
+
+### 数据源
+1. 大都会博物馆开放接口 https://metmuseum.github.io/
+ 可以直接下载全部艺术品信息48万条 https://github.com/metmuseum/openaccess
+2. Wikidata https://www.wikidata.org
