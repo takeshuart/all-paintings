@@ -35,6 +35,7 @@ function getColumn(row, index) {
 }
 var ArtWork = /** @class */ (function () {
     function ArtWork(data) {
+        this.isHighlight = false;
         this.imageThumbnail = ''; //preview image
         // imageSmall: string = '';
         this.imageLarge = '';
@@ -43,6 +44,7 @@ var ArtWork = /** @class */ (function () {
         this.time = data.time;
         this.artist = data.artist;
         this.title = data.title;
+        this.isHighlight = data.isHighlight;
         this.imageDetailUrl = data.imageDetailUrl;
         this.imageUrl = data.imageUrl;
         this.imageOriginal = data.imageOriginal;

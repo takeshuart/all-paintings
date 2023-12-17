@@ -41,6 +41,7 @@ function getColumn(row: any, index: number) {
 export class ArtWork {
     artist: string
     title: string;
+    isHighlight: boolean = false;
     imageDetailUrl: string | null;
     imageUrl: string | null;
     imageThumbnail: string = ''; //preview image
@@ -59,6 +60,7 @@ export class ArtWork {
         time: string
         artist: string
         title: string;
+        isHighlight: boolean ;
         imageDetailUrl: string | null;
         imageUrl: string | null;
         imageOriginal: string;
@@ -71,6 +73,7 @@ export class ArtWork {
         this.time = data.time;
         this.artist = data.artist;
         this.title = data.title;
+        this.isHighlight=data.isHighlight
         this.imageDetailUrl = data.imageDetailUrl;
         this.imageUrl = data.imageUrl;
         this.imageOriginal = data.imageOriginal;

@@ -4,6 +4,7 @@ import { ArtWork } from './wikipedia.js';
 import * as fs from 'fs';
 import * as path from 'path';
 import { saveToFile } from './wikipedia.js';
+import { WikiPage } from './wikipage.js';
 const filePath = path.join(__dirname, '../../data/data.json');
 
 const wikipediaDomain = 'https://en.wikipedia.org'
@@ -23,13 +24,12 @@ async function fetchWikiPage() {
             const response = await axiosAgented.get(wikipediaDomain + artist.worklistWikiUrl);
             const html = response.data;
             const $ = cheerio.load(html);
-            const wikitables = scrapeWikiTable($)
-            wikitables.forEach((table: any) => {
+            const tables = wikitables($)
+            tables.forEach((table: any) => {
                 table.forEach((row: any) => {
                     try {
                         let artWorkData = artist.parseFunc(row);
                         artWorkData.artist = artist.englishName;
-
                         const artWork = new ArtWork(artWorkData);
                         if (!artWork.title) {
                             console.log('Invalid Art Work' + JSON.stringify(artWork))
@@ -54,15 +54,48 @@ async function fetchWikiPage() {
     }
 }
 
-fetchWikiPage();
+//可以让ChatGPT修改SQL
+async function rijksmuseum() {
+    const wikiUrl='https://www.wikidata.org/wiki/Wikidata:WikiProject_sum_of_all_paintings/Collection/J._Paul_Getty_Museum';
+    const wikiPage = await WikiPage.load(wikiUrl)
+    try {
+        const tables = wikiPage.tables();
+        let artworks: ArtWork[] = []
 
-//'https://en.wikipedia.org/wiki/List_of_works_by_Mary_Cassatt'
+        tables[0].forEach((element:any) => {
+            const artWorkData = {
+                artist: element[3],
+                title: element[0],
+                isHighlight: false,
+                imageDetailUrl: element[2].href,
+                imageUrl: element[2].src || null,
+                imageOriginal: '',
+                time: '',
+                year: '',
+                location: '',
+                museum: element[5],
+                dimension: '',
+                catNo: element[4],
+            };
+            const artWork = new ArtWork(artWorkData);
+            artworks.push(artWork);
+        });
+        
+        saveToFile(artworks)
+        console.log('Tables found:',JSON.stringify(artworks,null,2));
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+rijksmuseum()
+
 
 function wikitableMaryCassatt(element: any) {
 
     const artWorkData = {
         artist: 'Mary Cassatt',
         title: element[1],
+        isHighlight: false,
         imageDetailUrl: element[0].href,
         imageUrl: element[0].src || null,
         imageOriginal: '',
@@ -83,6 +116,7 @@ function wikitableBruegel(element: any) {
     const artWorkData = {
         artist: '',
         title: element[1],
+        isHighlight: false,
         imageDetailUrl: element[0].href,
         imageUrl: element[0].src || null,
         imageOriginal: '',
@@ -108,6 +142,7 @@ function wikitableRenoir(element: any) {
     const artWorkData = {
         artist: '',
         title: element[1],
+        isHighlight: false,
         imageDetailUrl: element[0].href,
         imageUrl: element[0].src || null,
         imageOriginal: '',
@@ -154,6 +189,7 @@ function wikitableVanGogh(element: any): ArtWork {
     const artWorkData = {
         artist: 'Vincent van Gogh',
         title: imgBox.title,
+        isHighlight: false,
         imageDetailUrl: imgBox.href || '',
         imageUrl: imgBox.src || '',
         imageOriginal: '',
@@ -169,7 +205,7 @@ function wikitableVanGogh(element: any): ArtWork {
     return new ArtWork(artWorkData);
 }
 
-function scrapeWikiTable($: cheerio.Root) {
+function wikitables($: cheerio.Root) {
     try {
         const tables = $('.wikitable'); // Locate all tables with class "wikitable"
         const result: any = [];

@@ -41,6 +41,7 @@ var https_js_1 = require("../utils/https.js");
 var wikipedia_js_1 = require("./wikipedia.js");
 var path = require("path");
 var wikipedia_js_2 = require("./wikipedia.js");
+var wikipage_js_1 = require("./wikipage.js");
 var filePath = path.join(__dirname, '../../data/data.json');
 var wikipediaDomain = 'https://en.wikipedia.org';
 var artists = [
@@ -59,7 +60,7 @@ function fetchWikiPage() {
                     _a.trys.push([0, 5, , 6]);
                     artworks_1 = [];
                     _loop_1 = function (artist) {
-                        var response, html, $, wikitables;
+                        var response, html, $, tables;
                         return __generator(this, function (_a) {
                             switch (_a.label) {
                                 case 0: return [4 /*yield*/, https_js_1.axiosAgented.get(wikipediaDomain + artist.worklistWikiUrl)];
@@ -67,8 +68,8 @@ function fetchWikiPage() {
                                     response = _a.sent();
                                     html = response.data;
                                     $ = cheerio.load(html);
-                                    wikitables = scrapeWikiTable($);
-                                    wikitables.forEach(function (table) {
+                                    tables = wikitables($);
+                                    tables.forEach(function (table) {
                                         table.forEach(function (row) {
                                             try {
                                                 var artWorkData = artist.parseFunc(row);
@@ -116,12 +117,55 @@ function fetchWikiPage() {
         });
     });
 }
-fetchWikiPage();
-//'https://en.wikipedia.org/wiki/List_of_works_by_Mary_Cassatt'
+//可以让ChatGPT修改SQL
+function rijksmuseum() {
+    return __awaiter(this, void 0, void 0, function () {
+        var wikiUrl, wikiPage, tables, artworks_2;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    wikiUrl = 'https://www.wikidata.org/wiki/Wikidata:WikiProject_sum_of_all_paintings/Collection/J._Paul_Getty_Museum';
+                    return [4 /*yield*/, wikipage_js_1.WikiPage.load(wikiUrl)];
+                case 1:
+                    wikiPage = _a.sent();
+                    try {
+                        tables = wikiPage.tables();
+                        artworks_2 = [];
+                        tables[0].forEach(function (element) {
+                            var artWorkData = {
+                                artist: element[3],
+                                title: element[0],
+                                isHighlight: false,
+                                imageDetailUrl: element[2].href,
+                                imageUrl: element[2].src || null,
+                                imageOriginal: '',
+                                time: '',
+                                year: '',
+                                location: '',
+                                museum: element[5],
+                                dimension: '',
+                                catNo: element[4]
+                            };
+                            var artWork = new wikipedia_js_1.ArtWork(artWorkData);
+                            artworks_2.push(artWork);
+                        });
+                        wikipedia_js_2.saveToFile(artworks_2);
+                        console.log('Tables found:', JSON.stringify(artworks_2, null, 2));
+                    }
+                    catch (error) {
+                        console.error('Error:', error);
+                    }
+                    return [2 /*return*/];
+            }
+        });
+    });
+}
+rijksmuseum();
 function wikitableMaryCassatt(element) {
     var artWorkData = {
         artist: 'Mary Cassatt',
         title: element[1],
+        isHighlight: false,
         imageDetailUrl: element[0].href,
         imageUrl: element[0].src || null,
         imageOriginal: '',
@@ -139,6 +183,7 @@ function wikitableBruegel(element) {
     var artWorkData = {
         artist: '',
         title: element[1],
+        isHighlight: false,
         imageDetailUrl: element[0].href,
         imageUrl: element[0].src || null,
         imageOriginal: '',
@@ -161,6 +206,7 @@ function wikitableRenoir(element) {
     var artWorkData = {
         artist: '',
         title: element[1],
+        isHighlight: false,
         imageDetailUrl: element[0].href,
         imageUrl: element[0].src || null,
         imageOriginal: '',
@@ -203,6 +249,7 @@ function wikitableVanGogh(element) {
     var artWorkData = {
         artist: 'Vincent van Gogh',
         title: imgBox.title,
+        isHighlight: false,
         imageDetailUrl: imgBox.href || '',
         imageUrl: imgBox.src || '',
         imageOriginal: '',
@@ -215,7 +262,7 @@ function wikitableVanGogh(element) {
     };
     return new wikipedia_js_1.ArtWork(artWorkData);
 }
-function scrapeWikiTable($) {
+function wikitables($) {
     try {
         var tables = $('.wikitable'); // Locate all tables with class "wikitable"
         var result_1 = [];

@@ -127,14 +127,13 @@ function processFile() {
                 data = JSON.parse(datajson);
                 artworks_1 = [];
                 data.map(function (item) {
-                    var _a;
                     var regex = /\(([^)]+)\)/; //"77 × 53 1/4 in. (195.6 × 135.3 cm)"
-                    var artist = item.constituents && ((_a = item.constituents[0]) === null || _a === void 0 ? void 0 : _a.name.replace(/\([^)]+\)/g, "").trim()); //remove (*)
                     var match = item.dimensions.match(regex);
                     console.log(match ? match[1] : match);
                     var artWork = {
-                        artist: artist,
+                        artist: item.artistDisplayName.replace(/\([^)]*\)/g, '').trim(),
                         title: item.title,
+                        isHighlight: item.isHighlight,
                         imageDetailUrl: '',
                         imageUrl: item.primaryImageSmall,
                         imageOriginal: item.primaryImage,
@@ -165,7 +164,7 @@ processFile();
 var MetArtwork = /** @class */ (function () {
     function MetArtwork() {
         this.objectID = 0;
-        this.isHighlight = false;
+        this.isHighlight = false; //重点藏品
         this.accessionNumber = '';
         this.accessionYear = '';
         this.isPublicDomain = false;

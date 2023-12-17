@@ -53,13 +53,12 @@ async function processFile() {
         const artworks: ArtWork[] = [];
         data.map(item => {
             const regex = /\(([^)]+)\)/;  //"77 × 53 1/4 in. (195.6 × 135.3 cm)"
-            const artist = item.constituents && item.constituents[0]?.name.replace(/\([^)]+\)/g, "").trim();//remove (*)
-
             const match = item.dimensions.match(regex);
             console.log(match ? match[1] : match)
             const artWork = {
-                artist: artist,
+                artist: item.artistDisplayName.replace(/\([^)]*\)/g, '').trim(),
                 title: item.title,
+                isHighlight: item.isHighlight,
                 imageDetailUrl: '',
                 imageUrl: item.primaryImageSmall,
                 imageOriginal: item.primaryImage,
@@ -90,7 +89,7 @@ processFile();
 
 class MetArtwork {
     objectID: number = 0;
-    isHighlight: boolean = false;
+    isHighlight: boolean = false; //重点藏品
     accessionNumber: string = '';
     accessionYear: string = '';
     isPublicDomain: boolean = false;
