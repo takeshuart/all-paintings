@@ -47,4 +47,7 @@ crawler-project/
 8. 视觉艺术流派：https://www.wikidata.org/wiki/Wikidata:WikiProject_Visual_arts/Item_structure/Art_genres
 9. Getty博物馆所有油画：https://www.wikidata.org/wiki/Wikidata:WikiProject_sum_of_all_paintings/Collection/J._Paul_Getty_Museum
 10.荷兰国立博物馆绘画藏品列表 
-11.英国国家美术馆：https://www.wikidata.org/wiki/Wikidata:WikiProject_sum_of_all_paintings/Collection/National_Gallery
+11.英国国家美术馆：https://www.wikidata.org/wiki/Wikidata:WikiProject_sum_of_all_paintings/Collection/National_Gallery\
+12.芝加哥艺术学院博物馆开放数据：https://github.com/art-institute-of-chicago/api-data
+   https://api.artic.edu/docs/#introduction
+13.The Most Famous Paintings of the World :https://www.wikidata.org/wiki/Wikidata:WikiProject_sum_of_all_paintings/Catalog/The_Most_Famous_Paintings_of_the_World
