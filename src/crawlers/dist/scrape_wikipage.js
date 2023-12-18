@@ -36,11 +36,9 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 exports.__esModule = true;
-var cheerio = require("cheerio");
-var https_js_1 = require("../utils/https.js");
-var wikipedia_js_1 = require("./wikipedia.js");
+var artwork_js_1 = require("./artwork.js");
 var path = require("path");
-var wikipedia_js_2 = require("./wikipedia.js");
+var artwork_js_2 = require("./artwork.js");
 var wikipage_js_1 = require("./wikipage.js");
 var filePath = path.join(__dirname, '../../data/data.json');
 var wikipediaDomain = 'https://en.wikipedia.org';
@@ -51,74 +49,53 @@ var artists = [
     // { 'englishName': 'Pierre Renoir', 'parseFunc': wikitableRenoir, 'worklistWikiUrl': '/wiki/List_of_paintings_by_Pierre-Auguste_Renoir' },
     { 'englishName': 'Pieter Bruegel', 'parseFunc': wikitableBruegel, 'worklistWikiUrl': '/wiki/List_of_paintings_by_Pieter_Bruegel_the_Elder' },
 ];
-function fetchWikiPage() {
+function NationGalleryUkMuseum() {
     return __awaiter(this, void 0, void 0, function () {
-        var artworks_1, _loop_1, _i, artists_1, artist, error_1;
+        var wikiUrl, wikiPage, tables, artworks_1, config_1;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    _a.trys.push([0, 5, , 6]);
-                    artworks_1 = [];
-                    _loop_1 = function (artist) {
-                        var response, html, $, tables;
-                        return __generator(this, function (_a) {
-                            switch (_a.label) {
-                                case 0: return [4 /*yield*/, https_js_1.axiosAgented.get(wikipediaDomain + artist.worklistWikiUrl)];
-                                case 1:
-                                    response = _a.sent();
-                                    html = response.data;
-                                    $ = cheerio.load(html);
-                                    tables = wikitables($);
-                                    tables.forEach(function (table) {
-                                        table.forEach(function (row) {
-                                            try {
-                                                var artWorkData = artist.parseFunc(row);
-                                                artWorkData.artist = artist.englishName;
-                                                var artWork = new wikipedia_js_1.ArtWork(artWorkData);
-                                                if (!artWork.title) {
-                                                    console.log('Invalid Art Work' + JSON.stringify(artWork));
-                                                    return;
-                                                }
-                                                artworks_1.push(artWork);
-                                                //console.log(JSON.stringify(artWork,null,2))
-                                            }
-                                            catch (error) {
-                                                console.error('Error parsing the art work:', JSON.stringify(row), error);
-                                                throw error;
-                                            }
-                                        });
-                                    });
-                                    return [2 /*return*/];
-                            }
-                        });
-                    };
-                    _i = 0, artists_1 = artists;
-                    _a.label = 1;
+                    wikiUrl = 'https://www.wikidata.org/wiki/Wikidata:WikiProject_sum_of_all_paintings/Collection/National_Gallery';
+                    return [4 /*yield*/, wikipage_js_1.WikiPage.load(wikiUrl)];
                 case 1:
-                    if (!(_i < artists_1.length)) return [3 /*break*/, 4];
-                    artist = artists_1[_i];
-                    return [5 /*yield**/, _loop_1(artist)];
-                case 2:
-                    _a.sent();
-                    _a.label = 3;
-                case 3:
-                    _i++;
-                    return [3 /*break*/, 1];
-                case 4:
-                    ;
-                    wikipedia_js_2.saveToFile(artworks_1);
-                    return [3 /*break*/, 6];
-                case 5:
-                    error_1 = _a.sent();
-                    console.error('Error fetching the Wiki page:', error_1);
-                    throw error_1;
-                case 6: return [2 /*return*/];
+                    wikiPage = _a.sent();
+                    try {
+                        tables = wikiPage.tables();
+                        artworks_1 = [];
+                        config_1 = {
+                            artist: 3,
+                            title: 1,
+                            isHighlight: false,
+                            genre: 6,
+                            subject: 7,
+                            depicts: 8,
+                            imageDetailUrl: function (e) { return e[0].href; },
+                            imageUrl: function (e) { return e[0].src; },
+                            year: 4,
+                            location: 'London,UK',
+                            museum: "The National Gallery, London",
+                            dimension: '',
+                            catNo: 5
+                        };
+                        tables[0].forEach(function (element) {
+                            var artwork = artwork_js_1.createArtWorkFromWikiTable(element, config_1);
+                            artworks_1.push(artwork);
+                            console.log(JSON.stringify(artwork));
+                        });
+                        // saveToFile(artworks)
+                        console.log('Tables found:' + artworks_1.length);
+                    }
+                    catch (error) {
+                        console.error('Error:', error);
+                    }
+                    return [2 /*return*/];
             }
         });
     });
 }
+NationGalleryUkMuseum();
 //可以让ChatGPT修改SQL
-function rijksmuseum() {
+function GettyMuseum() {
     return __awaiter(this, void 0, void 0, function () {
         var wikiUrl, wikiPage, tables, artworks_2;
         return __generator(this, function (_a) {
@@ -136,6 +113,9 @@ function rijksmuseum() {
                                 artist: element[3],
                                 title: element[0],
                                 isHighlight: false,
+                                genre: '',
+                                subject: '',
+                                depicts: '',
                                 imageDetailUrl: element[2].href,
                                 imageUrl: element[2].src || null,
                                 imageOriginal: '',
@@ -146,10 +126,10 @@ function rijksmuseum() {
                                 dimension: '',
                                 catNo: element[4]
                             };
-                            var artWork = new wikipedia_js_1.ArtWork(artWorkData);
+                            var artWork = new artwork_js_1.ArtWork(artWorkData);
                             artworks_2.push(artWork);
                         });
-                        wikipedia_js_2.saveToFile(artworks_2);
+                        artwork_js_2.saveToFile(artworks_2);
                         console.log('Tables found:', JSON.stringify(artworks_2, null, 2));
                     }
                     catch (error) {
@@ -160,7 +140,6 @@ function rijksmuseum() {
         });
     });
 }
-rijksmuseum();
 function wikitableMaryCassatt(element) {
     var artWorkData = {
         artist: 'Mary Cassatt',
@@ -250,6 +229,9 @@ function wikitableVanGogh(element) {
         artist: 'Vincent van Gogh',
         title: imgBox.title,
         isHighlight: false,
+        genre: element[6],
+        subject: element[7],
+        depicts: element[8],
         imageDetailUrl: imgBox.href || '',
         imageUrl: imgBox.src || '',
         imageOriginal: '',
@@ -260,7 +242,7 @@ function wikitableVanGogh(element) {
         dimension: sizeMatch ? sizeMatch[1] + ' x ' + sizeMatch[2] + ' cm' : '',
         catNo: element[5]
     };
-    return new wikipedia_js_1.ArtWork(artWorkData);
+    return new artwork_js_1.ArtWork(artWorkData);
 }
 function wikitables($) {
     try {

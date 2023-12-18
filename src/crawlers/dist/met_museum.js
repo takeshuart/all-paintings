@@ -40,7 +40,7 @@ var axios_1 = require("axios");
 var fs_1 = require("fs");
 var path = require("path");
 var https_1 = require("../utils/https");
-var wikipedia_1 = require("./wikipedia");
+var artwork_1 = require("./artwork");
 // Met open access https://metmuseum.github.io/
 var metApiDomain = 'https://collectionapi.metmuseum.org';
 var uropeanPaintingObjectsUrl = '/public/collection/v1/objects?departmentIds=11';
@@ -134,6 +134,9 @@ function processFile() {
                         artist: item.artistDisplayName.replace(/\([^)]*\)/g, '').trim(),
                         title: item.title,
                         isHighlight: item.isHighlight,
+                        genre: '',
+                        subject: '',
+                        depicts: '',
                         imageDetailUrl: '',
                         imageUrl: item.primaryImageSmall,
                         imageOriginal: item.primaryImage,
@@ -148,7 +151,7 @@ function processFile() {
                         console.log("invalid art work: " + artWork);
                         return;
                     }
-                    artworks_1.push(new wikipedia_1.ArtWork(artWork));
+                    artworks_1.push(new artwork_1.ArtWork(artWork));
                 });
                 fs_1["default"].writeFileSync(artWorkFile, JSON.stringify(artworks_1, null, 2));
                 console.log('文件处理完成');
