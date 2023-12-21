@@ -36,7 +36,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 exports.__esModule = true;
-exports.insertDB = exports.saveToFile = exports.downloadWikiTable = exports.WikiPage = void 0;
+exports.insertDB = exports.saveArtWorksToJSON = exports.downloadWikiTable = exports.WikiPage = void 0;
 var cheerio = require("cheerio");
 var https_js_1 = require("../utils/https.js");
 var artwork_js_1 = require("./artwork.js");
@@ -142,7 +142,7 @@ function downloadWikiTable(wikipageConfig) {
                             artworks_1.push(artwork);
                             console.log(JSON.stringify(artwork));
                         });
-                        saveToFile(artworks_1);
+                        saveArtWorksToJSON(artworks_1);
                         console.log('Tables found:' + artworks_1.length);
                     }
                     catch (error) {
@@ -156,7 +156,7 @@ function downloadWikiTable(wikipageConfig) {
 exports.downloadWikiTable = downloadWikiTable;
 var db = new nedb_1["default"]({ filename: './nedb.db', autoload: true });
 var filePath = path.join(__dirname, '../../data/data.json');
-function saveToFile(artworks) {
+function saveArtWorksToJSON(artworks) {
     var jsonData = JSON.stringify(artworks, null, 0);
     fs.writeFile(filePath, jsonData, 'utf8', function (err) {
         if (err) {
@@ -166,7 +166,7 @@ function saveToFile(artworks) {
         console.log("JSON file has been saved.");
     });
 }
-exports.saveToFile = saveToFile;
+exports.saveArtWorksToJSON = saveArtWorksToJSON;
 function insertDB(artWork) {
     db.insert(artWork, function (err, newDoc) {
         if (err) {

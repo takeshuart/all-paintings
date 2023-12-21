@@ -95,7 +95,7 @@ export async function downloadWikiTable(wikipageConfig:WikiPageWithTable) {
             artworks.push(artwork);
             console.log(JSON.stringify(artwork))
         });
-        saveToFile(artworks)
+        saveArtWorksToJSON(artworks)
         console.log('Tables found:' + artworks.length);
     } catch (error) {
         console.error('Error:', error);
@@ -108,7 +108,7 @@ const db = new Datastore({ filename: './nedb.db', autoload: true });
 const filePath = path.join(__dirname, '../../data/data.json');
 
 
-export function saveToFile(artworks: ArtWork[]) {
+export function saveArtWorksToJSON(artworks: ArtWork[]) {
     let jsonData = JSON.stringify(artworks, null, 0);
     fs.writeFile(filePath, jsonData, 'utf8', function (err) {
         if (err) {
