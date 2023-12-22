@@ -8,6 +8,7 @@ export class ArtWork {
     inventoryNumber?: string | undefined;//艺术品所在博物馆的编号，全球唯一识别一幅艺术品
     artist: string | undefined;
     title: string | undefined;
+    shortDesc: string | undefined;//简短描述
     isHighlight: boolean | undefined;
     genre: string | undefined;//门类，风景画、静物画等。
     subject: string | undefined;//绘画核心主题，特定任务、事件、爱情、战争等
@@ -29,6 +30,7 @@ export class ArtWork {
         inventoryNumber?: string,
         artist?: string,
         title?: string,
+        shortDesc?: string,
         isHighlight?: boolean,
         genre?: string,
         subject?: string,
@@ -48,6 +50,7 @@ export class ArtWork {
         this.inventoryNumber = data?.inventoryNumber;
         this.artist = data?.artist;
         this.title = data?.title;
+        this.shortDesc = data?.shortDesc;
         this.isHighlight = data?.isHighlight ?? false;
         this.genre = data?.genre;
         this.subject = data?.subject;
@@ -78,7 +81,7 @@ export function createArtWorkFromWikiTable(element: any[], config: ArtWorkProper
             artWork[key as keyof ArtWork] = value(element);
         } else if (typeof value === 'number') {//table-td index
             artWork[key as keyof ArtWork] = element[value];
-        } else{ //其他类型直接赋值
+        } else { //其他类型直接赋值
             artWork[key as keyof ArtWork] = value;
         }
     });
@@ -94,7 +97,7 @@ export function createArtWorkFromWikiTable(element: any[], config: ArtWorkProper
 //    ....
 //};
 export type ArtWorkProperties = {
-    [key in keyof ArtWork]?: any    ; //与ArtWork属性形同且可选，但是类型为any
+    [key in keyof ArtWork]?: any; //与ArtWork属性形同且可选，但是类型为any
 };
 
 export class Museum {

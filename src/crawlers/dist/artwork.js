@@ -11,6 +11,7 @@ var ArtWork = /** @class */ (function () {
         this.inventoryNumber = data === null || data === void 0 ? void 0 : data.inventoryNumber;
         this.artist = data === null || data === void 0 ? void 0 : data.artist;
         this.title = data === null || data === void 0 ? void 0 : data.title;
+        this.shortDesc = data === null || data === void 0 ? void 0 : data.shortDesc;
         this.isHighlight = (_a = data === null || data === void 0 ? void 0 : data.isHighlight) !== null && _a !== void 0 ? _a : false;
         this.genre = data === null || data === void 0 ? void 0 : data.genre;
         this.subject = data === null || data === void 0 ? void 0 : data.subject;
