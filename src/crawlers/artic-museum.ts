@@ -13,8 +13,8 @@ import { insert } from '../db/sqllite-utils';
 const artworkInfoUrl = `https://api.artic.edu/api/v1/artworks/`
 const fileHomePath = path.join(__dirname, '../../data/');
 const iiif_url = 'https://www.artic.edu/iiif/2'
-const sizeSmall = '400'
-const sizeLarge = '800'
+const sizeSmall = '843'
+const sizeLarge = '1686' //double
 
 // 定义接口以匹配返回的 JSON 数据结构
 interface ArtworkResponse {
@@ -49,15 +49,20 @@ async function fetchArtwork(id: string): Promise<ArtWork> {
 function createArtWork(aw: ArticArtWork) {
     return new ArtWork({
         title: aw.title,
-        artist: aw.artist_display,
-        isHighlight: true,
+        artist: aw.artist_title,
+        isHighlight: aw.is_boosted,
+        artworkType:aw.artwork_type_title,
+        description:aw.description,
         shortDesc: aw.short_description,
-        year: aw.date_display,
+        depicts: aw.subject_titles.join(),
+        artMovement: aw.style_titles.join(),
+        date: aw.date_display,
+        placeOfOrigin: aw.place_of_origin,
         museum: 'The Art Institute of Chicago',
         inventoryNumber: aw.main_reference_number,
-        imageUrl: `${iiif_url}/${aw.image_id}/full/${sizeSmall},/0/default.jpg`,
+        imageSmall: `${iiif_url}/${aw.image_id}/full/${sizeSmall},/0/default.jpg`,
         imageOriginal: `${iiif_url}/${aw.image_id}/full/${sizeLarge},/0/default.jpg`,
-        dimension: aw.dimensions
+        dimension: aw.dimensions?.split("(")[0]
     });
 }
 
@@ -88,8 +93,11 @@ function processArticData() {
 
     articworks.forEach(item => {
         const artic: ArticArtWork = JSON.parse(item)
-        if (!fineArtsIds.has(artic.artwork_type_id)) { return; }
+        if (!fineArtsIds.has(artic.artwork_type_id)) {
+             return; 
+        }
         const aw = createArtWork(artic)
+        console.log(JSON.stringify(aw))
         arts.push(aw)
         insert(aw)
     })

@@ -70,7 +70,7 @@ export function insert(artwork: ArtWork) {
         const values = Object.values(artworkDb);
         const placeholders = keys.map(() => '?').join(', ');
 
-        const insertStmt = `INSERT INTO artwork (${keys.join(', ')}) VALUES (${placeholders})`;
+        const insertStmt = `INSERT INTO art_work (${keys.join(', ')}) VALUES (${placeholders})`;
         console.log(`sql: ${insertStmt}`)
         const insert = db.prepare(insertStmt);
 

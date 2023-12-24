@@ -136,7 +136,7 @@ function downloadWikiTable(wikipageConfig) {
                             var _a, _b;
                             var artwork = artwork_js_1.createArtWorkFromWikiTable(element, wikipageConfig.config);
                             if (wikipageConfig.museum) {
-                                artwork.location = (_a = wikipageConfig.museum) === null || _a === void 0 ? void 0 : _a.location;
+                                artwork.museumLocation = (_a = wikipageConfig.museum) === null || _a === void 0 ? void 0 : _a.location;
                                 artwork.museum = (_b = wikipageConfig.museum) === null || _b === void 0 ? void 0 : _b.name;
                             }
                             artworks_1.push(artwork);

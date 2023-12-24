@@ -2,8 +2,10 @@
 1. 根目录下执行命令'tsc',把.ts文件编译成.js文件
 2. 运行在dist目录下生成的.js文件
 3. dist目录默认与.ts文件在同一文件夹下，可以配置ts.config.json文件中的outDir参数
-
-
+4. .vscode/launch.json  program配置项
+5. art-admint> npm start # start react project 
+   - 先编译tsc 
+   - artwork> node .\dist\app.js ## start node project
 #
 目录结构
 crawler-project/

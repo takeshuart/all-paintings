@@ -89,7 +89,7 @@ export async function downloadWikiTable(wikipageConfig:WikiPageWithTable) {
         tables[0].forEach((element: any) => {
             const artwork = createArtWorkFromWikiTable(element, wikipageConfig.config)
             if(wikipageConfig.museum){
-                artwork.location=wikipageConfig.museum?.location
+                artwork.museumLocation=wikipageConfig.museum?.location
                 artwork.museum=wikipageConfig.museum?.name
             }
             artworks.push(artwork);

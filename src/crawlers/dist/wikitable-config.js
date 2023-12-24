@@ -5,9 +5,9 @@ var artwork_1 = require("./artwork");
 exports.GettyMuseumConfig = {
     artist: 3,
     title: 0,
-    imageDetailUrl: function (e) { return e[2].href; },
-    imageUrl: function (e) { return e[2].src; },
-    location: 'Washington, U.S.',
+    image_wikimedia_url: function (e) { return e[2].href; },
+    primaryImageSmall: function (e) { return e[2].src; },
+    museumLocation: 'Washington, U.S.',
     museum: 5,
     catNo: 4
 };
@@ -16,9 +16,9 @@ exports.TheMostFamousPaintingsConfig = {
     artist: 4,
     title: 1,
     isHighlight: true,
-    imageDetailUrl: function (e) { return e[0].href; },
-    imageUrl: function (e) { return e[0].src; },
-    year: 5,
+    image_wikimedia_url: function (e) { return e[0].href; },
+    primaryImageSmall: function (e) { return e[0].src; },
+    artworkDate: 5,
     museum: 6,
     inventoryNumber: 7
 };
@@ -30,10 +30,10 @@ var BaseWikidataAllPaintingsPageConfig = {
     genre: 6,
     subject: 7,
     depicts: 8,
-    imageDetailUrl: function (e) { return e[0].href; },
-    imageUrl: function (e) { return e[0].src; },
-    year: 4,
-    location: 'Vienna, Austria',
+    image_wikimedia_url: function (e) { return e[0].href; },
+    primaryImageSmall: function (e) { return e[0].src; },
+    artworkDate: 4,
+    museumLocation: 'Vienna, Austria',
     museum: "Kunsthistorisches Museum",
     dimension: ''
 };

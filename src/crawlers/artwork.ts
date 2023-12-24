@@ -8,40 +8,49 @@ export class ArtWork {
     inventoryNumber?: string | undefined;//艺术品所在博物馆的编号，全球唯一识别一幅艺术品
     artist: string | undefined;
     title: string | undefined;
+    description: string | undefined
     shortDesc: string | undefined;//简短描述
     isHighlight: boolean | undefined;
+    artMovement: string | undefined;//流派
+    artworkType: string | undefined;
     genre: string | undefined;//门类，风景画、静物画等。
     subject: string | undefined;//绘画核心主题，特定任务、事件、爱情、战争等
     depicts: string | undefined;//描绘内容，水果,女人，孩子等
-    imageDetailUrl: string | undefined;
-    imageUrl: string | undefined;
-    imageThumbnail: string | undefined; //preview image
-    // imageSmall: string = ''| undefined;
-    imageLarge: string | undefined;
-    // imageBigLarge: string = ''| undefined;
-    imageOriginal: string | undefined;
-    time: string | undefined;
-    year: string | undefined;
-    location: string | undefined;
+    placeOfOrigin: string | undefined;//
+    artwork_wikipedia_url: string | undefined;
+    artwork_museum_url: string | undefined;
+    image_wikimedia_url: string | undefined;
+
+    primaryImageSmall: string | undefined;//博物馆标准为843px宽
+    primaryImageMedium: string | undefined;
+    primaryImageLarge: string | undefined;
+    primaryImageOriginal: string | undefined;
+    artworkDate: string | undefined;
+    museumLocation: string | undefined;
     museum: string | undefined;
     dimension: string | undefined;
     catNo: string | undefined;
+    color: string | undefined;
+    dataSource: string | undefined;//数据来源
+
     constructor(data?: {
         inventoryNumber?: string,
         artist?: string,
         title?: string,
+        description?: string,
         shortDesc?: string,
         isHighlight?: boolean,
+        artMovement?: string,
+        artworkType?:string,
         genre?: string,
         subject?: string,
         depicts?: string,
+        placeOfOrigin?: string
         imageDetailUrl?: string,
-        imageUrl?: string,
-        imageThumbnail?: string,
+        imageSmall?: string,
         imageLarge?: string,
         imageOriginal?: string,
-        time?: string,
-        year?: string,
+        date?: string,
         location?: string,
         museum?: string,
         dimension?: string,
@@ -50,19 +59,21 @@ export class ArtWork {
         this.inventoryNumber = data?.inventoryNumber;
         this.artist = data?.artist;
         this.title = data?.title;
+        this.artworkType=data?.artworkType;
+        this.description = data?.description;
         this.shortDesc = data?.shortDesc;
         this.isHighlight = data?.isHighlight ?? false;
+        this.artMovement = data?.artMovement;
+        this.placeOfOrigin = data?.placeOfOrigin;
         this.genre = data?.genre;
         this.subject = data?.subject;
         this.depicts = data?.depicts;
-        this.imageDetailUrl = data?.imageDetailUrl;
-        this.imageUrl = data?.imageUrl;
-        this.imageThumbnail = data?.imageThumbnail;
-        this.imageLarge = data?.imageLarge;
-        this.imageOriginal = data?.imageOriginal;
-        this.time = data?.time ?? '';
-        this.year = data?.year;
-        this.location = data?.location;
+        this.image_wikimedia_url = data?.imageDetailUrl;
+        this.primaryImageSmall = data?.imageSmall;
+        this.primaryImageLarge = data?.imageLarge;
+        this.primaryImageOriginal = data?.imageOriginal;
+        this.artworkDate = data?.date;
+        this.museumLocation = data?.location;
         this.museum = data?.museum;
         this.dimension = data?.dimension;
         this.catNo = data?.catNo;
