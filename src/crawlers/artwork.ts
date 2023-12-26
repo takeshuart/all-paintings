@@ -16,7 +16,7 @@ export class ArtWork {
     genre: string | undefined;//门类，风景画、静物画等。
     subject: string | undefined;//绘画核心主题，特定任务、事件、爱情、战争等
     depicts: string | undefined;//描绘内容，水果,女人，孩子等
-    placeOfOrigin: string | undefined;//
+    placeOfOrigin: string | undefined;//产地/创作地
     artwork_wikipedia_url: string | undefined;
     artwork_museum_url: string | undefined;
     image_wikimedia_url: string | undefined;
@@ -27,7 +27,7 @@ export class ArtWork {
     primaryImageOriginal: string | undefined;
     artworkDate: string | undefined;
     museumLocation: string | undefined;
-    museum: string | undefined;
+    museum: string | undefined;//应该改为collection,收藏机构，是博物馆、画廊、私人收藏的总称
     dimension: string | undefined;
     catNo: string | undefined;
     color: string | undefined;
@@ -52,7 +52,7 @@ export class ArtWork {
         imageOriginal?: string,
         date?: string,
         location?: string,
-        museum?: string,
+        museum?: string, 
         dimension?: string,
         catNo?: string
     }) {

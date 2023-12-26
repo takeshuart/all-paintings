@@ -64,7 +64,7 @@ export default function ArtTable() {
           params: {
             page: paginationModel.page + 1, // API 可能期望的页码从1开始
             pageSize: paginationModel.pageSize,
-            artMovements:selectedItems,
+            artMovements: selectedItems,
           }
         });
         setArtWorks(response.data.data);
@@ -104,7 +104,7 @@ export default function ArtTable() {
       </Drawer>
       {/*减去侧边栏的宽度 */}
       <Box sx={{ flexGrow: 1, width: `calc(100% - ${drawerWidth}px)` }}>
-        <Container maxWidth={false}> 
+        <Container maxWidth={false}>
           {/* <Toolbar />  */}
           <Typography variant="h6" marginBottom={2}>ArtWorks Database</Typography>
 
@@ -121,7 +121,7 @@ export default function ArtTable() {
               MenuProps={{
                 PaperProps: {
                   style: {
-                    maxHeight: 300, 
+                    maxHeight: 300,
                   }
                 }
               }}
