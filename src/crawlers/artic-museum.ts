@@ -13,7 +13,7 @@ import axios, { AxiosError } from 'axios';
 
 const articApi = `https://api.artic.edu/api/v1/artworks`
 //all artwork ids of paintings 
-const fileHomePath = path.join(__dirname, '../../data/');
+export const fileHomePath = path.join(__dirname, '../../data/');
 const topFile = path.join(fileHomePath, 'artic-top300-ids.txt');
 const top300File = path.join(fileHomePath, 'artic-top300-details.txt');
 const articAllIdOfPaintingsFile = path.join(fileHomePath, 'artic-all-ids-of-paintings.txt');
