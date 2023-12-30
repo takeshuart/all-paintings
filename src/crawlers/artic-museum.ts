@@ -94,7 +94,7 @@ async function fetchAllIdsOfPaintings() {
   await fetchAllPages(totalPages, limit);
 }
 
-fetchAllIdsOfPaintings()
+// fetchAllIdsOfPaintings()
 
 
 async function fetchArtwork(id: string): Promise<ArtWork> {
@@ -156,7 +156,7 @@ async function processArtworkIds(file: string): Promise<void> {
   }
 }
 
-processArtworkIds(topFile);
+// processArtworkIds(topFile);
 
 function processArticData() {
   const articworks = fs.readFileSync(top300File, 'utf-8').split('\n')

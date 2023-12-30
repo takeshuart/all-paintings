@@ -12,7 +12,7 @@ export class ArtWork {
     shortDesc: string | undefined;//简短描述
     isHighlight: boolean | undefined;
     artMovement: string | undefined;//流派
-    artworkType: string | undefined;
+    artworkType: string | undefined;//painting/drawing/print etc..
     genre: string | undefined;//门类，风景画、静物画等。
     subject: string | undefined;//绘画核心主题，特定任务、事件、爱情、战争等
     depicts: string | undefined;//描绘内容，水果,女人，孩子等

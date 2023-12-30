@@ -19,6 +19,7 @@ const columns: GridColDef[] = [
   { field: 'artist', headerName: 'Artist', width: 200, editable: true },
   { field: 'art_movement', headerName: 'Movement', width: 200 },
   { field: 'artwork_date', headerName: 'Date', width: 150 },
+  { field: 'artwork_type', headerName: 'Type', width: 150 },
   { field: 'museum', headerName: 'Museum', width: 200 },
   { field: 'dimension', headerName: 'Dimension', width: 150 },
   { field: 'museum_location', headerName: 'Location', width: 150 },
@@ -136,7 +137,7 @@ export default function ArtTable() {
           </FormControl>
 
           <TextField fullWidth label="Search" sx={{ mb: 2 }} />
-          <Paper sx={{ height: 750, mb: 3 }}>
+          <Paper sx={{ height: 850, mb: 3 }}>
             <DataGrid rowHeight={100}
               rows={artworks}
               columns={columns}

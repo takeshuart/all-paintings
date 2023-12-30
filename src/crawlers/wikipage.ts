@@ -128,3 +128,4 @@ export function insertDB(artWork: ArtWork) {
         console.log('Inserted', newDoc);
     });
 }
+

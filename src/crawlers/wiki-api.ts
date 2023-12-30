@@ -6,7 +6,8 @@ import path from 'path';
 import fs from 'fs';
 
 
-//Wikimedia API doc:https://www.mediawiki.org/wiki/API:Properties
+//Wikimedia API doc:https://www.mediawiki.org/wiki/API:Properties/
+//https://commons.wikimedia.org/w/api.php
 //获取wikimedia Category的数据
 interface WikiApiResponse {
     continue?: {
@@ -81,7 +82,8 @@ async function fetchCategory(category: string, continueFrom?: string): Promise<v
     }
 
     try {
-        const allArtworkOfAnC = path.join(fileHomePath, 'google_anc_arworks.txt')
+        const fileName = `wiki/${category.replace(':', '-')}.jsonl`
+        const allArtworkOfAnC = path.join(fileHomePath, fileName)
         const response: AxiosResponse<WikiApiResponse> = await axiosAgented.get(endpoint, { params });
         const pages = response.data.query.categorymembers;
         const continueToken = response.data.continue?.cmcontinue;
@@ -92,10 +94,14 @@ async function fetchCategory(category: string, continueFrom?: string): Promise<v
         // }
 
         const artworks = pages.map((item: any) => {
-            return `${item.pageid}\t${item.title}`;
+            const aw = {
+                pageid: item.pageid,
+                title: item.title
+            }
+            return JSON.stringify(aw);
         });
-        const allStrings=artworks.join('\n')
-        fs.appendFileSync(allArtworkOfAnC, allStrings)
+        const allStrings = artworks.join('\n')
+
 
         if (continueToken) {
             await fetchCategory(category, continueToken);
@@ -130,6 +136,83 @@ async function fetchArtWorkDetails(url: string) {
 
 //wikimedia收录的Google art所有文件，包括painting\drawing\print
 //https://commons.wikimedia.org/wiki/Category:Files_from_Google_Arts_%26_Culture
-fetchCategory('Category:Files from Google Arts & Culture');
+// fetchCategory('Category:Featured_pictures_on_Wikimedia_Commons');
+
+
+async function parseWikimediaSummary() {
+    try {
+        // 使用Axios获取维基媒体文件详情页的HTML内容
+        const response = await axiosAgented.get('https://commons.wikimedia.org/wiki/File:Alfred_Sisley_-_Moret-_The_Banks_of_the_River_Loing,_1877_-_Google_Art_Project.jpg');
+
+        // 使用Cheerio库解析HTML内容
+        const $ = cheerio.load(response.data);
+
+        // 在此处查找和提取所有有效信息
+        const info: any = {};
+
+        // 查找所有表格行
+        $('table.fileinfotpl-type-artwork tbody tr:not([valign="top"])').each((index, row) => {
+            const $row = $(row);
+            const field = $row.find('td:eq(0)').text().trim();
+            const $value = $row.find('td:eq(1)');
+
+            const $subTable = $value.find('.vcard table');
+            if ($subTable.length > 0) {
+                info[field] = resolveWikiVCard($, $subTable);
+            } else {
+                const iTag = $value.find('i');
+                if (iTag.length > 0) {
+                    info[field] = iTag.text().trim()
+                } else {
+                    info[field] = $value.text()
+                }
+            }
+        });
+
+        console.log('Parsed Information:');
+        console.log(JSON.stringify(info));
+
+    } catch (error) {
+        console.error('Error parsing Wikimedia summary:', error);
+    }
+}
+
+//vcard是wikimedia页面中默认折叠起来的信息卡，通常出现在Artist和Collection中。
+function resolveWikiVCard($: cheerio.Root, $vcard: cheerio.Cheerio): any {
+    const vcardInfo: any = {}
+
+    $vcard.find('tr').each((i, tr) => {
+        const $tr = $(tr);
+        const $creator = $tr.find('#creator');
+        if ($creator.length > 0) {
+            vcardInfo['wikipedia_url'] = $creator.find('bdi a').attr('href');
+            vcardInfo['title'] = $creator.find('span').attr('title')?.trim();
+            vcardInfo['name'] = $creator.find('span').text().trim();
+        }
+        const $photo = $tr.find('.photo')
+        if ($photo.length > 0) {
+            const photoUrl = $photo.find('img').attr('src')
+            vcardInfo['creatorPhotoUrl'] = photoUrl;
+        }
+
+        const th = $tr.find('th');
+        if (th.attr('scope')) {
+            const field = th.text()
+
+            const tdArray: any = []
+            $tr.find('td').each((index, td) => {
+                const tdText = $(td).find('div:not([style*="display: none;"])').text().trim();
+                tdArray.push(tdText);
+            });
+            vcardInfo[field] = tdArray
+        }
+
+    })
+    return vcardInfo
+
+}
+// 调用解析函数
+parseWikimediaSummary();
+
 
 
