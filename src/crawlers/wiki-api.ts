@@ -9,6 +9,12 @@ import fs from 'fs';
 //Wikimedia API doc:https://www.mediawiki.org/wiki/API:Properties/
 //https://commons.wikimedia.org/w/api.php
 //获取wikimedia Category的数据
+
+// 调用解析函数
+parseWikimediaSummary();
+function crawlerWikiCategory(){
+    
+}
 interface WikiApiResponse {
     continue?: {
         cmcontinue: string;
@@ -111,6 +117,7 @@ async function fetchCategory(category: string, continueFrom?: string): Promise<v
     }
 }
 
+
 //通过pageid访问：https://commons.wikimedia.org/w/index.php?curid=22491371
 async function fetchArtWorkDetails(url: string) {
     try {
@@ -142,7 +149,7 @@ async function fetchArtWorkDetails(url: string) {
 async function parseWikimediaSummary() {
     try {
         // 使用Axios获取维基媒体文件详情页的HTML内容
-        const response = await axiosAgented.get('https://commons.wikimedia.org/wiki/File:Alfred_Sisley_-_Moret-_The_Banks_of_the_River_Loing,_1877_-_Google_Art_Project.jpg');
+        const response = await axiosAgented.get('https://commons.wikimedia.org/wiki/File:A_Castro,_Lorenzo_-_A_Sea_Fight_with_Barbary_Corsairs_-_Google_Art_Project.jpg');
 
         // 使用Cheerio库解析HTML内容
         const $ = cheerio.load(response.data);
@@ -150,21 +157,19 @@ async function parseWikimediaSummary() {
         // 在此处查找和提取所有有效信息
         const info: any = {};
 
-        // 查找所有表格行
-        $('table.fileinfotpl-type-artwork tbody tr:not([valign="top"])').each((index, row) => {
+        //仅查找直接tr元素，不包括嵌套table
+        $('table.fileinfotpl-type-artwork > tbody > tr:not([valign="top"])').each((index, row) => {
             const $row = $(row);
             const field = $row.find('td:eq(0)').text().trim();
             const $value = $row.find('td:eq(1)');
 
-            const $subTable = $value.find('.vcard table');
+            //可能包含多个vcard
+            const $subTable = $value.find('.vcard:eq(0) table');
             if ($subTable.length > 0) {
                 info[field] = resolveWikiVCard($, $subTable);
             } else {
-                const iTag = $value.find('i');
-                if (iTag.length > 0) {
-                    info[field] = iTag.text().trim()
-                } else {
-                    info[field] = $value.text()
+                if (!$value.find('div[style="display: none;"]').length) {
+                    info[field] = $value.text().trim()
                 }
             }
         });
@@ -184,35 +189,38 @@ function resolveWikiVCard($: cheerio.Root, $vcard: cheerio.Cheerio): any {
     $vcard.find('tr').each((i, tr) => {
         const $tr = $(tr);
         const $creator = $tr.find('#creator');
+        const $photo = $tr.find('.photo')
+        //有的表格使用td作标题列，','= or
+        const head = $tr.find('th, td:first-child')
+
         if ($creator.length > 0) {
             vcardInfo['wikipedia_url'] = $creator.find('bdi a').attr('href');
             vcardInfo['title'] = $creator.find('span').attr('title')?.trim();
             vcardInfo['name'] = $creator.find('span').text().trim();
-        }
-        const $photo = $tr.find('.photo')
-        if ($photo.length > 0) {
+
+        } else if ($photo.length > 0) {
             const photoUrl = $photo.find('img').attr('src')
-            vcardInfo['creatorPhotoUrl'] = photoUrl;
-        }
+            vcardInfo['photo_url'] = photoUrl;
 
-        const th = $tr.find('th');
-        if (th.attr('scope')) {
-            const field = th.text()
-
+        } else if (head) {
+            const field = head.text()
+            const tds=head.nextAll('td')
             const tdArray: any = []
-            $tr.find('td').each((index, td) => {
-                const tdText = $(td).find('div:not([style*="display: none;"])').text().trim();
+
+            tds.each((index, td) => {
+                //there may not be a div tag
+                const tdText = $(td).find('div:not([style*="display: none;"])').text().trim() || $(td).text().trim();
                 tdArray.push(tdText);
             });
-            vcardInfo[field] = tdArray
+            
+            vcardInfo[field] = tdArray.length === 1 ? tdArray[0] : tdArray;
+            
         }
 
     })
     return vcardInfo
 
 }
-// 调用解析函数
-parseWikimediaSummary();
 
 
 
