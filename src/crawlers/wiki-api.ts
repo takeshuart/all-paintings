@@ -4,17 +4,52 @@ import cheerio from 'cheerio';
 import { fileHomePath } from './artic-museum';
 import path from 'path';
 import fs from 'fs';
+import { JSONSchemaObject } from 'openai/lib/jsonschema';
+import { each } from 'jquery';
 
 
 //Wikimedia API doc:https://www.mediawiki.org/wiki/API:Properties/
 //https://commons.wikimedia.org/w/api.php
 //获取wikimedia Category的数据
+async function crawlerWikimediaFileInfoFromPageIDs() {
+    const wikiPageUrl = 'https://commons.wikimedia.org/w/index.php?curid='
+    const file = path.join(fileHomePath, 'wiki/Category-Files_from_Google_Arts_-_Culture.jsonl')
+    const saveFile = path.join(fileHomePath, 'wiki/AllData_Category-Files_from_Google_Arts_-_Culture.jsonl')
+    const wikiPages = fs.readFileSync(file, 'utf-8').split('\n')
 
-// 调用解析函数
-parseWikimediaSummary();
-function crawlerWikiCategory(){
-    
+    const artworks: any = []
+    for (let index = 0; index < wikiPages.length; index++) {
+        const page = wikiPages[index];
+        console.log(page)
+        const pageid = JSON.parse(page)['pageid']
+        const response = await axiosAgented.get(wikiPageUrl + pageid);
+        const info = scrapeMWFilePage(response);
+        artworks.push(info)
+        new Promise(resolve => setTimeout(resolve, 1))
+        if (index == 20) {
+
+            const allFields = artworks.reduce((fields: Set<String>, obj: JSONSchemaObject) => {
+                for (const key in obj) {
+                    if (obj.hasOwnProperty(key)) {
+                        fields.add(key);
+                    }
+                }
+                return fields;
+            }, new Set<String>());
+
+            // 转换为数组
+            const uniqueFields = Array.from(allFields);
+            console.log(uniqueFields)
+            break;
+        }
+    }
+
+    const json = JSON.stringify(artworks, null, 2)
+    // fs.appendFileSync(saveFile,json)
 }
+
+// fetchCategoryListToFile('Category:Files from Google Arts & Culture')
+
 interface WikiApiResponse {
     continue?: {
         cmcontinue: string;
@@ -71,24 +106,26 @@ async function fetchImageInfo(pageid: number): Promise<void> {
     }
 }
 
-//https://commons.wikimedia.org/wiki/Category:Google_Art_Project_paintings
-async function fetchCategory(category: string, continueFrom?: string): Promise<void> {
+//Api doc: https://www.mediawiki.org/wiki/API:Categorymembers
+//通过continueToken自动获取下一页，default pagesize is 200
+//保存category列表中的pageid到文件
+async function fetchCategoryListToFile(category: string, continueFrom?: string): Promise<void> {
     const endpoint = 'https://commons.wikimedia.org/w/api.php';
     let params: any = {
         action: 'query',
         list: 'categorymembers',
-        cmtitle: category,
+        cmtitle: category, //Must include the Category: prefix. For example 'Category:Physics'
         cmlimit: 'max',
         format: 'json',
         formatversion: 2
     };
 
-    if (continueFrom) {
+    if (continueFrom) { //pagination
         params.cmcontinue = continueFrom;
     }
 
     try {
-        const fileName = `wiki/${category.replace(':', '-')}.jsonl`
+        const fileName = `wiki/${category.replace(/[:&]/g, '-').replace(/\s+/g, '_')}.jsonl`
         const allArtworkOfAnC = path.join(fileHomePath, fileName)
         const response: AxiosResponse<WikiApiResponse> = await axiosAgented.get(endpoint, { params });
         const pages = response.data.query.categorymembers;
@@ -107,10 +144,10 @@ async function fetchCategory(category: string, continueFrom?: string): Promise<v
             return JSON.stringify(aw);
         });
         const allStrings = artworks.join('\n')
-
+        fs.appendFileSync(allArtworkOfAnC, allStrings)
 
         if (continueToken) {
-            await fetchCategory(category, continueToken);
+            await fetchCategoryListToFile(category, continueToken);
         }
     } catch (error) {
         console.error('Error fetching category images:', error);
@@ -144,24 +181,46 @@ async function fetchArtWorkDetails(url: string) {
 //wikimedia收录的Google art所有文件，包括painting\drawing\print
 //https://commons.wikimedia.org/wiki/Category:Files_from_Google_Arts_%26_Culture
 // fetchCategory('Category:Featured_pictures_on_Wikimedia_Commons');
-
-
-async function parseWikimediaSummary() {
+//example: https://commons.wikimedia.org/w/index.php?curid=22001497
+export function scrapeMWFilePage(response: any) {
     try {
-        // 使用Axios获取维基媒体文件详情页的HTML内容
-        const response = await axiosAgented.get('https://commons.wikimedia.org/wiki/File:A_Castro,_Lorenzo_-_A_Sea_Fight_with_Barbary_Corsairs_-_Google_Art_Project.jpg');
-
-        // 使用Cheerio库解析HTML内容
         const $ = cheerio.load(response.data);
 
-        // 在此处查找和提取所有有效信息
         const info: any = {};
 
+        //resolve resolution of image
+        const file_info = {
+            preview_url: $('.mw-filepage-resolutioninfo a:first').attr('href'),
+            preview_resolution: $('.mw-filepage-resolutioninfo a:first').text().trim(),
+            original_url: $('.fullMedia a:first').attr('href'),
+            original_info: $('.fullMedia .fileInfo').text().trim()
+        };
+        info['fileInfo'] = file_info;
+
+
+
         //仅查找直接tr元素，不包括嵌套table
-        $('table.fileinfotpl-type-artwork > tbody > tr:not([valign="top"])').each((index, row) => {
+        $('table.fileinfotpl-type-artwork > tbody > tr').each((index, row) => {
             const $row = $(row);
-            const field = $row.find('td:eq(0)').text().trim();
+            const th = $row.find('th')
+            if (index == 0 && th.length > 0) {
+                th.find('#artwork a').each((i, a) => {
+                    const aTag = $(a)
+                    const href = aTag.attr('href');
+                    const title = aTag.attr('title');
+                })
+
+                th.find('span[typeof^="mw:File"]').each((i, s) => {
+                    const title = $(s).attr('title')
+                    if (title?.startsWith('wikidata')) {//wikidata
+                        const href = $(s).attr('href')
+                    }
+                })
+            }
+
+            let field = $row.find('td:eq(0)').text().trim();
             const $value = $row.find('td:eq(1)');
+            field = toCamelCase(field)
 
             //可能包含多个vcard
             const $subTable = $value.find('.vcard:eq(0) table');
@@ -174,9 +233,15 @@ async function parseWikimediaSummary() {
             }
         });
 
-        console.log('Parsed Information:');
-        console.log(JSON.stringify(info));
+        //mediawiki分类信息
+        const categories: any = []
+        $('.mw-normal-catlinks li').each((index, element) => {
+            const liText = $(element).text().trim();
+            categories.push(liText);
+        });
+        info['categories'] = categories
 
+        return info
     } catch (error) {
         console.error('Error parsing Wikimedia summary:', error);
     }
@@ -204,7 +269,7 @@ function resolveWikiVCard($: cheerio.Root, $vcard: cheerio.Cheerio): any {
 
         } else if (head) {
             const field = head.text()
-            const tds=head.nextAll('td')
+            const tds = head.nextAll('td')
             const tdArray: any = []
 
             tds.each((index, td) => {
@@ -212,9 +277,9 @@ function resolveWikiVCard($: cheerio.Root, $vcard: cheerio.Cheerio): any {
                 const tdText = $(td).find('div:not([style*="display: none;"])').text().trim() || $(td).text().trim();
                 tdArray.push(tdText);
             });
-            
+
             vcardInfo[field] = tdArray.length === 1 ? tdArray[0] : tdArray;
-            
+
         }
 
     })
@@ -222,5 +287,44 @@ function resolveWikiVCard($: cheerio.Root, $vcard: cheerio.Cheerio): any {
 
 }
 
+// Place of creation => PlaceOfCreation
+function toCamelCase(input: string) {
+    return input.replace(/(?:^\w|[A-Z]|\b\w)/g, (word, index) => {
+        return index === 0 ? word.toLowerCase() : word.toUpperCase();
+    }).replace(/\s+/g, '');
+}
 
-
+//mediawiki mw
+class MediaWikiFile {
+    constructor(
+        public fileInfo?: string,
+        public artist?: string,
+        public description?: string,
+        public date?: string,
+        public collection?: string,
+        public accessionNumber?: string,
+        public references?: string,
+        public sourcePhotographer?: string,
+        public objectType?: string,
+        public medium?: string,
+        public currentLocation?: string,
+        public notes?: string,
+        public otherVersions?: string,
+        public partOf?: string,
+        public genre?: string,
+        public depictedPeople?: string,
+        public language?: string,
+        public dimensions?: string,
+        public objectLocation?: string,
+        public placeOfCreation?: string,
+        public placeOfDiscovery?: string,
+        public objectHistory?: string,
+        public inscriptions?: string,
+        public author?: string,
+        public authorityFile?: string,
+        public permissionReusingThisFile?: string,
+        public title?: string,
+        public exhibitionHistory?: string,
+        public creditLine?: string
+    ) { }
+}
