@@ -4,6 +4,7 @@ import { wikiPageList } from "./wikitable-config";
 
 //wikipage, museum, open api
 
-downloadWikiTable(wikiPageList.TheMostFamousPaintings)
+
+downloadWikiTable(wikiPageList.VanGoghNewList)
 
 

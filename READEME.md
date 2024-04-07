@@ -1,13 +1,19 @@
 ## 运行项目
 1. 根目录下执行命令'tsc',把.ts文件编译成.js文件
 2. 运行在dist目录下生成的.js文件
-3. dist目录默认与.ts文件在同一文件夹下，可以配置ts.config.json文件中的outDir参数
+3. dist目录默认与.ts文件在同一文件夹下，可以配置tsconfig.json文件中的outDir参数
 4. .vscode/launch.json  program配置项
 5. art-admint> npm start # start react project 
    - 先编译tsc 
    - artwork> node .\dist\app.js ## start node project
-#
-目录结构
+
+## 运行artwork-database项目
+- 环境配置 
+  该项目为node.js+typescript项目，通过vscode直接运行.ts文件需要配置`launch.json`文件
+1. `run->start debugging`， 运行的文件配置在`tsconfig.json#outDir`
+
+
+# 目录结构
 crawler-project/
 │
 ├── node_modules/          # 包含所有 npm 依赖项

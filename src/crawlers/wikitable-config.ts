@@ -20,6 +20,7 @@ export const TheMostFamousPaintingsConfig: ArtWorkProperties = {
     museum: 6,
     inventoryNumber: 7,
 }
+
 const BaseWikidataAllPaintingsPageConfig: ArtWorkProperties = {
     artist: 3,
     title: 1,
@@ -36,6 +37,17 @@ const BaseWikidataAllPaintingsPageConfig: ArtWorkProperties = {
     dimension: '',
 }
 
+//The New Complete Van Gogh
+export const VanGoghNewListConfig: ArtWorkProperties = {
+    artist: "Vincent van Gogh",
+    title: 1,
+    isHighlight: true,
+    image_wikimedia_url: (e: any[]) => e[0].href,
+    primaryImageSmall: (e: any[]) => e[0].src,
+    artworkDate: 5,
+    museum: 6,
+    inventoryNumber: 7,
+}
 export class WikiPageWithTable {
     title: string;//html title
     config: ArtWorkProperties;
@@ -56,7 +68,9 @@ export const wikiPageList = {
     // nationGalleryUkMuseum: new WikiPageWithTable('', nationGalleryUkMuseumConfig,undefined, wikiDataDomain + '/Wikidata:WikiProject_sum_of_all_paintings/Collection/National_Gallery'),
     // GettyMuseum: new WikiPageWithTable('', GettyMuseumConfig,undefined, wikiDataDomain + '/Wikidata:WikiProject_sum_of_all_paintings/Collection/J._Paul_Getty_Museum'),
     // KunsthistorischesMuseum:new WikiPageWithTable('',BaseWikidataAllPaintingsPageConfig,kunsthistorischesMuseum,wikiDataDomain+'/Wikidata:WikiProject_sum_of_all_paintings/Collection/Kunsthistorisches_Museum')
-    TheMostFamousPaintings: new WikiPageWithTable('', TheMostFamousPaintingsConfig, null, wikiDataDomain + '/Wikidata:WikiProject_sum_of_all_paintings/Catalog/The_Most_Famous_Paintings_of_the_World')
+    // TheMostFamousPaintings: new WikiPageWithTable('', TheMostFamousPaintingsConfig, null, wikiDataDomain + '/Wikidata:WikiProject_sum_of_all_paintings/Catalog/The_Most_Famous_Paintings_of_the_World')
+    VanGoghNewList: new WikiPageWithTable('', TheMostFamousPaintingsConfig, null, wikiDataDomain + '/Wikidata:WikiProject_sum_of_all_paintings/Catalog/The_New_Complete_Van_Gogh')
+
 }
 
 

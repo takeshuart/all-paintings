@@ -36,7 +36,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 exports.__esModule = true;
-exports.insertDB = exports.saveArtWorksToJSON = exports.downloadWikiTable = exports.WikiPage = void 0;
+exports.insertDB = exports.saveJsonToFile = exports.saveArtWorksToJSON = exports.downloadWikiTable = exports.WikiPage = void 0;
 var cheerio = require("cheerio");
 var https_js_1 = require("../utils/https.js");
 var artwork_js_1 = require("./artwork.js");
@@ -155,6 +155,7 @@ function downloadWikiTable(wikipageConfig) {
 }
 exports.downloadWikiTable = downloadWikiTable;
 var db = new nedb_1["default"]({ filename: './nedb.db', autoload: true });
+var dataPath = path.join(__dirname, '../../data/');
 var filePath = path.join(__dirname, '../../data/data.json');
 function saveArtWorksToJSON(artworks) {
     var jsonData = JSON.stringify(artworks, null, 0);
@@ -167,6 +168,18 @@ function saveArtWorksToJSON(artworks) {
     });
 }
 exports.saveArtWorksToJSON = saveArtWorksToJSON;
+function saveJsonToFile(jsonString, subPath) {
+    // let jsonData = JSON.stringify(json, null, 0);
+    var p = path.join(dataPath, subPath);
+    fs.writeFile(p, jsonString, 'utf8', function (err) {
+        if (err) {
+            console.log("An error occured while writing JSON Object to File.");
+            return console.log(err);
+        }
+        console.log("JSON file has been saved.");
+    });
+}
+exports.saveJsonToFile = saveJsonToFile;
 function insertDB(artWork) {
     db.insert(artWork, function (err, newDoc) {
         if (err) {

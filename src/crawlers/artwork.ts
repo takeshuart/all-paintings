@@ -25,7 +25,7 @@ export class ArtWork {
     primaryImageMedium: string | undefined;
     primaryImageLarge: string | undefined;
     primaryImageOriginal: string | undefined;
-    artworkDate: string | undefined;
+    artworkDate: string | undefined; //inception 作品创作时间
     museumLocation: string | undefined;
     museum: string | undefined;//应该改为collection,收藏机构，是博物馆、画廊、私人收藏的总称
     dimension: string | undefined;

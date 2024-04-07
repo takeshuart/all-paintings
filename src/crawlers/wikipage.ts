@@ -5,6 +5,7 @@ import { WikiPageWithTable } from './wikitable-config.js';
 import Datastore from 'nedb';
 import * as fs from 'fs';
 import * as path from 'path';
+import { AnyARecord } from 'dns';
 
 export class WikiPage {
     private url?: string;
@@ -105,12 +106,25 @@ export async function downloadWikiTable(wikipageConfig:WikiPageWithTable) {
 
 
 const db = new Datastore({ filename: './nedb.db', autoload: true });
+const dataPath=path.join(__dirname, '../../data/')
 const filePath = path.join(__dirname, '../../data/data.json');
 
 
 export function saveArtWorksToJSON(artworks: ArtWork[]) {
     let jsonData = JSON.stringify(artworks, null, 0);
     fs.writeFile(filePath, jsonData, 'utf8', function (err) {
+        if (err) {
+            console.log("An error occured while writing JSON Object to File.");
+            return console.log(err);
+        }
+        console.log("JSON file has been saved.");
+    });
+}
+
+export function saveJsonToFile(jsonString:string,subPath:string) {
+    // let jsonData = JSON.stringify(json, null, 0);
+    const p=path.join(dataPath,subPath)
+    fs.writeFile(p, jsonString, 'utf8', function (err) {
         if (err) {
             console.log("An error occured while writing JSON Object to File.");
             return console.log(err);

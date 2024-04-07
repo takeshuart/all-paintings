@@ -1,6 +1,6 @@
 "use strict";
 exports.__esModule = true;
-exports.wikiPageList = exports.WikiPageWithTable = exports.TheMostFamousPaintingsConfig = exports.GettyMuseumConfig = void 0;
+exports.wikiPageList = exports.WikiPageWithTable = exports.VanGoghNewListConfig = exports.TheMostFamousPaintingsConfig = exports.GettyMuseumConfig = void 0;
 var artwork_1 = require("./artwork");
 exports.GettyMuseumConfig = {
     artist: 3,
@@ -37,6 +37,17 @@ var BaseWikidataAllPaintingsPageConfig = {
     museum: "Kunsthistorisches Museum",
     dimension: ''
 };
+//The New Complete Van Gogh
+exports.VanGoghNewListConfig = {
+    artist: "Vincent van Gogh",
+    title: 1,
+    isHighlight: true,
+    image_wikimedia_url: function (e) { return e[0].href; },
+    primaryImageSmall: function (e) { return e[0].src; },
+    artworkDate: 5,
+    museum: 6,
+    inventoryNumber: 7
+};
 var WikiPageWithTable = /** @class */ (function () {
     function WikiPageWithTable(name, config, museum, url) {
         this.title = name;
@@ -54,5 +65,6 @@ exports.wikiPageList = {
     // nationGalleryUkMuseum: new WikiPageWithTable('', nationGalleryUkMuseumConfig,undefined, wikiDataDomain + '/Wikidata:WikiProject_sum_of_all_paintings/Collection/National_Gallery'),
     // GettyMuseum: new WikiPageWithTable('', GettyMuseumConfig,undefined, wikiDataDomain + '/Wikidata:WikiProject_sum_of_all_paintings/Collection/J._Paul_Getty_Museum'),
     // KunsthistorischesMuseum:new WikiPageWithTable('',BaseWikidataAllPaintingsPageConfig,kunsthistorischesMuseum,wikiDataDomain+'/Wikidata:WikiProject_sum_of_all_paintings/Collection/Kunsthistorisches_Museum')
-    TheMostFamousPaintings: new WikiPageWithTable('', exports.TheMostFamousPaintingsConfig, null, wikiDataDomain + '/Wikidata:WikiProject_sum_of_all_paintings/Catalog/The_Most_Famous_Paintings_of_the_World')
+    // TheMostFamousPaintings: new WikiPageWithTable('', TheMostFamousPaintingsConfig, null, wikiDataDomain + '/Wikidata:WikiProject_sum_of_all_paintings/Catalog/The_Most_Famous_Paintings_of_the_World')
+    VanGoghNewList: new WikiPageWithTable('', exports.TheMostFamousPaintingsConfig, null, wikiDataDomain + '/Wikidata:WikiProject_sum_of_all_paintings/Catalog/The_New_Complete_Van_Gogh')
 };
