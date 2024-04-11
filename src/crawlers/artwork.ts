@@ -6,6 +6,7 @@
 //使用Partial<>要求类的属性都是可选的，即可以是undefined类型??
 export class ArtWork {
     inventoryNumber?: string | undefined;//艺术品所在博物馆的编号，全球唯一识别一幅艺术品
+    catlog?: string //编目录，例如梵高的JH目录
     artist: string | undefined;
     title: string | undefined;
     description: string | undefined
@@ -35,13 +36,14 @@ export class ArtWork {
 
     constructor(data?: {
         inventoryNumber?: string,
+        catlog?: string
         artist?: string,
         title?: string,
         description?: string,
         shortDesc?: string,
         isHighlight?: boolean,
         artMovement?: string,
-        artworkType?:string,
+        artworkType?: string,
         genre?: string,
         subject?: string,
         depicts?: string,
@@ -52,14 +54,15 @@ export class ArtWork {
         imageOriginal?: string,
         date?: string,
         location?: string,
-        museum?: string, 
+        museum?: string,
         dimension?: string,
         catNo?: string
     }) {
         this.inventoryNumber = data?.inventoryNumber;
+        this.catlog = data?.catlog
         this.artist = data?.artist;
         this.title = data?.title;
-        this.artworkType=data?.artworkType;
+        this.artworkType = data?.artworkType;
         this.description = data?.description;
         this.shortDesc = data?.shortDesc;
         this.isHighlight = data?.isHighlight ?? false;

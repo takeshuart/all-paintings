@@ -1,54 +1,108 @@
 import { AxiosResponse } from 'axios';
-import { axiosAgented } from '../utils/https';
+import { axiosAgented, downloadFile } from '../utils/https';
 import cheerio from 'cheerio';
 import { fileHomePath } from './artic-museum';
 import path from 'path';
 import fs from 'fs';
 import { JSONSchemaObject } from 'openai/lib/jsonschema';
 import { each } from 'jquery';
+import { dataBasePath } from './wikipage';
 
+//=====爬取wikimeida的数据=====
+//1. 根据wikimedia的api获取某Category下的所有Item 
+//2. 根据wikimedia PageId(从1中获取）抓取图片文件的详情信息
 
-//Wikimedia API doc:https://www.mediawiki.org/wiki/API:Properties/
-//https://commons.wikimedia.org/w/api.php
-//获取wikimedia Category的数据
-async function crawlerWikimediaFileInfoFromPageIDs() {
+runner()
+function runner() {
+    //fetchWikimediaCategory('Category:Google Art Project works by Vincent van Gogh')
+    downloadVanGoghImageFile()
+}
+
+async function fetchGoogleArtProjectFile() {
+    const file = 'wiki/Category-Google_Art_Project_works_by_Vincent_van_Gogh.jsonl';
+    const outputFile = path.join(fileHomePath, 'wiki/fulldata-Google_Art_Project_works_by_Vincent_van_Gogh.jsonl')
+    const artworks = await crawlerWikimediaFileInfoFromPageIDs(file)
+
+    for (let i = 0; i < artworks.length; i++) {
+        const at = artworks[i]
+        //提取Van Gogh作品的F和JH编码
+        if (at['artist']['name'] == 'Vincent van Gogh' && at["notes"]) {
+            const pattern = /(F|JH)\d+/g;
+            let matches = at.notes.match(pattern);
+            if (!matches) {
+                matches = at.references.match(pattern);
+            }
+            if (!matches) { break }
+
+            // 只取 matches 的前两个元素
+            const only2 = matches.slice(0, 2);
+
+            for (const m of only2) {
+                if (m.startsWith("F")) {
+                    at['f_number'] = m;
+                } else if (m.startsWith("JH")) {
+                    at['jh_number'] = m;
+                }
+            };
+        }
+
+    }
+    const json = JSON.stringify(artworks, null, 2)
+    fs.appendFileSync(outputFile, json)
+}
+
+//下载Van Gogh Google Art Project File
+async function downloadVanGoghImageFile() {
+
+    const file = path.join(dataBasePath, './wiki/fulldata-Google_Art_Project_works_by_Vincent_van_Gogh.jsonl')
+    const fulldata = fs.readFileSync(file, 'utf-8')
+    const jsonworks = JSON.parse(fulldata)
+
+    for (let index = 0; index < jsonworks.length; index++) {
+        const artwork = jsonworks[index]
+        const imageDir = 'D:\\Arts\\Van Gogh\\Google Art Project';
+        const fileUrl = artwork['fileInfo']['original_url']
+        const fileName = artwork['jh_number'] + '_' + artwork['f_number'] + '_' + artwork['file_name'];
+
+        try {
+            const fileSizeMatch = artwork['fileInfo']['original_info'].match(/file size: ([\d.]+) MB/);
+            const filePath = path.join(imageDir, fileName)
+
+            if (fileSizeMatch) {
+                const fileSize = parseFloat(fileSizeMatch[1]);
+                if (fileSize < 100) {
+                    await downloadFile(fileUrl, filePath)
+                    console.log('Image downloaded successfully:\t' + fileName);
+                } else {
+                    console.log(`Oversize file:\t${fileName};size:${fileSizeMatch}`);
+                }
+            }
+            console.log(`下载进度: ${index}/${jsonworks.length}; ${fileName}`)
+        } catch (err) {
+            console.log("download image failed:" + err)
+        }
+    }
+}
+
+async function crawlerWikimediaFileInfoFromPageIDs(pageIdsFile: string): Promise<any> {
     const wikiPageUrl = 'https://commons.wikimedia.org/w/index.php?curid='
-    const file = path.join(fileHomePath, 'wiki/Category-Files_from_Google_Arts_-_Culture.jsonl')
-    const saveFile = path.join(fileHomePath, 'wiki/AllData_Category-Files_from_Google_Arts_-_Culture.jsonl')
+    const file = path.join(fileHomePath, pageIdsFile)
     const wikiPages = fs.readFileSync(file, 'utf-8').split('\n')
 
     const artworks: any = []
     for (let index = 0; index < wikiPages.length; index++) {
-        const page = wikiPages[index];
-        console.log(page)
-        const pageid = JSON.parse(page)['pageid']
-        const response = await axiosAgented.get(wikiPageUrl + pageid);
-        const info = scrapeMWFilePage(response);
+
+        const page = JSON.parse(wikiPages[index]);
+        const info = await scrapeMeidaWikiFileInfo(wikiPageUrl + page.pageid);
+        info['file_name'] = page.title.split(':')[1]
         artworks.push(info)
-        new Promise(resolve => setTimeout(resolve, 1))
-        if (index == 20) {
+        new Promise(resolve => setTimeout(resolve, 10))
 
-            const allFields = artworks.reduce((fields: Set<String>, obj: JSONSchemaObject) => {
-                for (const key in obj) {
-                    if (obj.hasOwnProperty(key)) {
-                        fields.add(key);
-                    }
-                }
-                return fields;
-            }, new Set<String>());
-
-            // 转换为数组
-            const uniqueFields = Array.from(allFields);
-            console.log(uniqueFields)
-            break;
-        }
+        console.log(`网页抓取进度：${index}/${wikiPages.length}; ${JSON.stringify(page)}`)
     }
-
-    const json = JSON.stringify(artworks, null, 2)
-    // fs.appendFileSync(saveFile,json)
+    return artworks
 }
 
-// fetchCategoryListToFile('Category:Files from Google Arts & Culture')
 
 interface WikiApiResponse {
     continue?: {
@@ -106,10 +160,13 @@ async function fetchImageInfo(pageid: number): Promise<void> {
     }
 }
 
+//通过API获取wikimedia中Category的所有items
+//Category示例：https://commons.wikimedia.org/wiki/Category:Files_from_Google_Arts_%26_Culture
 //Api doc: https://www.mediawiki.org/wiki/API:Categorymembers
 //通过continueToken自动获取下一页，default pagesize is 200
 //保存category列表中的pageid到文件
-async function fetchCategoryListToFile(category: string, continueFrom?: string): Promise<void> {
+//@param category，比如包含'Category:'前缀
+async function fetchWikimediaCategory(category: string, continueFrom?: string): Promise<void> {
     const endpoint = 'https://commons.wikimedia.org/w/api.php';
     let params: any = {
         action: 'query',
@@ -147,14 +204,14 @@ async function fetchCategoryListToFile(category: string, continueFrom?: string):
         fs.appendFileSync(allArtworkOfAnC, allStrings)
 
         if (continueToken) {
-            await fetchCategoryListToFile(category, continueToken);
+            await fetchWikimediaCategory(category, continueToken);
         }
     } catch (error) {
         console.error('Error fetching category images:', error);
     }
 }
 
-
+//wikimedia 文件详情页
 //通过pageid访问：https://commons.wikimedia.org/w/index.php?curid=22491371
 async function fetchArtWorkDetails(url: string) {
     try {
@@ -178,12 +235,12 @@ async function fetchArtWorkDetails(url: string) {
     }
 }
 
-//wikimedia收录的Google art所有文件，包括painting\drawing\print
-//https://commons.wikimedia.org/wiki/Category:Files_from_Google_Arts_%26_Culture
-// fetchCategory('Category:Featured_pictures_on_Wikimedia_Commons');
-//example: https://commons.wikimedia.org/w/index.php?curid=22001497
-export function scrapeMWFilePage(response: any) {
+
+//抓取并解析wikimeda的文件页面
+//示例：https://commons.wikimedia.org/wiki/File:Vincent_van_Gogh_-_De_brug_van_Langlois_-_Google_Art_Project.jpg
+export async function scrapeMeidaWikiFileInfo(wikimediaFilePageUrl: string): Promise<any> {
     try {
+        const response = await axiosAgented.get(wikimediaFilePageUrl);
         const $ = cheerio.load(response.data);
 
         const info: any = {};
@@ -196,8 +253,7 @@ export function scrapeMWFilePage(response: any) {
             original_info: $('.fullMedia .fileInfo').text().trim()
         };
         info['fileInfo'] = file_info;
-
-
+        info['wikimedia_file_url'] = wikimediaFilePageUrl
 
         //仅查找直接tr元素，不包括嵌套table
         $('table.fileinfotpl-type-artwork > tbody > tr').each((index, row) => {
@@ -225,6 +281,7 @@ export function scrapeMWFilePage(response: any) {
             //可能包含多个vcard
             const $subTable = $value.find('.vcard:eq(0) table');
             if ($subTable.length > 0) {
+
                 info[field] = resolveWikiVCard($, $subTable);
             } else {
                 if (!$value.find('div[style="display: none;"]').length) {

@@ -9,6 +9,7 @@ var ArtWork = /** @class */ (function () {
     function ArtWork(data) {
         var _a;
         this.inventoryNumber = data === null || data === void 0 ? void 0 : data.inventoryNumber;
+        this.catlog = data === null || data === void 0 ? void 0 : data.catlog;
         this.artist = data === null || data === void 0 ? void 0 : data.artist;
         this.title = data === null || data === void 0 ? void 0 : data.title;
         this.artworkType = data === null || data === void 0 ? void 0 : data.artworkType;

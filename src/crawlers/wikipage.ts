@@ -7,6 +7,10 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { AnyARecord } from 'dns';
 
+const db = new Datastore({ filename: './nedb.db', autoload: true });
+export const dataBasePath=path.join(__dirname, '../../data/')
+const filePath = path.join(__dirname, '../../data/data.json');
+
 export class WikiPage {
     private url?: string;
     private $?: any;
@@ -18,7 +22,7 @@ export class WikiPage {
         wikiPage.$ = cheerio.load(html);
         return wikiPage;
     }
-
+    //解析wikitable
     tables(): any[] {
         try {
             const tables = this.$('.wikitable');
@@ -36,22 +40,7 @@ export class WikiPage {
                     tdList.each((colIndex: any, td: any) => {
                         const imgTag = this.$(td).find('img');
                         if (imgTag.length > 0) { //image box
-                            let imageBox: any = {}
-                            let imgSrc = imgTag.attr('src');
-                            if (imgSrc && imgSrc.startsWith('//')) {
-                                imgSrc = 'https:' + imgSrc;
-                            }
-                            imageBox["src"] = imgSrc
-
-                            if (imgTag.parent().is('a')) {
-                                const imageDetailUrl = imgTag.parent().attr('href');
-                                imageBox['href'] = imageDetailUrl
-                            }
-
-                            const figcaption = this.$(td).find('figcaption');
-                            if (figcaption.length > 0) {
-                                imageBox['title'] = figcaption.text();
-                            }
+                            let imageBox: any = this.extractImageInfo(imgTag, td);
                             rowData.push(imageBox);
 
                         } else { //pure text
@@ -76,6 +65,26 @@ export class WikiPage {
         }
     }
 
+
+    private extractImageInfo(imgTag: any, td: any) {
+        let imageBox: any = {};
+        let imgSrc = imgTag.attr('src');
+        if (imgSrc && imgSrc.startsWith('//')) {
+            imgSrc = 'https:' + imgSrc;
+        }
+        imageBox["src"] = imgSrc;
+
+        if (imgTag.parent().is('a')) {
+            const imageDetailUrl = imgTag.parent().attr('href');
+            imageBox['href'] = imageDetailUrl;
+        }
+
+        const figcaption = this.$(td).find('figcaption');
+        if (figcaption.length > 0) {
+            imageBox['title'] = figcaption.text();
+        }
+        return imageBox;
+    }
 }
 
 //下载wikitable
@@ -105,9 +114,6 @@ export async function downloadWikiTable(wikipageConfig:WikiPageWithTable) {
 
 
 
-const db = new Datastore({ filename: './nedb.db', autoload: true });
-const dataPath=path.join(__dirname, '../../data/')
-const filePath = path.join(__dirname, '../../data/data.json');
 
 
 export function saveArtWorksToJSON(artworks: ArtWork[]) {
@@ -123,7 +129,7 @@ export function saveArtWorksToJSON(artworks: ArtWork[]) {
 
 export function saveJsonToFile(jsonString:string,subPath:string) {
     // let jsonData = JSON.stringify(json, null, 0);
-    const p=path.join(dataPath,subPath)
+    const p=path.join(dataBasePath,subPath)
     fs.writeFile(p, jsonString, 'utf8', function (err) {
         if (err) {
             console.log("An error occured while writing JSON Object to File.");

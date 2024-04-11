@@ -36,13 +36,16 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 exports.__esModule = true;
-exports.insertDB = exports.saveJsonToFile = exports.saveArtWorksToJSON = exports.downloadWikiTable = exports.WikiPage = void 0;
+exports.insertDB = exports.saveJsonToFile = exports.saveArtWorksToJSON = exports.downloadWikiTable = exports.WikiPage = exports.dataBasePath = void 0;
 var cheerio = require("cheerio");
 var https_js_1 = require("../utils/https.js");
 var artwork_js_1 = require("./artwork.js");
 var nedb_1 = require("nedb");
 var fs = require("fs");
 var path = require("path");
+var db = new nedb_1["default"]({ filename: './nedb.db', autoload: true });
+exports.dataBasePath = path.join(__dirname, '../../data/');
+var filePath = path.join(__dirname, '../../data/data.json');
 var WikiPage = /** @class */ (function () {
     function WikiPage() {
     }
@@ -63,6 +66,7 @@ var WikiPage = /** @class */ (function () {
             });
         });
     };
+    //解析wikitable
     WikiPage.prototype.tables = function () {
         var _this = this;
         try {
@@ -80,20 +84,7 @@ var WikiPage = /** @class */ (function () {
                     tdList.each(function (colIndex, td) {
                         var imgTag = _this.$(td).find('img');
                         if (imgTag.length > 0) { //image box
-                            var imageBox = {};
-                            var imgSrc = imgTag.attr('src');
-                            if (imgSrc && imgSrc.startsWith('//')) {
-                                imgSrc = 'https:' + imgSrc;
-                            }
-                            imageBox["src"] = imgSrc;
-                            if (imgTag.parent().is('a')) {
-                                var imageDetailUrl = imgTag.parent().attr('href');
-                                imageBox['href'] = imageDetailUrl;
-                            }
-                            var figcaption = _this.$(td).find('figcaption');
-                            if (figcaption.length > 0) {
-                                imageBox['title'] = figcaption.text();
-                            }
+                            var imageBox = _this.extractImageInfo(imgTag, td);
                             rowData.push(imageBox);
                         }
                         else { //pure text
@@ -114,6 +105,23 @@ var WikiPage = /** @class */ (function () {
             console.error('Failed to parse wikitable:', error);
             return [];
         }
+    };
+    WikiPage.prototype.extractImageInfo = function (imgTag, td) {
+        var imageBox = {};
+        var imgSrc = imgTag.attr('src');
+        if (imgSrc && imgSrc.startsWith('//')) {
+            imgSrc = 'https:' + imgSrc;
+        }
+        imageBox["src"] = imgSrc;
+        if (imgTag.parent().is('a')) {
+            var imageDetailUrl = imgTag.parent().attr('href');
+            imageBox['href'] = imageDetailUrl;
+        }
+        var figcaption = this.$(td).find('figcaption');
+        if (figcaption.length > 0) {
+            imageBox['title'] = figcaption.text();
+        }
+        return imageBox;
     };
     return WikiPage;
 }());
@@ -154,9 +162,6 @@ function downloadWikiTable(wikipageConfig) {
     });
 }
 exports.downloadWikiTable = downloadWikiTable;
-var db = new nedb_1["default"]({ filename: './nedb.db', autoload: true });
-var dataPath = path.join(__dirname, '../../data/');
-var filePath = path.join(__dirname, '../../data/data.json');
 function saveArtWorksToJSON(artworks) {
     var jsonData = JSON.stringify(artworks, null, 0);
     fs.writeFile(filePath, jsonData, 'utf8', function (err) {
@@ -170,7 +175,7 @@ function saveArtWorksToJSON(artworks) {
 exports.saveArtWorksToJSON = saveArtWorksToJSON;
 function saveJsonToFile(jsonString, subPath) {
     // let jsonData = JSON.stringify(json, null, 0);
-    var p = path.join(dataPath, subPath);
+    var p = path.join(exports.dataBasePath, subPath);
     fs.writeFile(p, jsonString, 'utf8', function (err) {
         if (err) {
             console.log("An error occured while writing JSON Object to File.");

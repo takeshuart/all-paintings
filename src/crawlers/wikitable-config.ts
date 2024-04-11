@@ -42,9 +42,11 @@ export const VanGoghNewListConfig: ArtWorkProperties = {
     artist: "Vincent van Gogh",
     title: 1,
     isHighlight: true,
+    catlog:3,
     image_wikimedia_url: (e: any[]) => e[0].href,
     primaryImageSmall: (e: any[]) => e[0].src,
     artworkDate: 5,
+    
     museum: 6,
     inventoryNumber: 7,
 }
@@ -69,7 +71,7 @@ export const wikiPageList = {
     // GettyMuseum: new WikiPageWithTable('', GettyMuseumConfig,undefined, wikiDataDomain + '/Wikidata:WikiProject_sum_of_all_paintings/Collection/J._Paul_Getty_Museum'),
     // KunsthistorischesMuseum:new WikiPageWithTable('',BaseWikidataAllPaintingsPageConfig,kunsthistorischesMuseum,wikiDataDomain+'/Wikidata:WikiProject_sum_of_all_paintings/Collection/Kunsthistorisches_Museum')
     // TheMostFamousPaintings: new WikiPageWithTable('', TheMostFamousPaintingsConfig, null, wikiDataDomain + '/Wikidata:WikiProject_sum_of_all_paintings/Catalog/The_Most_Famous_Paintings_of_the_World')
-    VanGoghNewList: new WikiPageWithTable('', TheMostFamousPaintingsConfig, null, wikiDataDomain + '/Wikidata:WikiProject_sum_of_all_paintings/Catalog/The_New_Complete_Van_Gogh')
+    VanGoghNewList: new WikiPageWithTable('', VanGoghNewListConfig, null, wikiDataDomain + '/Wikidata:WikiProject_sum_of_all_paintings/Catalog/The_New_Complete_Van_Gogh')
 
 }
 
