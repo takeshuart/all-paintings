@@ -6,68 +6,62 @@ import { promisify } from 'util';
 import sizeOf from 'image-size';
 import { downloadFile } from '../utils/https';
 import { json } from 'stream/consumers';
+import { exec } from 'child_process';
+import fsExtra from 'fs-extra';
+import { exec as execCallback } from 'child_process';
+import winattr from 'winattr';
 
-mapJhnumberToFnumber()
+const vgallDir = 'D:\\Arts\\Van Gogh\\all-collections';
+
+// modifyFileTag()
+
+// //修改windows文件的tag
+// async function modifyFileTag() {
+//     const p = path.join(dataBasePath, './van gogh/van_gogh_catlog_watercolor.json')
+//     const catlogs = readJsonFile(p)
+//     const jhNumbers=new Set<string>()
+//     for(const catlog of catlogs){
+//         jhNumbers.add(catlog.jh_number)
+//     }
+//     const attrs: Partial<winattr.Attrs> = {
+//         tags: ['']
+//     };
+//     winattr.set("",,(err)=>{})
+
+//     fs.readdirSync(vgallDir).forEach((value,index)=>{
+//         const file=String(value)
+//         if(file.startsWith('JH')){
+//             const catNo = file.substring(0,file.indexOf('_', file.indexOf('_') + 1));
+//             const jhNumber= catNo.split('_')[0]
+//             if(jhNumbers.has(jhNumber)){
+
+//                 console.log(catNo)
+//             }
+//     }
+//     })
+// }
+
 
 //文件查重
 function mapJhnumberToFnumber() {
 
-    const folderPath = 'D:\\Arts\\Van Gogh\\wiki-The New Complete Van Gogh';
     const vgall = 'D:\\Arts\\Van Gogh\\A梵高油画全集';
-
-    const vgCatlogFile = path.join(dataBasePath, 'van_gogh_catlog');
-    const newvgCatlogFile = path.join(dataBasePath, 'van_gogh_catlog.json');
-    const catnoList = fs.readFileSync(vgCatlogFile, 'utf-8').split('\n')
-    const catnoMap = new Map<string, string>
-    catnoList.forEach((catno, index) => {
-        const arr = catno.trim().split('_')
-        if (arr.length == 2) {
-            const jhNumber = arr[0]
-            const fNumber = arr[1]
-            catnoMap.set(jhNumber, fNumber)
-        }
-    })
+    const catlogs = readVanGoghCatlogs();
 
     fs.readdirSync(vgall).forEach((file, index) => {
-        if (file.startsWith('JH')) {
-            const jhNumber = file.split('_')[0]
-            const fNumber = file.split('_')[1]
-            const fNo = catnoMap.get(jhNumber)
-            if (!fNo) {
-                catnoMap.set(jhNumber, fNumber)
-                console.log(`补充：${jhNumber}`)
-            }
+        if (!file.includes('F000')) {
+            return;
+        }
+        const jhNumber = file.split('_')[0]
+        const fNumber = catlogs.get(jhNumber)
+        if (fNumber) {
+            const newName = file.replace('F000', fNumber)
+            const oldPath = path.join(vgall, file)
+            const newPath = path.join(vgall, newName)
+            fs.renameSync(oldPath, newPath)
+            console.log(`重命名文件：${file} -> ${newName}`)
         }
     })
-
-    console.log(catnoMap.size)
-
-    // const obj = Object.fromEntries(catnoMap);
-    // const serialized = JSON.stringify(obj);
-
-    // fs.writeFile(newvgCatlogFile, serialized, 'utf8', function (err) {
-    //     if (err) {
-    //         console.log("An error occured while writing JSON Object to File.");
-    //         return console.log(err);
-    //     }
-    //     console.log("JSON file has been saved.");
-    // });
-
-    // fs.readdirSync(folderPath).forEach((file, index) => {
-    //     if (!file.includes('F000')) {
-    //         return;
-    //     }
-
-    //     const jhNumber = file.split('_')[0]
-    //     const fNumber = catnoMap.get(jhNumber)
-    //     if (fNumber) {
-    //         const newName = file.replace('F000', fNumber)
-    //         const oldPath = path.join(folderPath, file)
-    //         const newPath = path.join(folderPath, newName)
-    //         fs.renameSync(oldPath, newPath)
-    //         console.log(`重命名文件：${file} -> ${newName}`)
-    //     }
-    // })
 }
 
 function renameImageFile() {
@@ -239,4 +233,42 @@ function modifyWikiImageUrl(url: string) {
 function readJsonFile(path: string) {
     const jsons = fs.readFileSync(path, 'utf-8')
     return JSON.parse(jsons)
+}
+
+
+function readVanGoghCatlogs() {
+    const uniquevgCatlogFile = path.join(dataBasePath, 'van_gogh_catlog.json');
+    const catnoMap = readJsonFile(uniquevgCatlogFile)
+    const newMap = new Map<string, string>();
+
+    for (const key of Object.keys(catnoMap)) {
+        const stringKey = String(key);
+        newMap.set(stringKey, catnoMap[stringKey])
+    }
+    return newMap
+}
+function noDupCatlog() {
+
+    const newvgCatlogFile = path.join(dataBasePath, 'van_gogh_catlog.json');
+    const uniquevgCatlogFile = path.join(dataBasePath, 'van_gogh_catlog.json');
+    const catnoMap = readJsonFile(newvgCatlogFile)
+
+    const uniqueKeys = new Set<string>();
+    const newMap = new Map<string, string>();
+
+    for (const key of Object.keys(catnoMap)) {
+        const stringKey = String(key);
+        if (uniqueKeys.has(stringKey)) {
+            console.log(`重复${stringKey}`)
+        } else {
+            uniqueKeys.add(stringKey)
+            newMap.set(stringKey, catnoMap[stringKey])
+        }
+    }
+    const obj: any = {};
+    newMap.forEach((value, key) => {
+        obj[key] = value;
+    });
+    fs.writeFile(uniquevgCatlogFile, JSON.stringify(obj), 'utf8', function (err) { })
+    console.log(JSON.stringify(obj))
 }
