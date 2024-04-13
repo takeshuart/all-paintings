@@ -7,6 +7,7 @@ import { dataBasePath, saveJsonToFile } from "./wikipage";
 import * as iconv from 'iconv-lite';
 import fs from 'fs';
 import path from "path";
+import { readJSONSync } from "fs-extra";
 
 
 class VanGoghWork {
@@ -194,3 +195,9 @@ async function downloadImages() {
 downloadImages();
 
 
+
+function catalogsOfVanGogh(){
+    const p=path.join(dataBasePath,'./van gogh/van_gogh_catlog_all.json')
+    const catList=readJSONSync(p)
+    
+}
