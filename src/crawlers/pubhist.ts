@@ -273,21 +273,20 @@ async function loadHtmlFromUrl(url: string): Promise<cheerio.Root> {
 
 //van gogh/pubhist-vggallery-merge.json为最近最全的文件
 function mergeVggalleryData() {
-    const vggalleryData = readJsonSync(path.join(dataBasePath, './van gogh/all-vangogh-zh.json'))
-    const allVgWorks = readJsonSync(path.join(dataBasePath, './van gogh/pubhist-vggallery-merge.json'))
-    const jhCodeMap = new Map()
-    for (const item of allVgWorks) {
-        jhCodeMap.set(item.jhCode, item)
-    }
-    for(let i=1;i<vggalleryData.length;i++){
-        const at=vggalleryData[i]
-        const zhTitle=at[2]
-        allVgWorks[i-1]['title_zh']=zhTitle
+    const p = path.join(dataBasePath, './van gogh/all-vangogh-work-pubhist-vggallery-merge.json')
+    const allVgWorks = readJsonSync(p)
+    const monthRegex = /(?:January|February|March|April|May|June|July|August|September|October|November|December|Spring|Summer|Autumn|Fall|Winter)/g;
 
-        if(allVgWorks[i-1].jhCode!=String(at[8])){
-            console.log(`mistake artwork:${at[1]}, ${at[8]}`)
+    for (const work of allVgWorks) {
+        const month = String(work.month)
+        const matches = month.trim().match(monthRegex);
+        if (matches && matches.length > 1) {
+            work.season = matches.join("-");
+        } else if (matches && matches.length === 1) {
+            work.season = matches[0];
         }
+
     }
-    const p = path.join(dataBasePath, './van gogh/pubhist-vggallery-merge.json')
-    fs.writeFileSync(p, JSON.stringify(allVgWorks))
+
+     fs.writeFileSync(p, JSON.stringify(allVgWorks))
 }
