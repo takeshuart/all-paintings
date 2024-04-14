@@ -5,24 +5,25 @@ import * as fs from 'fs';
 import { dataBasePath } from "./wikipage";
 import path from "path";
 import { readJsonSync } from "fs-extra";
+import { json } from "stream/consumers";
+import { stringify } from "querystring";
 
 //pubhist是一个庞大的艺术数据库
 const domain = 'https://www.pubhist.com'
 const imageDir = 'D:\\Arts\\Van Gogh\\pubhist-com'
 //vangogh作品列表页简介信息
 const pubhistVgList = './van gogh/puhhist-van-gogh-allworks-brief.json'
-const pubhistVangoghWorksDetails = './van gogh/puhhist-van-gogh-allworks-details-new.json'
+const pubhistVangoghWorksDetails = './van gogh/puhhist-van-gogh-allworks-details.json'
 const vgWorksBriefPath = path.join(dataBasePath, pubhistVgList)
 const vgWorksDetailsPath = path.join(dataBasePath, pubhistVangoghWorksDetails)
 
 // scrapeDetailPage('https://www.pubhist.com/w14640')
-resolveMistakeInfo()
-
+mergeVggalleryData()
 //elt数据
 function resolveMistakeInfo() {
 
     const ats = readJsonSync(vgWorksDetailsPath)
-    let counter=0
+    let counter = 0
     for (const at of ats) {
         try {
             //修改文件的类型
@@ -33,10 +34,10 @@ function resolveMistakeInfo() {
                 fs.renameSync(oldPath, newPath);
                 counter++;
                 console.log(`Success rename! old:${oldPath},new:${newPath}`)
-                
+
             }
         } catch (err) {
-            console.log(`failed to rename file: ${at.jhCode}.`,err)
+            console.log(`failed to rename file: ${at.jhCode}.`, err)
         }
     }
     console.log(`total:${counter}`)
@@ -267,4 +268,26 @@ async function loadHtmlFromUrl(url: string): Promise<cheerio.Root> {
         console.log(error)
         throw error;
     }
+}
+
+
+//van gogh/pubhist-vggallery-merge.json为最近最全的文件
+function mergeVggalleryData() {
+    const vggalleryData = readJsonSync(path.join(dataBasePath, './van gogh/all-vangogh-zh.json'))
+    const allVgWorks = readJsonSync(path.join(dataBasePath, './van gogh/pubhist-vggallery-merge.json'))
+    const jhCodeMap = new Map()
+    for (const item of allVgWorks) {
+        jhCodeMap.set(item.jhCode, item)
+    }
+    for(let i=1;i<vggalleryData.length;i++){
+        const at=vggalleryData[i]
+        const zhTitle=at[2]
+        allVgWorks[i-1]['title_zh']=zhTitle
+
+        if(allVgWorks[i-1].jhCode!=String(at[8])){
+            console.log(`mistake artwork:${at[1]}, ${at[8]}`)
+        }
+    }
+    const p = path.join(dataBasePath, './van gogh/pubhist-vggallery-merge.json')
+    fs.writeFileSync(p, JSON.stringify(allVgWorks))
 }

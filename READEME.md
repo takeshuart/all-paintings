@@ -3,9 +3,13 @@
 2. 运行在dist目录下生成的.js文件
 3. dist目录默认与.ts文件在同一文件夹下，可以配置tsconfig.json文件中的outDir参数
 4. .vscode/launch.json  program配置项
-5. art-admint> npm start # start react project 
+
+## artwork-admin项目
+1. 先启动admin-api 
+   `artwork-database> node .\dist\app.js ## start node project`
+2. 启动artwork-admin项目
+   `art-admin> npm start # start react project `
    - 先编译tsc 
-   - artwork> node .\dist\app.js ## start node project
 
 ## 运行artwork-database项目
 - 环境配置 
