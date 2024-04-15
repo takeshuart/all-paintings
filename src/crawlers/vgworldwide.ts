@@ -2,7 +2,7 @@ import { axiosAgented } from "../utils/https";
 import path from "path";
 import { dataBasePath } from "./wikipage";
 
-import fs from 'fs';
+import fs, { fchmod } from 'fs';
 import { sleep } from "openai/core";
 import { readJSONSync, readJson, readJsonSync } from "fs-extra";
 import { attr } from "cheerio/lib/api/attributes";
@@ -13,6 +13,8 @@ import { ArtWork } from "./artwork";
 //3. 通过accession numbers访问图片
 //   示例：https://data.spinque.com/iiif/2/vangoghworldwide/kmm/KM 103.198.jpg/full/!682,440/0/default.jpg
 //   访问图片需要设置header, Referer: https://vangoghworldwide.org/
+//4. vgww官网共有2168个作品，根据f-number去重后，有1882个作品。
+//   原因是部分作品有重复图片，例如F1664
 
 interface Artwork {
     rank: number;
@@ -79,8 +81,6 @@ interface Artwork {
 const rawDataFile = path.join(dataBasePath, './van gogh/vgworlwide-artworks-raw.json');
 const dataFileSimplify = path.join(dataBasePath, './van gogh/vgworlwide-artworks-simplify.json');
 
-fetchDataByFilter()
-
 function cleaningData() {
     const ats = readJSONSync(dataFileSimplify);
     for (const at of ats) {
@@ -89,40 +89,97 @@ function cleaningData() {
         }
     }
 }
+//test
+async function main() {
+    const filterSearchUrl = 'https://rest.spinque.com/4/vangoghworldwide/api/platform/e/artworks/q/subject%3AFILTER/p/value/1.0(http%3A%2F%2Fvocab.getty.edu%2Faat%2F300015637)/results?config=production'
+    const artworks = await fetchDataByPage(filterSearchUrl)
+    const fCodeMap = loadVgwwData()
+    const filterName = 'animal art'
+    //用检索条件补充artwork属性
+    for (const at of artworks) {
+        const artwork = analysisRawData(at)
+        try {
+            //read all artwork
+            if (artwork.fCode) {
+                const old = fCodeMap.get(artwork.fCode)
+                old.subject = filterName
+            }
+        } catch (err) {
+            console.log(`failed to update attr:${artwork.fCode}`)
+        }
+    }
+}
+
+fetchDataByFilter()
 
 //通过条件查询，补充作品的属性
 //api在chrome->inspect中获得
 async function fetchDataByFilter() {
-    const filter = 'subject'
-    const filterValuesUrl = `https://rest.spinque.com/4/vangoghworldwide/api/platform/e/artworks/q/${filter}/results?count=200&config=production`
+    const apiDomain = 'https://rest.spinque.com/4/vangoghworldwide/api/platform/e'
+    const filter = 'period'//owner_country, material, research_type,period
+    const filterValuesUrl = apiDomain + `/artworks/q/${filter}/results?count=200&config=production`
     const response = await axiosAgented.get(filterValuesUrl)
     const data = response.data
+    const fCodeMap = loadVgwwData()
     for (const values of data.items) {
         let filterValue = values.tuple[0].id
         const filterName = values.tuple[1]
         console.log(`name:${filterName} \t url:${filterValue}`)
         filterValue = encodeURIComponent(`${filterValue}`)
-        const filterSearchUrl = `https://rest.spinque.com/4/vangoghworldwide/api/platform/e/artworks/q/${filter}%3AFILTER/p/value/1.0(${filterValue})/results?config=production`
+        const filterSearchUrl = apiDomain + `/artworks/q/${filter}%3AFILTER/p/value/1.0(${filterValue})/results?config=production`
         const artworks = await fetchDataByPage(filterSearchUrl)
-        console.log(`${filter}: ${filterName},size:${artworks.length}`)
 
         //用检索条件补充artwork属性
         for (const at of artworks) {
             const artwork = analysisRawData(at)
-            //read all artwork
-            //todo
-            const fCodeMap = new Map<string, any>();
-            if (fCodeMap.has(artwork.fCode){
-                const old = fCodeMap.get(artwork.fCode)
-                old.subject = filterName
+            try {
+                //read all artwork
+                if (artwork.fCode) {
+                    const old = fCodeMap.get(artwork.fCode)
+                    // old.subject = filterName
+                    // old.ownerCountry = filterName
+                    // old.material = filterName
+                    if(old){
+                        old.period = filterName
+                        // if(!old.researchType){
+                        //     old.researchType=[]
+                        // }
+                        // old.researchType?.push(filterName)
+                    }
+                    console.log()
+                }
+            } catch (err) {
+                console.log(`failed to update attr:${artwork.fCode}`)
             }
         }
-        //todo save new data to file
-
+        console.log(`update:${filter}: ${filterName},size:${artworks.length}`)
     }
+
+    const fileWithFilter = path.join(dataBasePath, './van gogh/vgworlwide-artworks-simplify-with-filter.json');
+    const atsWithFilter = [...fCodeMap.values()];
+    await fs.promises.writeFile(fileWithFilter, JSON.stringify(atsWithFilter, null, 2), { flag: 'w' });
+
+    console.log(`Artworks saved to ${rawDataFile}`);
 }
 
-
+function loadVgwwData() {
+    const objarr = readJsonSync(dataFileSimplify)
+    const fCodeMap = new Map<string, any>()
+    const atNoFCode: any[] = []
+    for (const at of objarr) {
+        const fCode = at.fCode
+        if (fCodeMap.has(fCode)) {
+            console.log('duplicate!\t' + fCode)
+        }
+        if (fCode) {
+            fCodeMap.set(fCode, at)
+        } else {
+            atNoFCode.push(at)
+        }
+    }
+    console.log(`size:${fCodeMap.size}\n `)
+    return fCodeMap
+}
 
 function resolveRawdata() {
     const rawdata: Artwork[] = readJsonSync(rawDataFile)
@@ -229,7 +286,7 @@ async function saveJsonToFile(json: any[], file: string): Promise<void> {
 
 
 async function fetchDataByPage(url: string) {
-    const pageSize = 20;
+    const pageSize = 40;
     let allArtworks: Artwork[] = [];
     let page = 0;
 
