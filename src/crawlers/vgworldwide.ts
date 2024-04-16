@@ -9,6 +9,8 @@ import { attr } from "cheerio/lib/api/attributes";
 import { ArtWork } from "./artwork";
 import { count } from "console";
 
+//TODO cleaning merge-vgww-pubhist-vggallery.json
+
 //1. 通过api爬取vangoghworldwide.org数据
 //2. 该网站有丰富的检索条件，如subject\location country\collection\period
 //3. 通过accession numbers访问图片
@@ -317,19 +319,45 @@ mergePubhistAndVgww()
 async function mergePubhistAndVgww() {
     const vgwwData = readJsonSync(vgwwdataFile)
     const pubhistData = readJsonSync(pubhistDataFile)
-    let counter = 0
-
-    const vgwwFCodeSet = new Set<string>()
+    const mergeFile = path.join(dataBasePath, './van gogh/merge-vgww-pubhist-vggallery.json')
+    const merge: any[] = []
+    const vgwwFCodeMap = new Map<string, any>()
+    let overFlappingCounter = 0
+    let vgwwOnlyCounter = 0
+    let pubhistCounter = 0
     vgwwData.forEach((vgwwAt: any) => {
-        vgwwFCodeSet.add(vgwwAt.fCode)
-    })
-
-    pubhistData.forEach((pubhistAt: any) => {
-        if(!vgwwFCodeSet.has(pubhistAt.fCode)){
-            console.log(pubhistAt.fCode)
+        if (vgwwAt.fCode && vgwwAt.jhCode) {
+            vgwwFCodeMap.set(vgwwAt.fCode, vgwwAt)
+        } else {
+            merge.push(vgwwAt)
+            vgwwOnlyCounter++
+            // console.log(`vgww only: ${JSON.stringify(vgwwAt)}`)
         }
 
     })
+
+    pubhistData.forEach((obj1: any) => {
+
+        const obj2 = vgwwFCodeMap.get(obj1.fCode)
+        if (obj2 && obj1.jhCode == obj2.jhCode) {
+            const mergedObject = { ...obj1, ...obj2 };
+            merge.push(mergedObject)
+            overFlappingCounter++
+            obj2.titles.push({
+                "title": obj1.title_zh,
+                "language": "Chinese"
+            })
+            // console.log(JSON.stringify(mergedObject))
+        } else {
+            merge.push(obj1)
+            pubhistCounter++
+            // console.log(`pushhist only: ${JSON.stringify(obj1)}`)
+        }
+    })
+
+    console.log(`total: ${merge.length}, overflapping size: ${overFlappingCounter},pubhistCounter:${pubhistCounter},vgwwOnlyCounter:${vgwwOnlyCounter}`)
+
+    await fs.promises.writeFile(mergeFile, JSON.stringify(merge, null, 2), { flag: 'w' });
 
 }
 
