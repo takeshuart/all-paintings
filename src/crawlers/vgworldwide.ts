@@ -84,14 +84,79 @@ interface Artwork {
 const rawDataFile = path.join(dataBasePath, './van gogh/vgworlwide-raw-data.json');
 const vgwwdataFile = path.join(dataBasePath, './van gogh/vgww-artworks.json');
 const pubhistDataFile = path.join(dataBasePath, './van gogh/pubhist-vggallery-merge-artworks.json')
+const vgArtWorksFile = path.join(dataBasePath, './van gogh/merge-vgww-pubhist-vggallery.json')
 
-
+cleaningData()
 function cleaningData() {
-    const ats = readJSONSync(vgwwdataFile);
-    for (const at of ats) {
-        if (!at.workType) {
-            console.log(JSON.stringify(at))
+    const vgArtWorksFileNew = path.join(dataBasePath, './van gogh/merge-vgww-pubhist-vggallery-new.json')
+
+    const ats = readJSONSync(vgArtWorksFile);
+    // const atsNew = readJSONSync(vgArtWorksFileNew);
+    const periods = new Set<string>()
+
+    ats.forEach((e: any) => {
+
+        console.log(e.dateDisplay + "\t" + e.dateStart);
+
+
+        if (!periods.has(e.museumName)) {
+            periods.add(e.museumName)
         }
+    });
+    periods.forEach((element) => {
+        // console.log(element);
+    });
+
+    // fs.writeFileSync(vgArtWorksFileNew, JSON.stringify(ats, null, 2), { flag: 'w' })
+
+
+}
+
+//融合vgww\pubhist 处理title
+function resolveTitles(ats: any[]) {
+    for (const at of ats) {
+        if (at.title) {
+            if (at.titles) {
+                const en = at.titles.find((obj: any) => obj.language == 'English')
+                if (en) {
+                    delete at.title
+                } else {
+                    at.titles.push({
+                        "title": at.title,
+                        "language": "English"
+                    })
+                    delete at.title
+                }
+            } else {
+                at.titles = [{
+                    "title": at.title,
+                    "language": "English"
+                }]
+                delete at.title
+            }
+        }
+
+        if (at.title_zh) {
+            if (at.titles) {
+                const zh = at.titles.find((obj: any) => obj.language == 'Chinese')
+                if (zh) {
+                    delete at.title_zh
+                } else {
+                    at.titles.push({
+                        "title": at.title_zh,
+                        "language": "Chinese"
+                    })
+                    delete at.title_zh
+                }
+            } else {
+                at.titles = [{
+                    "title": at.title_zh,
+                    "language": "Chinese"
+                }]
+                delete at.title
+            }
+        }
+        console.log(at.fCode)
     }
 }
 //test
@@ -314,7 +379,6 @@ async function fetchDataByPage(url: string) {
     return allArtworks
 }
 
-mergePubhistAndVgww()
 
 async function mergePubhistAndVgww() {
     const vgwwData = readJsonSync(vgwwdataFile)
@@ -343,10 +407,6 @@ async function mergePubhistAndVgww() {
             const mergedObject = { ...obj1, ...obj2 };
             merge.push(mergedObject)
             overFlappingCounter++
-            obj2.titles.push({
-                "title": obj1.title_zh,
-                "language": "Chinese"
-            })
             // console.log(JSON.stringify(mergedObject))
         } else {
             merge.push(obj1)
