@@ -7,6 +7,7 @@ import { sleep } from "openai/core";
 import { readJSONSync, readJson, readJsonSync } from "fs-extra";
 import { attr } from "cheerio/lib/api/attributes";
 import { ArtWork } from "./artwork";
+import { count } from "console";
 
 //1. 通过api爬取vangoghworldwide.org数据
 //2. 该网站有丰富的检索条件，如subject\location country\collection\period
@@ -78,11 +79,13 @@ interface Artwork {
 }
 
 
-const rawDataFile = path.join(dataBasePath, './van gogh/vgworlwide-artworks-raw.json');
-const dataFileSimplify = path.join(dataBasePath, './van gogh/vgworlwide-artworks-simplify.json');
+const rawDataFile = path.join(dataBasePath, './van gogh/vgworlwide-raw-data.json');
+const vgwwdataFile = path.join(dataBasePath, './van gogh/vgww-artworks.json');
+const pubhistDataFile = path.join(dataBasePath, './van gogh/pubhist-vggallery-merge-artworks.json')
+
 
 function cleaningData() {
-    const ats = readJSONSync(dataFileSimplify);
+    const ats = readJSONSync(vgwwdataFile);
     for (const at of ats) {
         if (!at.workType) {
             console.log(JSON.stringify(at))
@@ -110,7 +113,6 @@ async function main() {
     }
 }
 
-fetchDataByFilter()
 
 //通过条件查询，补充作品的属性
 //api在chrome->inspect中获得
@@ -139,7 +141,7 @@ async function fetchDataByFilter() {
                     // old.subject = filterName
                     // old.ownerCountry = filterName
                     // old.material = filterName
-                    if(old){
+                    if (old) {
                         old.period = filterName
                         // if(!old.researchType){
                         //     old.researchType=[]
@@ -163,7 +165,7 @@ async function fetchDataByFilter() {
 }
 
 function loadVgwwData() {
-    const objarr = readJsonSync(dataFileSimplify)
+    const objarr = readJsonSync(vgwwdataFile)
     const fCodeMap = new Map<string, any>()
     const atNoFCode: any[] = []
     for (const at of objarr) {
@@ -190,7 +192,7 @@ function resolveRawdata() {
         console.log(JSON.stringify(artwork))
     }
 
-    saveJsonToFile(artworks, dataFileSimplify)
+    saveJsonToFile(artworks, vgwwdataFile)
     console.log(`total: ${artworks.length}`)
 }
 
@@ -308,4 +310,69 @@ async function fetchDataByPage(url: string) {
     } while (true);
 
     return allArtworks
+}
+
+mergePubhistAndVgww()
+
+async function mergePubhistAndVgww() {
+    const vgwwData = readJsonSync(vgwwdataFile)
+    const pubhistData = readJsonSync(pubhistDataFile)
+    let counter = 0
+
+    const vgwwFCodeSet = new Set<string>()
+    vgwwData.forEach((vgwwAt: any) => {
+        vgwwFCodeSet.add(vgwwAt.fCode)
+    })
+
+    pubhistData.forEach((pubhistAt: any) => {
+        if(!vgwwFCodeSet.has(pubhistAt.fCode)){
+            console.log(pubhistAt.fCode)
+        }
+
+    })
+
+}
+
+
+//pubhist/vgww 互相补充jhCode 和FCode
+async function diffFile() {
+    const vgwwData = readJsonSync(vgwwdataFile)
+    const pubhistData = readJsonSync(pubhistDataFile)
+    const pubhistDataAddCatNoFile = path.join(dataBasePath, './van gogh/pubhist-artworks-add-catNo.json')
+    console.log(`vgwwDataSize:${vgwwData.length},pubhistData:${pubhistData.length}`)
+
+    const uniquekey = new Set<string>()
+    let bothJHFCounter = 0
+    pubhistData.forEach((pubhistAt: any) => {
+        if (pubhistAt.fCode && pubhistAt.jhCode) {
+            bothJHFCounter++
+        }
+    })
+
+    pubhistData.forEach((pubhistAt: any) => {
+
+        vgwwData.forEach((vgwwAt: any) => {
+            if (pubhistAt.fCode && !pubhistAt.jhCode && vgwwAt.jhCode
+                && pubhistAt.fCode == vgwwAt.fCode) {
+                pubhistAt.jhCode = vgwwAt.jhCode
+                console.log(`pubhist Fcode: ${pubhistAt.fCode}, vgww JHCode: ${vgwwAt.jhCode}`)
+            }
+            if (pubhistAt.jhCode && !pubhistAt.fCode && vgwwAt.fCode
+                && pubhistAt.jhCode == vgwwAt.jhCode) {
+                pubhistAt.fCode = vgwwAt.fCode
+                console.log(`pubhist jhCode: ${pubhistAt.jhCode}, vgww fCode: ${vgwwAt.fCode}`)
+            }
+        });
+    });
+
+    // await fs.promises.writeFile(pubhistDataAddCatNoFile, JSON.stringify(pubhistData, null, 2), { flag: 'w' });
+
+    let counter = 0
+    pubhistData.forEach((pubhistAt: any) => {
+        if (pubhistAt.fCode && pubhistAt.jhCode) {
+            counter++
+        }
+    })
+    console.log(`before:${bothJHFCounter}, after: ${counter}`)
+
 }
