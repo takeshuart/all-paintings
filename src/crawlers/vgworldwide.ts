@@ -93,11 +93,17 @@ function cleaningData() {
     const ats = readJSONSync(vgArtWorksFile);
     // const atsNew = readJSONSync(vgArtWorksFileNew);
     const periods = new Set<string>()
+    const monthRegex = /(?:January|February|March|April|May|June|July|August|September|October|November|December|Spring|Summer|Autumn|Fall|Winter)/g;
 
     ats.forEach((e: any) => {
 
-        console.log(e.dateDisplay + "\t" + e.dateStart);
-
+        // Extract the first matched month and year from the date range
+        const matched = e.dateDisplay?.match(monthRegex);
+        if (matched) {
+            const firstMonth = matched[0];
+            e.creationMonth=firstMonth
+            console.log(`${firstMonth}`)
+        }
 
         if (!periods.has(e.museumName)) {
             periods.add(e.museumName)
@@ -107,7 +113,7 @@ function cleaningData() {
         // console.log(element);
     });
 
-    // fs.writeFileSync(vgArtWorksFileNew, JSON.stringify(ats, null, 2), { flag: 'w' })
+    fs.writeFileSync(vgArtWorksFileNew, JSON.stringify(ats, null, 2), { flag: 'w' })
 
 
 }
