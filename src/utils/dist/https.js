@@ -50,29 +50,54 @@ exports.axiosAgented = axios_1["default"].create({
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.77 Safari/537.36'
     }
 });
-function downloadFile(url, outputPath) {
+testDownload();
+function testDownload() {
+    return __awaiter(this, void 0, void 0, function () {
+        var image, dir;
+        return __generator(this, function (_a) {
+            image = 'https://data.spinque.com/iiif/2/vangoghworldwide%2Fkmm%2Fsharepoint%2FKM104_607-lijst.tif/4096,4096,4096,4096/!800,440/0/default.jpg';
+            dir = "D:\\Arts\\Van Gogh\\demo.jpg";
+            downloadFile(image, dir, { 'Referer': 'https://vangoghworldwide.org/' });
+            return [2 /*return*/];
+        });
+    });
+}
+function downloadFile(url, outputPath, headers) {
     return __awaiter(this, void 0, Promise, function () {
-        var response, writer;
+        var response, writer, err_1;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, exports.axiosAgented.get(url, { responseType: 'stream' })];
+                case 0:
+                    response = null;
+                    writer = null;
+                    _a.label = 1;
                 case 1:
+                    _a.trys.push([1, 3, , 4]);
+                    return [4 /*yield*/, exports.axiosAgented.get(url, {
+                            responseType: 'stream',
+                            headers: headers ? headers : {}
+                        })];
+                case 2:
                     response = _a.sent();
                     writer = fs_1["default"].createWriteStream(outputPath);
-                    return [2 /*return*/, new Promise(function (resolve, reject) {
-                            response.data.pipe(writer);
-                            var error = null;
-                            writer.on('error', function (err) {
-                                error = err;
-                                writer.close();
-                                reject(err);
-                            });
-                            writer.on('close', function () {
-                                if (!error) {
-                                    resolve();
-                                }
-                            });
-                        })];
+                    return [3 /*break*/, 4];
+                case 3:
+                    err_1 = _a.sent();
+                    throw err_1;
+                case 4: return [2 /*return*/, new Promise(function (resolve, reject) {
+                        response === null || response === void 0 ? void 0 : response.data.pipe(writer);
+                        var error = null;
+                        writer === null || writer === void 0 ? void 0 : writer.on('error', function (err) {
+                            error = err;
+                            writer.close();
+                            reject(err);
+                        });
+                        writer === null || writer === void 0 ? void 0 : writer.on('close', function () {
+                            if (!error) {
+                                resolve();
+                            }
+                        });
+                    })];
             }
         });
     });

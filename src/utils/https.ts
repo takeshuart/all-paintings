@@ -14,24 +14,44 @@ export const axiosAgented = axios.create({  //create an instance using v2ray pro
   }
 });
 
+testDownload()
+async function testDownload() {
+  const image = 'https://data.spinque.com/iiif/2/vangoghworldwide%2Fkmm%2Fsharepoint%2FKM104_607-lijst.tif/4096,4096,4096,4096/!800,440/0/default.jpg'
+  const dir = "D:\\Arts\\Van Gogh\\demo.jpg"
+  downloadFile(image, dir,{'Referer':'https://vangoghworldwide.org/'})
+}
 
-export async function downloadFile(url: string, outputPath: string): Promise<void> {
-  const response = await axiosAgented.get(url, { responseType: 'stream' });
-  const writer = fs.createWriteStream(outputPath);
+
+export async function downloadFile(url: string, outputPath: string, headers?: any): Promise<void> {
+  let response = null;
+  let writer = null;
+  try {
+    response = await axiosAgented.get(url,
+      {
+        responseType: 'stream',
+        headers: headers ? headers : {}
+      });
+
+    writer = fs.createWriteStream(outputPath);
+  } catch (err) {
+    throw err
+  }
 
   return new Promise((resolve, reject) => {
-      response.data.pipe(writer);
-      let error: Error | null = null;
-      writer.on('error', err => {
-          error = err;
-          writer.close();
-          reject(err);
-      });
-      writer.on('close', () => {
-          if (!error) {
-              resolve();
-          }
-      });
+    
+    response?.data.pipe(writer);
+    let error: Error | null = null;
+    writer?.on('error', err => {
+      error = err;
+      writer.close();
+      reject(err);
+    });
+    writer?.on('close', () => {
+      if (!error) {
+        resolve();
+      }
+    });
   });
+
 }
 
