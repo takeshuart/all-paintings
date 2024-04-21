@@ -45379,10 +45379,7 @@
     ],
     "urlDetail": "https://data.rkd.nl/images/298627",
     "accessionNo": "MB 1949/T 6 (PK)",
-    "placeOfOrigin": {
-      "en": "Netherlands",
-      "nl": "Nederland"
-    },
+    "placeOfOrigin": "Netherlands",
     "dateStart": "1881-01-01",
     "dateEnd": "1882-12-31",
     "dateDisplay": "ca. 1881/1882",
@@ -52286,10 +52283,7 @@
     ],
     "urlDetail": "https://data.rkd.nl/images/298630",
     "accessionNo": "MB 1965/T 2 (PK)",
-    "placeOfOrigin": {
-      "en": "Netherlands",
-      "nl": "Nederland"
-    },
+    "placeOfOrigin":"Netherlands",
     "dateStart": "1881-01-01",
     "dateEnd": "1881-12-31",
     "dateDisplay": "c. 1881",
@@ -83068,10 +83062,8 @@
     ],
     "urlDetail": "https://data.rkd.nl/images/298685",
     "accessionNo": "MB 549 (PK)",
-    "placeOfOrigin": {
-      "en": "Etten (Noord-Brabant)",
-      "nl": "Etten (Noord-Brabant)"
-    },
+    "placeOfOrigin": "Etten (Noord-Brabant)",
+     
     "dateStart": "1881-05-01",
     "dateEnd": "1881-05-31",
     "dateDisplay": "May 1881",

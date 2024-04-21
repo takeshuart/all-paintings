@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
 //Config vsCode setting 'http:proxy' does not work; but using 'socks-proxy-agent' is ok.
 import { SocksProxyAgent } from 'socks-proxy-agent';
 import fs from 'fs';
@@ -18,35 +18,30 @@ testDownload()
 async function testDownload() {
   const image = 'https://data.spinque.com/iiif/2/vangoghworldwide%2Fkmm%2Fsharepoint%2FKM104_607-lijst.tif/4096,4096,4096,4096/!800,440/0/default.jpg'
   const dir = "D:\\Arts\\Van Gogh\\demo.jpg"
-  downloadFile(image, dir,{'Referer':'https://vangoghworldwide.org/'})
+  downloadFile(image, dir, { 'Referer': 'https://vangoghworldwide.org/' })
 }
 
 
 export async function downloadFile(url: string, outputPath: string, headers?: any): Promise<void> {
-  let response = null;
-  let writer = null;
-  try {
-    response = await axiosAgented.get(url,
-      {
-        responseType: 'stream',
-        headers: headers ? headers : {}
-      });
 
-    writer = fs.createWriteStream(outputPath);
-  } catch (err) {
-    throw err
-  }
+  const response = await axios.get(url,
+    {
+      responseType: 'stream',
+      headers: headers ? headers : {}
+    });
+
+  const writer: fs.WriteStream = fs.createWriteStream(outputPath);
 
   return new Promise((resolve, reject) => {
-    
-    response?.data.pipe(writer);
+
+    response.data.pipe(writer);
     let error: Error | null = null;
-    writer?.on('error', err => {
+    writer.on('error', err => {
       error = err;
       writer.close();
       reject(err);
     });
-    writer?.on('close', () => {
+    writer.on('close', () => {
       if (!error) {
         resolve();
       }

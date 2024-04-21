@@ -64,40 +64,30 @@ function testDownload() {
 }
 function downloadFile(url, outputPath, headers) {
     return __awaiter(this, void 0, Promise, function () {
-        var response, writer, err_1;
+        var response, writer;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0:
-                    response = null;
-                    writer = null;
-                    _a.label = 1;
+                case 0: return [4 /*yield*/, axios_1["default"].get(url, {
+                        responseType: 'stream',
+                        headers: headers ? headers : {}
+                    })];
                 case 1:
-                    _a.trys.push([1, 3, , 4]);
-                    return [4 /*yield*/, exports.axiosAgented.get(url, {
-                            responseType: 'stream',
-                            headers: headers ? headers : {}
-                        })];
-                case 2:
                     response = _a.sent();
                     writer = fs_1["default"].createWriteStream(outputPath);
-                    return [3 /*break*/, 4];
-                case 3:
-                    err_1 = _a.sent();
-                    throw err_1;
-                case 4: return [2 /*return*/, new Promise(function (resolve, reject) {
-                        response === null || response === void 0 ? void 0 : response.data.pipe(writer);
-                        var error = null;
-                        writer === null || writer === void 0 ? void 0 : writer.on('error', function (err) {
-                            error = err;
-                            writer.close();
-                            reject(err);
-                        });
-                        writer === null || writer === void 0 ? void 0 : writer.on('close', function () {
-                            if (!error) {
-                                resolve();
-                            }
-                        });
-                    })];
+                    return [2 /*return*/, new Promise(function (resolve, reject) {
+                            response.data.pipe(writer);
+                            var error = null;
+                            writer.on('error', function (err) {
+                                error = err;
+                                writer.close();
+                                reject(err);
+                            });
+                            writer.on('close', function () {
+                                if (!error) {
+                                    resolve();
+                                }
+                            });
+                        })];
             }
         });
     });

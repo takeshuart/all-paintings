@@ -17,17 +17,17 @@ async function insertToDB() {
     const dbArtwork = new Database(dbFile, { verbose: console.log });
 
     for (const json of jsons) {
-        try {
 
-            const dto = convertToDTO(json);
-            const keys = Object.keys(dto);
-            const values = Object.values(dto);
-            const placeholders = keys.map(() => '?').join(',');
-            const sql = `INSERT INTO artwork_vincent (${keys.join(',')}) VALUES (${placeholders})`;
+        const dto = convertToDTO(json);
+        const keys = Object.keys(dto);
+        const values = Object.values(dto);
+        const placeholders = keys.map(() => '?').join(',');
+        const sql = `INSERT INTO artwork_vincent (${keys.join(',')}) VALUES (${placeholders})`;
+        try {
             const insert = dbArtwork.prepare(sql);
             insert.run(...values);
         } catch (err) {
-            console.error(`failed to insert db: ${json.fCode},${json.jhCode}`, err)
+            console.error(`failed to insert db: ${json.fCode},${json.jhCode}, sql:${sql},value:${values}`, err)
             throw err
         }
     }
@@ -55,27 +55,27 @@ function convertToDTO(obj: any) {
         depicts: '',
         period: obj.period,
         display_date: obj.dateDisplay,
-        location_city: obj.country,
+        location_city: obj.country ? obj.country : '',
         place_of_origin: obj.placeOfOrigin,
-        dimension: obj.dimension,
+        dimension: obj.dimension ? obj.dimension : '',
         is_highlight: 0,
         short_desc: '',
         primary_colour: '',
         description: '',
-        technique: obj.technique,
-        primary_image_small: obj.puhhistImageUrl,
+        technique: obj.technique ? obj.technique : '',
+        primary_image_small: obj.puhhistImageUrl ? obj.puhhistImageUrl : '',
         primary_image_medium: '',
         primary_image_large: '',
         primary_image_original: '',
         related_letters: '',
         related_artwork: '',
-        ext_links: '',
-        exhibitions: '',
-        literature: '',
+        ext_links: obj.extLinks ? JSON.stringify(obj.extLinks, null, 0) : '',
+        exhibitions: obj.exhibitions ? JSON.stringify(obj.exhibitions, null, 0) : '',
+        literature: obj.literatures ? JSON.stringify(obj.literatures, null, 0) : '',
         date_start: obj.dateStart,
         date_end: obj.dateEnd,
         material: obj.material,
-        inventory_code: obj.accessionNo,
+        inventory_code: obj.accessionNo?obj.accessionNo:'',
         data_source: ''
     };
 }

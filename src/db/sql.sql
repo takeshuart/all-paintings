@@ -23,8 +23,8 @@ CREATE TABLE artwork_vincent (
     primary_image_original TEXT DEFAULT '',
     related_letters TEXT DEFAULT '',
     related_artwork TEXT DEFAULT '',
-    ext_links TEXT DEFAULT '',
-    exhibitions TEXT DEFAULT '',
+    ext_links TEXT DEFAULT '',--json array
+    exhibitions TEXT DEFAULT '',--json array
     literature TEXT DEFAULT '', -- releted books/article etc..
     date_start TEXT DEFAULT '',
     date_end TEXT DEFAULT '',

@@ -2,12 +2,14 @@
 import express from 'express';
 import cors from 'cors';
 import artworkRouter from './routers/artwork';
+import vangoghRouter from './routers/vangogh';
 
 const app = express();
 app.use(cors());
 
 // 使用 artwork 路由
-app.use('/artwork', artworkRouter);
+app.use('/artworks', artworkRouter);
+app.use('/artwork', vangoghRouter);
 
 const PORT = 5001;
 app.listen(PORT, () => {
