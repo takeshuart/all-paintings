@@ -10,7 +10,7 @@ import './ArtTableStyles.css';
 
 const columns: GridColDef[] = [
   {
-    field: 'primaryImageSmall', headerName: 'Image', width: 100,
+    field: 'primary_image_small', headerName: 'Image', width: 100,
     renderCell: (params: GridCellParams) => (params.value ? <img src={params.value as string} alt={params.row.title as string} style={{ width: 80, height: 80, objectFit: 'cover' }} /> : ''
     ),
   },

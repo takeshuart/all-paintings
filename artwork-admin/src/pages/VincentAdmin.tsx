@@ -114,7 +114,7 @@ export default function ArtTable() {
           {/* <Toolbar />  */}
           <Typography variant="h6" marginBottom={2}>ArtWorks Database</Typography>
 
-          <FormControl fullWidth>
+          <FormControl fullWidth variant="filled">
             <InputLabel id="mutiple-checkbox-label">Items</InputLabel>
             <Select
               labelId="mutiple-checkbox-label"

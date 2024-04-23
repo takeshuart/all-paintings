@@ -1,6 +1,6 @@
 import express from "express";
 import path from "path";
-import { DataTypes, Model, Sequelize, Op, QueryTypes } from "sequelize";
+import { DataTypes, Model, Sequelize, Op, QueryTypes, literal } from "sequelize";
 
 const router = express.Router();
 const dbFile = path.join(__dirname, '../../artwork.db');
@@ -8,6 +8,7 @@ const dbFile = path.join(__dirname, '../../artwork.db');
 const sequelize = new Sequelize({
     dialect: 'sqlite',
     storage: dbFile,
+    logging: true,
 });
 
 
@@ -15,14 +16,14 @@ router.get('/', async (req: any, res) => {
     try {
         const page = parseInt(req.query.page) || 0;
         const pageSize = parseInt(req.query.pageSize) || 5;
-        const searchText = req.query.search || '';//search input
+        const searchText = req.query.search || '';
+        const hasImage = req.query.hasImage === 'true';
         const periods: string[] = Array.isArray(req.query.periods) ? req.query.periods : [];
         const genres: string[] = Array.isArray(req.query.genres) ? req.query.genres : [];
 
         console.log(`request:${JSON.stringify(req.query)}`);
 
-        const result = await findAllByPage(searchText, genres, periods, page, pageSize);
-        console.log(JSON.stringify(result));
+        const result = await findAllByPage(searchText, genres, periods, hasImage, page, pageSize);
 
         res.json(result);
     } catch (error) {
@@ -49,7 +50,7 @@ async function findSearchConditions(cond: string) {
         throw error;
     }
 }
-async function findAllByPage(searchText = '', genres: string[], periods: string[], page = 1, pageSize = 10) {
+async function findAllByPage(searchText:string, genres: string[], periods: string[], hasImage: boolean, page = 1, pageSize = 10) {
     const offset = (page - 1) * pageSize;
 
     const whereClause: any = {};
@@ -58,6 +59,9 @@ async function findAllByPage(searchText = '', genres: string[], periods: string[
     }
     if (periods.length > 0) {
         whereClause['period'] = periods
+    }
+    if (hasImage) {
+        whereClause['primary_image_small'] = literal('length(primary_image_small)>0');
     }
     if (searchText) {
         if (isChinese(searchText)) {
