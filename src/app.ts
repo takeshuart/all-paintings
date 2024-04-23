@@ -9,7 +9,7 @@ app.use(cors());
 
 // 使用 artwork 路由
 app.use('/artworks', artworkRouter);
-app.use('/artwork', vangoghRouter);
+app.use('/artworks/vincent', vangoghRouter);
 
 const PORT = 5001;
 app.listen(PORT, () => {

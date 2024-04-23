@@ -1,6 +1,6 @@
 import express from "express";
 import path from "path";
-import { DataTypes, Model, Sequelize, Op } from "sequelize";
+import { DataTypes, Model, Sequelize, Op, QueryTypes } from "sequelize";
 
 const router = express.Router();
 const dbFile = path.join(__dirname, '../../artwork.db');
@@ -11,7 +11,7 @@ const sequelize = new Sequelize({
 });
 
 
-router.get('/vincent', async (req: any, res) => {
+router.get('/', async (req: any, res) => {
     try {
         const page = parseInt(req.query.page) || 0;
         const pageSize = parseInt(req.query.pageSize) || 5;
@@ -31,7 +31,24 @@ router.get('/vincent', async (req: any, res) => {
 });
 
 //test case: http://localhost:5001/artwork/vincent?page=5&pageSize=10&periods[]=Paris&periods[]=Antwerp
+router.get('/config', async (req: any, res) => {
+    const condition = req.query.cond || ''
+    const result = await findSearchConditions(condition)
+    res.json(result)
+});
 
+async function findSearchConditions(cond: string) {
+    try {
+        const sql = `SELECT DISTINCT ${cond} FROM artwork_vincent`
+        const distinctGenres = await sequelize.query(sql, {
+            type: QueryTypes.SELECT
+        });
+        return distinctGenres;
+    } catch (error) {
+        console.error('Error executing distinct query:', error);
+        throw error;
+    }
+}
 async function findAllByPage(searchText = '', genres: string[], periods: string[], page = 1, pageSize = 10) {
     const offset = (page - 1) * pageSize;
 
