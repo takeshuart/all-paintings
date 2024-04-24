@@ -8,6 +8,8 @@ import AccordionDetails from '@mui/material/AccordionDetails';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import Pagination from '@mui/material/Pagination';
 import SearchIcon from '@mui/icons-material/Search';
+import { SearchInput, GenreSelect, PeriodSelect, TechniqueSelect } from './VincentSearch';
+
 import '../ArtTableStyles.css';
 
 const apiDomain = 'http://192.168.50.156:5001/artworks/vincent';
@@ -27,13 +29,12 @@ export default function ArtTable() {
   const [totalResults, setTotalResults] = useState(0);
   const [searchKeyword, setSearchKeyword] = useState('');
 
-
   useEffect(() => {
 
     fetchArtData();
     fetchConfigData();
 
-  }, [page, hasImage, genreSelected, periodSelected,techniqueSelected]); //listening  data change
+  }, [page, hasImage, genreSelected, periodSelected, techniqueSelected]); //listening  data change
 
   async function fetchArtData() {
     try {
@@ -59,7 +60,7 @@ export default function ArtTable() {
 
   async function fetchConfigData() {
     try {
-      const [genreRes, periodRes,techniques] = await Promise.all([
+      const [genreRes, periodRes, techniques] = await Promise.all([
         axios.get(apiDomain + '/config?cond=genre'),
         axios.get(apiDomain + '/config?cond=period'),
         axios.get(apiDomain + '/config?cond=technique'),
@@ -133,19 +134,11 @@ export default function ArtTable() {
 
         {/* -----search input------ */}
         <Grid container sx={{ margin: '10px 1px 20px 10px' }}>
-          <TextField variant="standard" size='medium' fullWidth label="作品/博物馆关键词，支持中/英"
+          <SearchInput
             value={searchKeyword}
             onChange={handleSearchChange}
-            onKeyDown={handleKeyDown} //Enter key
-            InputProps={{
-              endAdornment: ( //startAdornment icon 在前面
-                <InputAdornment >
-                  <IconButton onClick={handleSearch}>
-                    <SearchIcon />
-                  </IconButton>
-                </InputAdornment>
-              )
-            }}
+            onKeyDown={handleKeyDown}
+            onSearch={handleSearch}
           />
         </Grid>
 
@@ -153,88 +146,28 @@ export default function ArtTable() {
         <Grid container sx={{ marginTop: '10px', marginBottom: '40px' }}>
 
           <Grid item xs={12} sm={6} md={3} sx={{ marginRight: '20px' }}>
-            {/* fullWidth size='small' */}
-            <FormControl fullWidth variant="filled" size='small' sx={{ mt: 1 }}>
-              <InputLabel id="genre-checkbox-label">主题</InputLabel>
-              <Select
-                labelId="genre-checkbox-label"
-                id="genre-checkbox"
-                value={genreSelected}
-                onChange={handleGenreChange}
-                input={<FilledInput />}
-                MenuProps={{
-                  PaperProps: {
-                    style: {
-                      maxHeight: 300,
-                    }
-                  }
-                }}
-              >
-                <MenuItem value="">所有主题</MenuItem>
-
-                {genresCond.map((item) => (
-                  <MenuItem key={item.genre} value={item.genre}>
-                    {item.genre}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+            <GenreSelect
+              label="主题"
+              value={genreSelected}
+              onChange={handleGenreChange}
+              items={genresCond}
+            />
           </Grid>
           <Grid item xs={12} sm={6} md={3} sx={{ marginRight: '20px' }}>
-            {/* fullWidth size='small' */}
-            <FormControl fullWidth variant="filled" size='small' sx={{ mt: 1 }}>
-              <InputLabel id="period-checkbox-label">时期</InputLabel>
-              <Select
-                labelId="period-checkbox-label"
-                id="period-checkbox"
-                value={periodSelected}
-                onChange={handlePeriodChange}
-                input={<FilledInput />}
-                MenuProps={{
-                  PaperProps: {
-                    style: {
-                      maxHeight: 300,
-                    }
-                  }
-                }}
-              >
-                <MenuItem value="">所有时期</MenuItem>
-
-                {periodCond.map((item) => (
-                  <MenuItem key={item.period} value={item.period}>
-                    {item.period}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+            <PeriodSelect
+              label="时期"
+              value={periodSelected}
+              onChange={handlePeriodChange}
+              items={periodCond}
+            />
           </Grid>
           <Grid item xs={12} sm={6} md={2} sx={{ marginRight: '20px' }}>
-            {/* fullWidth size='small' */}
-            <FormControl fullWidth variant="filled" size='small' sx={{ mt: 1 }}>
-              <InputLabel id="technique-checkbox-label">技法类型</InputLabel>
-              <Select
-                labelId="technique-checkbox-label"
-                id="technique-checkbox"
-                value={techniqueSelected}
-                onChange={handleTechniqueChange}
-                input={<FilledInput />}
-                MenuProps={{
-                  PaperProps: {
-                    style: {
-                      maxHeight: 300,
-                    }
-                  }
-                }}
-              >
-                <MenuItem value="">所有类型</MenuItem>
-
-                {techniqueCond.map((item) => (
-                  <MenuItem key={item.technique} value={item.technique}>
-                    {item.technique}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+            <TechniqueSelect
+              label="技术类型"
+              value={techniqueSelected}
+              onChange={handleTechniqueChange}
+              items={techniqueCond}
+            />
           </Grid>
           <Grid container xs={12} sm={6} md={2} justifyContent="center" alignItems="center">
 
@@ -289,18 +222,10 @@ export default function ArtTable() {
                 <Typography sx={{ fontWeight: 'bold', fontSize: 18 }}>
                   {artwork.titleZh}
                 </Typography>
-                <Typography >
-                  {artwork.collection}
-                </Typography>
-                <Typography  >
-                  {artwork.placeOfOrigin}
-                </Typography>
-                <Typography  >
-                  {artwork.displayDate}
-                </Typography>
-                <Typography >
-                  {artwork.dimension}
-                </Typography>
+                <Typography >{artwork.collection}</Typography>
+                <Typography >{artwork.placeOfOrigin}</Typography>
+                <Typography >{artwork.displayDate}</Typography>
+                <Typography >{artwork.dimension}</Typography>
               </CardContent>
             </Card>
           </Grid>
