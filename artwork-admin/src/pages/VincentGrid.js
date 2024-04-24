@@ -6,6 +6,7 @@ import { createTheme } from '@mui/material/styles';
 import { useMediaQuery } from '@mui/material';
 import Pagination from '@mui/material/Pagination';
 import { SearchInput, FilterAccordion } from './VincentFilter';
+import { fetchArtData, fetchConfigData } from './api';
 
 import '../ArtTableStyles.css';
 
@@ -28,54 +29,37 @@ export default function ArtTable() {
   const [techniqueSelected, setTechniqueItems] = useState('');
   const [totalResults, setTotalResults] = useState(0);
   const [searchKeyword, setSearchKeyword] = useState('');
+  const [isLoading, setIsLoading] = useState(false); // Track loading state
 
   useEffect(() => {
 
-    fetchArtData();
-    fetchConfigData();
+    fetchData();
 
     //listening  data change
   }, [page, hasImage, genreSelected, periodSelected, techniqueSelected]);
 
-  async function fetchArtData() {
+  async function fetchData() {
     try {
-      const response = await axios.get(apiDomain, {
-        params: {
-          page: page,
-          pageSize: pageSize,
-          search: searchKeyword,
-          hasImage: hasImage,
-          genres: genreSelected ? [genreSelected] : [],
-          periods: periodSelected ? [periodSelected] : [],
-          techniques: techniqueSelected ? [techniqueSelected] : []
-        }
-      });
-      setArtWorks(response.data.rows);
-      setTotalPages(Math.ceil(response.data.count / pageSize));
-      setTotalResults(response.data.count);
+      setIsLoading(true); 
+      const artData = await fetchArtData(page, pageSize, searchKeyword, hasImage, genreSelected, periodSelected, techniqueSelected);
+      setArtWorks(artData.rows);
+      setTotalPages(Math.ceil(artData.count / pageSize));
+      setTotalResults(artData.count);
       window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      const configData = await fetchConfigData();
+      setGenresCond(configData.genres);
+      setPeriodsCond(configData.periods);
+      setTechniquesCond(configData.techniques)
     } catch (error) {
       console.error('Error fetching art data', error);
+    }finally {
+      setIsLoading(false); // Set loading state to false after fetching data
     }
   };
 
-  async function fetchConfigData() {
-    try {
-      const [genreRes, periodRes, techniques] = await Promise.all([
-        axios.get(apiDomain + '/config?cond=genre'),
-        axios.get(apiDomain + '/config?cond=period'),
-        axios.get(apiDomain + '/config?cond=technique'),
-
-      ]);
-      setGenresCond(genreRes.data);
-      setPeriodsCond(periodRes.data);
-      setTechniquesCond(techniques.data)
-    } catch (error) {
-      console.log('Error fetching config data', error);
-    }
-  };
   const handleSearch = (value) => {
-    fetchArtData();
+    fetchData();
     fetchConfigData();
     //reset 
     setHasImage(false);
@@ -94,7 +78,6 @@ export default function ArtTable() {
   };
 
   const handleHasImageChange = (event) => {
-    console.log('has image checked')
     setHasImage(event.target.checked);
   };
 
@@ -162,7 +145,11 @@ export default function ArtTable() {
         </Grid>
 
         {/* ----- artwork gird ------- */}
-        {artworks.map((artwork, index) => (
+        {isLoading ? ( // Show loading indicator if data is being fetched
+        <Grid container justifyContent="center" sx={{ mt: 4 }}>
+          <Typography>数据加载中...</Typography>
+        </Grid>
+      ) : (artworks.map((artwork, index) => (
           <Grid item xs={6} sm={6} md={4} key={index}
             sx={{
               padding: '10px 30px 10px 20px',
@@ -193,10 +180,13 @@ export default function ArtTable() {
               </CardContent>
             </Card>
           </Grid>
-        ))}
+        ))
+      )};
+        {/* image box end */}
+
         <Grid item xs={12} sx={{ pb: 8 }}>
           <Grid container justifyContent="center" >
-            <Pagination count={totalPages} page={page} onChange={handlePageChange}
+            <Pagination count={totalPages} page={page} onChange={handlePageChange} color="secondary"
               siblingCount={isDesktop ? 2 : 0}
               size="large" />
           </Grid>

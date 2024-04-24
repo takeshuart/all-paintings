@@ -5,7 +5,6 @@ import { FormControl, FilledInput, InputLabel, Select, MenuItem, FormGroup, Form
 import useMediaQuery from '@mui/material/useMediaQuery';
 import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import Typography from '@mui/material/Typography';
 
