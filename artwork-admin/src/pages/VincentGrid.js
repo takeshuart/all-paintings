@@ -1,25 +1,25 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Container, Typography, FormGroup, FormControlLabel, TextField, Checkbox, Grid, Card, CardMedia, CardContent, FormControl, InputLabel, IconButton, InputAdornment, Select, FilledInput, MenuItem } from '@mui/material';
-import Divider from '@mui/material/Divider';
-import Accordion from '@mui/material/Accordion';
-import AccordionSummary from '@mui/material/AccordionSummary';
-import AccordionDetails from '@mui/material/AccordionDetails';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { Container, Typography, FormGroup, FormControlLabel, ThemeProvider, Checkbox, Grid, Card, CardMedia, CardContent } from '@mui/material';
+
+import { createTheme } from '@mui/material/styles';
+import { useMediaQuery } from '@mui/material';
 import Pagination from '@mui/material/Pagination';
-import SearchIcon from '@mui/icons-material/Search';
-import { SearchInput, GenreSelect, PeriodSelect, TechniqueSelect } from './VincentSearch';
+import { SearchInput, FilterAccordion } from './VincentFilter';
 
 import '../ArtTableStyles.css';
 
 const apiDomain = 'http://192.168.50.156:5001/artworks/vincent';
 
+
 export default function ArtTable() {
+  const isDesktop = useMediaQuery('(min-width:600px)');
+
   const pageSize = 21
   const [artworks, setArtWorks] = useState([]);
   const [totalPages, setTotalPages] = useState(0);
   const [page, setPage] = useState(1);
-  const [hasImage, setHasImage] = useState(false);
+  const [hasImage, setHasImage] = useState(true); //default only image artwork
   const [genresCond, setGenresCond] = useState([]);
   const [genreSelected, setGenreItems] = useState('');
   const [periodCond, setPeriodsCond] = useState([]);
@@ -34,7 +34,8 @@ export default function ArtTable() {
     fetchArtData();
     fetchConfigData();
 
-  }, [page, hasImage, genreSelected, periodSelected, techniqueSelected]); //listening  data change
+    //listening  data change
+  }, [page, hasImage, genreSelected, periodSelected, techniqueSelected]);
 
   async function fetchArtData() {
     try {
@@ -118,17 +119,14 @@ export default function ArtTable() {
     <Container maxWidth="lg" sx={{ mt: 2 }}>
 
       <Grid container spacing={0}>
-        <Grid container sx={{ margin: '30px 1px 30px 10px' }}>
+        <Grid container sx={{ margin: '30px 1px 30px 10px' }} justifyContent="center">
           <Grid item md={12} >
-            <Typography align="center" variant="h3"
-              sx={{
-                '@media (max-width: 600px)': {
-                  variant: 'h6',
-                },
-              }}
-            >
-              Vincent Van Gogh
-            </Typography>
+            <ThemeProvider theme={theme}>
+
+              <Typography align="center" variant="h3">
+                Vincent Van Gogh
+              </Typography>
+            </ThemeProvider>
           </Grid>
         </Grid>
 
@@ -141,48 +139,23 @@ export default function ArtTable() {
             onSearch={handleSearch}
           />
         </Grid>
-
-        {/* -----line 2 search------ */}
-        <Grid container sx={{ marginTop: '10px', marginBottom: '40px' }}>
-
-          <Grid item xs={12} sm={6} md={3} sx={{ marginRight: '20px' }}>
-            <GenreSelect
-              label="主题"
-              value={genreSelected}
-              onChange={handleGenreChange}
-              items={genresCond}
-            />
-          </Grid>
-          <Grid item xs={12} sm={6} md={3} sx={{ marginRight: '20px' }}>
-            <PeriodSelect
-              label="时期"
-              value={periodSelected}
-              onChange={handlePeriodChange}
-              items={periodCond}
-            />
-          </Grid>
-          <Grid item xs={12} sm={6} md={2} sx={{ marginRight: '20px' }}>
-            <TechniqueSelect
-              label="技术类型"
-              value={techniqueSelected}
-              onChange={handleTechniqueChange}
-              items={techniqueCond}
-            />
-          </Grid>
-          <Grid container xs={12} sm={6} md={2} justifyContent="center" alignItems="center">
-
-            <FormGroup >
-              <FormControlLabel
-                control={<Checkbox checked={hasImage} onChange={handleHasImageChange} />}
-                label="有图片"
-              />
-            </FormGroup>
-          </Grid>
-          <Grid item xs={12} sm={6} md={3}>
-          </Grid>
+        <Grid container >
+          <FilterAccordion
+            genreSelected={genreSelected}
+            periodSelected={periodSelected}
+            techniqueSelected={techniqueSelected}
+            hasImage={hasImage}
+            handleGenreChange={handleGenreChange}
+            handlePeriodChange={handlePeriodChange}
+            handleTechniqueChange={handleTechniqueChange}
+            handleHasImageChange={handleHasImageChange}
+            genresCond={genresCond}
+            periodCond={periodCond}
+            techniqueCond={techniqueCond}
+          />
         </Grid>
         {/* ------line 3 ------- */}
-        <Grid container xs={12} sm={6} md={12} justifyContent="center" sx={{ marginBottom: '20px' }}>
+        <Grid container xs={12} sm={6} md={12} justifyContent="center" sx={{ marginBottom: '20px',marginTop:'20px' }}>
           <Typography variant="subtitle1" sx={{ color: 'grey' }}>
             发现 <span style={{ fontWeight: 'bold' }}>{totalResults}</span> 个作品
           </Typography>
@@ -190,7 +163,7 @@ export default function ArtTable() {
 
         {/* ----- artwork gird ------- */}
         {artworks.map((artwork, index) => (
-          <Grid item xs={12} sm={6} md={4} key={index}
+          <Grid item xs={6} sm={6} md={4} key={index}
             sx={{
               padding: '10px 30px 10px 20px',
               '@media (max-width: 600px)': {
@@ -205,34 +178,27 @@ export default function ArtTable() {
                 sx={{
                   height: '300px', width: '100%', objectFit: 'contain',
                   '@media (max-width: 600px)': {
-                    objectPosition: 'center',
-                    height: '200px'
+                    height: '150px'
                   },
                   objectPosition: 'center',
-                  backgroundColor: '#fafafa'
+                  // backgroundColor: '#fafafa'
                 }}
               />
-              <CardContent variant="subtitle1" align="left"
-                sx={{
-                  '@media (max-width: 600px)': {
-                    fontSize: 14
-                  }
-                }}
-              >
-                <Typography sx={{ fontWeight: 'bold', fontSize: 18 }}>
-                  {artwork.titleZh}
+              <CardContent align="left">
+                <Typography sx={{ fontWeight: 'bold', fontSize: { xs: 12, md: 16 } }}>
+                  {artwork.titleZh || artwork.titleEn}
                 </Typography>
-                <Typography >{artwork.collection}</Typography>
-                <Typography >{artwork.placeOfOrigin}</Typography>
-                <Typography >{artwork.displayDate}</Typography>
-                <Typography >{artwork.dimension}</Typography>
+                {isDesktop && <Typography sx={{ fontStyle: 'italic' }} >{artwork.collection}</Typography>}
+                <Typography sx={{ fontSize: { xs: 14, md: 16 }, fontStyle: 'italic' }} >{artwork.placeOfOrigin}</Typography>
               </CardContent>
             </Card>
           </Grid>
         ))}
         <Grid item xs={12} sx={{ pb: 8 }}>
           <Grid container justifyContent="center" >
-            <Pagination count={totalPages} page={page} onChange={handlePageChange} shape="rounded" size="large" />
+            <Pagination count={totalPages} page={page} onChange={handlePageChange}
+              siblingCount={isDesktop ? 2 : 0}
+              size="large" />
           </Grid>
         </Grid>
       </Grid>
@@ -241,3 +207,14 @@ export default function ArtTable() {
 
   );
 }
+
+
+const theme = createTheme({
+  typography: {
+    h3: {
+      '@media (max-width: 600px)': {
+        fontSize: '1.5rem', // Adjust font size for smaller screens
+      },
+    },
+  },
+});
