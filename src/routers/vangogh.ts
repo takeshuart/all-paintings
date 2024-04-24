@@ -3,7 +3,7 @@ import path from "path";
 import { DataTypes, Model, Sequelize, Op, QueryTypes, literal } from "sequelize";
 
 const router = express.Router();
-const dbFile = path.join(__dirname, '../../artwork.db');
+export const dbFile = path.join(__dirname, '../../artwork.db');
 
 const sequelize = new Sequelize({
     dialect: 'sqlite',
@@ -20,10 +20,11 @@ router.get('/', async (req: any, res) => {
         const hasImage = req.query.hasImage === 'true';
         const periods: string[] = Array.isArray(req.query.periods) ? req.query.periods : [];
         const genres: string[] = Array.isArray(req.query.genres) ? req.query.genres : [];
+        const techniques: string[] = Array.isArray(req.query.techniques) ? req.query.techniques : [];
 
         console.log(`request:${JSON.stringify(req.query)}`);
 
-        const result = await findAllByPage(searchText, genres, periods, hasImage, page, pageSize);
+        const result = await findAllByPage(searchText, genres, periods,techniques, hasImage, page, pageSize);
 
         res.json(result);
     } catch (error) {
@@ -50,7 +51,8 @@ async function findSearchConditions(cond: string) {
         throw error;
     }
 }
-async function findAllByPage(searchText:string, genres: string[], periods: string[], hasImage: boolean, page = 1, pageSize = 10) {
+async function findAllByPage(searchText:string, genres: string[], periods: string[],
+    techniques:string[], hasImage: boolean, page = 1, pageSize = 10) {
     const offset = (page - 1) * pageSize;
 
     const whereClause: any = {};
@@ -59,6 +61,9 @@ async function findAllByPage(searchText:string, genres: string[], periods: strin
     }
     if (periods.length > 0) {
         whereClause['period'] = periods
+    }
+    if (techniques.length > 0) {
+        whereClause['technique'] = techniques
     }
     if (hasImage) {
         whereClause['primary_image_small'] = literal('length(primary_image_small)>0');
