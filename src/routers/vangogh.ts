@@ -11,8 +11,18 @@ const sequelize = new Sequelize({
     logging: true,
 });
 
+router.get('/id/:id',async(req:any,res)=>{
+    try {
+        const artwork = await VincentArtwork.findByPk(req.params.id);
+        if (artwork) {
+            res.json(artwork)
+        } 
+      } catch (error) {
+        console.error('Error finding artwork by ID:', error);
+      }
+})
 
-router.get('/', async (req: any, res) => {
+router.get('/bypage', async (req: any, res) => {
     try {
         const page = parseInt(req.query.page) || 0;
         const pageSize = parseInt(req.query.pageSize) || 5;
@@ -32,7 +42,7 @@ router.get('/', async (req: any, res) => {
     }
 });
 
-//test case: http://localhost:5001/artwork/vincent?page=5&pageSize=10&periods[]=Paris&periods[]=Antwerp
+//test case: http://localhost:5001/artworks/vincent/bypage?page=5&pageSize=10&periods[]=Paris
 router.get('/config', async (req: any, res) => {
     const condition = req.query.cond || ''
     const result = await findSearchConditions(condition)
@@ -51,6 +61,8 @@ async function findSearchConditions(cond: string) {
         throw error;
     }
 }
+
+
 async function findAllByPage(searchText:string, genres: string[], periods: string[],
     techniques:string[], hasImage: boolean, page = 1, pageSize = 10) {
     const offset = (page - 1) * pageSize;

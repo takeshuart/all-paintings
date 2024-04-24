@@ -1,16 +1,14 @@
 import { useEffect, useState } from 'react';
-import axios from 'axios';
-import { Container, Typography, FormGroup, FormControlLabel, ThemeProvider, Checkbox, Grid, Card, CardMedia, CardContent } from '@mui/material';
+import { Container, Typography, ThemeProvider, Grid, Card, CardMedia, CardContent } from '@mui/material';
 
 import { createTheme } from '@mui/material/styles';
 import { useMediaQuery } from '@mui/material';
+import { Link } from 'react-router-dom';
 import Pagination from '@mui/material/Pagination';
 import { SearchInput, FilterAccordion } from './VincentFilter';
-import { fetchArtData, fetchConfigData } from './api';
+import { fetchArtData, fetchConfigData } from './ArtworkApi';
 
 import '../ArtTableStyles.css';
-
-const apiDomain = 'http://192.168.50.156:5001/artworks/vincent';
 
 
 export default function ArtTable() {
@@ -21,26 +19,26 @@ export default function ArtTable() {
   const [totalPages, setTotalPages] = useState(0);
   const [page, setPage] = useState(1);
   const [hasImage, setHasImage] = useState(true); //default only image artwork
-  const [genresCond, setGenresCond] = useState([]);
-  const [genreSelected, setGenreItems] = useState('');
-  const [periodCond, setPeriodsCond] = useState([]);
-  const [periodSelected, setPeriodItems] = useState('');
-  const [techniqueCond, setTechniquesCond] = useState([]);
-  const [techniqueSelected, setTechniqueItems] = useState('');
+  const [genres, setGenres] = useState([]);
+  const [genreSelected, setGenreSelected] = useState('');
+  const [periods, setPeriods] = useState([]);
+  const [periodSelected, setPeriodSelected] = useState('');
+  const [techniques, setTechniques] = useState([]);
+  const [techniqueSelected, setTechniqueSelected] = useState('');
   const [totalResults, setTotalResults] = useState(0);
   const [searchKeyword, setSearchKeyword] = useState('');
   const [isLoading, setIsLoading] = useState(false); // Track loading state
 
   useEffect(() => {
 
-    fetchData();
-
+    fetchData()
     //listening  data change
   }, [page, hasImage, genreSelected, periodSelected, techniqueSelected]);
 
   async function fetchData() {
+
     try {
-      setIsLoading(true); 
+      setIsLoading(true);
       const artData = await fetchArtData(page, pageSize, searchKeyword, hasImage, genreSelected, periodSelected, techniqueSelected);
       setArtWorks(artData.rows);
       setTotalPages(Math.ceil(artData.count / pageSize));
@@ -48,54 +46,32 @@ export default function ArtTable() {
       window.scrollTo({ top: 0, behavior: 'smooth' });
 
       const configData = await fetchConfigData();
-      setGenresCond(configData.genres);
-      setPeriodsCond(configData.periods);
-      setTechniquesCond(configData.techniques)
+      setGenres(configData.genres);
+      setPeriods(configData.periods);
+      setTechniques(configData.techniques);
+
     } catch (error) {
       console.error('Error fetching art data', error);
-    }finally {
+    } finally {
       setIsLoading(false); // Set loading state to false after fetching data
     }
-  };
+
+  }
 
   const handleSearch = (value) => {
     fetchData();
     fetchConfigData();
     //reset 
     setHasImage(false);
-    setGenreItems('');
-    setPeriodItems('');
-    setTechniqueItems('');
+    setGenreSelected('');
+    setPeriodSelected('');
+    setTechniqueSelected('');
   }
   const handleKeyDown = (event) => {
     if (event.key === 'Enter') {
       handleSearch()
     }
   }
-
-  const handlePageChange = (event, value) => {
-    setPage(value);
-  };
-
-  const handleHasImageChange = (event) => {
-    setHasImage(event.target.checked);
-  };
-
-  const handleGenreChange = (event) => {
-    const value = event.target.value;
-    setGenreItems(value);
-  };
-  const handlePeriodChange = (event) => {
-    const value = event.target.value;
-    setPeriodItems(value);
-  };
-  const handleTechniqueChange = (event) => {
-    const value = event.target.value;
-    setTechniqueItems(value);
-  };
-  const handleSearchChange = (event) => {
-    setSearchKeyword(event.target.value);
-  };
 
   return (
 
@@ -117,7 +93,7 @@ export default function ArtTable() {
         <Grid container sx={{ margin: '10px 1px 20px 10px' }}>
           <SearchInput
             value={searchKeyword}
-            onChange={handleSearchChange}
+            onChange={(event) => setSearchKeyword(event.target.value)}
             onKeyDown={handleKeyDown}
             onSearch={handleSearch}
           />
@@ -128,17 +104,17 @@ export default function ArtTable() {
             periodSelected={periodSelected}
             techniqueSelected={techniqueSelected}
             hasImage={hasImage}
-            handleGenreChange={handleGenreChange}
-            handlePeriodChange={handlePeriodChange}
-            handleTechniqueChange={handleTechniqueChange}
-            handleHasImageChange={handleHasImageChange}
-            genresCond={genresCond}
-            periodCond={periodCond}
-            techniqueCond={techniqueCond}
+            handleGenreChange={(event) => setGenreSelected(event.target.value)}
+            handlePeriodChange={(event) => setPeriodSelected(event.target.value)}
+            handleTechniqueChange={(event) => setTechniqueSelected(event.target.value)}
+            handleHasImageChange={(event) => setHasImage(event.target.checked)}
+            genresCond={genres}
+            periodCond={periods}
+            techniqueCond={techniques}
           />
         </Grid>
         {/* ------line 3 ------- */}
-        <Grid container xs={12} sm={6} md={12} justifyContent="center" sx={{ marginBottom: '20px',marginTop:'20px' }}>
+        <Grid container xs={12} sm={6} md={12} justifyContent="center" sx={{ marginBottom: '20px', marginTop: '20px' }}>
           <Typography variant="subtitle1" sx={{ color: 'grey' }}>
             发现 <span style={{ fontWeight: 'bold' }}>{totalResults}</span> 个作品
           </Typography>
@@ -146,47 +122,51 @@ export default function ArtTable() {
 
         {/* ----- artwork gird ------- */}
         {isLoading ? ( // Show loading indicator if data is being fetched
-        <Grid container justifyContent="center" sx={{ mt: 4 }}>
-          <Typography>数据加载中...</Typography>
-        </Grid>
-      ) : (artworks.map((artwork, index) => (
+          <Grid container justifyContent="center" sx={{ mt: 4 }}>
+            <Typography>数据加载中...</Typography>
+          </Grid>
+        ) : (artworks.map((artwork, index) => (
           <Grid item xs={6} sm={6} md={4} key={index}
             sx={{
-              padding: '10px 30px 10px 20px',
+              padding: '10px 40px 10px 10px',
               '@media (max-width: 600px)': {
                 padding: '0px 10px 10px 10px'
               }
             }}>
+              <Link to  ={`/vincent/id/${artwork.id}`} target="_blank" style={{ textDecoration: 'none' }}>
             <Card variant="outlined" sx={{ height: '100%', display: 'flex', flexDirection: 'column', border: 'none' }}>
               <CardMedia
                 component="img"
                 image={`https://www.pubhist.com${artwork.primaryImageSmall}`}
                 alt=""
                 sx={{
-                  height: '300px', width: '100%', objectFit: 'contain',
+                  height: '250px', width: '100%', objectFit: 'contain', objectPosition: 'center',
                   '@media (max-width: 600px)': {
                     height: '150px'
                   },
-                  objectPosition: 'center',
+
                   // backgroundColor: '#fafafa'
                 }}
               />
               <CardContent align="left">
-                <Typography sx={{ fontWeight: 'bold', fontSize: { xs: 12, md: 16 } }}>
-                  {artwork.titleZh || artwork.titleEn}
-                </Typography>
+                  <Typography sx={{ fontWeight: 'bold', fontSize: { xs: 12, md: 16 } }}>
+                    {artwork.titleZh || artwork.titleEn}
+                  </Typography>
                 {isDesktop && <Typography sx={{ fontStyle: 'italic' }} >{artwork.collection}</Typography>}
                 <Typography sx={{ fontSize: { xs: 14, md: 16 }, fontStyle: 'italic' }} >{artwork.placeOfOrigin}</Typography>
               </CardContent>
             </Card>
+                </Link> 
           </Grid>
         ))
-      )};
+        )};
         {/* image box end */}
 
         <Grid item xs={12} sx={{ pb: 8 }}>
           <Grid container justifyContent="center" >
-            <Pagination count={totalPages} page={page} onChange={handlePageChange} color="secondary"
+            <Pagination count={totalPages} page={page}
+              onChange={(event, value) => setPage(value)}
+              color="secondary"
               siblingCount={isDesktop ? 2 : 0}
               size="large" />
           </Grid>
