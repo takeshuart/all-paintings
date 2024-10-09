@@ -42,22 +42,29 @@ var axios_1 = require("axios");
 var socks_proxy_agent_1 = require("socks-proxy-agent");
 var fs_1 = require("fs");
 var proxyUrl = 'socks5://127.0.0.1:1080';
-var socksAgent = new socks_proxy_agent_1.SocksProxyAgent(proxyUrl);
-exports.axiosAgented = axios_1["default"].create({
-    httpAgent: socksAgent,
-    httpsAgent: socksAgent,
-    headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.77 Safari/537.36'
-    }
-});
+try {
+    var socksAgent = new socks_proxy_agent_1.SocksProxyAgent(proxyUrl);
+    // Create axios instance using the v2-ray proxy
+    exports.axiosAgented = axios_1["default"].create({
+        httpAgent: socksAgent,
+        httpsAgent: socksAgent,
+        headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.77 Safari/537.36'
+        }
+    });
+    console.log('Axios instance created successfully');
+}
+catch (error) {
+    console.error('Error during axios initialization:', error);
+}
 testDownload();
 function testDownload() {
     return __awaiter(this, void 0, void 0, function () {
         var image, dir;
         return __generator(this, function (_a) {
-            image = 'https://data.spinque.com/iiif/2/vangoghworldwide%2Fkmm%2Fsharepoint%2FKM104_607-lijst.tif/4096,4096,4096,4096/!800,440/0/default.jpg';
-            dir = "D:\\Arts\\Van Gogh\\demo.jpg";
-            downloadFile(image, dir, { 'Referer': 'https://vangoghworldwide.org/' });
+            image = 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ab/Egon_Schiele_-_Lovers_-_Google_Art_Project.jpg/654px-Egon_Schiele_-_Lovers_-_Google_Art_Project.jpg';
+            dir = "D:\\Arts\\Van Gogh\\download_test.jpg";
+            downloadFile(image, dir);
             return [2 /*return*/];
         });
     });
@@ -67,7 +74,7 @@ function downloadFile(url, outputPath, headers) {
         var response, writer;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, axios_1["default"].get(url, {
+                case 0: return [4 /*yield*/, exports.axiosAgented.get(url, {
                         responseType: 'stream',
                         headers: headers ? headers : {}
                     })];

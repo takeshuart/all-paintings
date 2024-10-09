@@ -6,6 +6,7 @@ import Datastore from 'nedb';
 import * as fs from 'fs';
 import * as path from 'path';
 import { AnyARecord } from 'dns';
+import { scrapTables } from './wikitableScraper.js';
 
 const db = new Datastore({ filename: './nedb.db', autoload: true });
 export const dataBasePath=path.join(__dirname, '../../data/')
@@ -13,7 +14,7 @@ const filePath = path.join(__dirname, '../../data/data.json');
 
 export class WikiPage {
     private url?: string;
-    private $?: any;
+    $?: any;
     static async load(url: string): Promise<WikiPage> {
 
         const wikiPage = new WikiPage();
@@ -21,69 +22,6 @@ export class WikiPage {
         const html = response.data;
         wikiPage.$ = cheerio.load(html);
         return wikiPage;
-    }
-    //解析wikitable
-    tables(): any[] {
-        try {
-            const tables = this.$('.wikitable');
-            const result: any = [];
-
-            tables.each((tableIndex: number, table: any) => {
-                const tableData: any = [];
-                const rows = this.$(table).find('tr');
-
-                rows.each((rowIndex: number, row: any) => {
-                    const rowData: any = [];
-                    const tdList = this.$(row).find('td');
-                    if (tdList.length <= 1) { return; } //invalid wikitable
-
-                    tdList.each((colIndex: any, td: any) => {
-                        const imgTag = this.$(td).find('img');
-                        if (imgTag.length > 0) { //image box
-                            let imageBox: any = this.extractImageInfo(imgTag, td);
-                            rowData.push(imageBox);
-
-                        } else { //pure text
-                            rowData.push(this.$(td).text().trim());
-                        }
-                    });
-
-                    if (rowData.length > 0) {
-                        tableData.push(rowData);
-                    }
-                });
-
-                if (tableData.length > 0) {
-                    result.push(tableData);
-                }
-            });
-
-            return result;
-        } catch (error) {
-            console.error('Failed to parse wikitable:', error);
-            return [];
-        }
-    }
-
-
-    private extractImageInfo(imgTag: any, td: any) {
-        let imageBox: any = {};
-        let imgSrc = imgTag.attr('src');
-        if (imgSrc && imgSrc.startsWith('//')) {
-            imgSrc = 'https:' + imgSrc;
-        }
-        imageBox["src"] = imgSrc;
-
-        if (imgTag.parent().is('a')) {
-            const imageDetailUrl = imgTag.parent().attr('href');
-            imageBox['href'] = imageDetailUrl;
-        }
-
-        const figcaption = this.$(td).find('figcaption');
-        if (figcaption.length > 0) {
-            imageBox['title'] = figcaption.text();
-        }
-        return imageBox;
     }
 }
 
@@ -93,7 +31,7 @@ export async function downloadWikiTable(wikipageConfig:WikiPageWithTable) {
     console.log(wikipageConfig.url)
     const wikiPage = await WikiPage.load(wikipageConfig.url)
     try {
-        const tables = wikiPage.tables();
+        const tables = scrapTables(wikiPage.$);
         let artworks: ArtWork[] = []
 
         tables[0].forEach((element: any) => {

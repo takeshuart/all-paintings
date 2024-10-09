@@ -36,15 +36,13 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 exports.__esModule = true;
-var https_1 = require("../utils/https");
-var wikipage_1 = require("./wikipage");
-var wikitable_config_1 = require("./wikitable-config");
-var cheerio = require("cheerio");
-var iconv = require("iconv-lite");
 var fs_1 = require("fs");
 var path = require("path");
+var https_1 = require("../utils/https");
 //wikipage, museum, open api
-wikipage_1.downloadWikiTable(wikitable_config_1.wikiPageList.VanGoghNewList);
+var dataBasePath = path.join(__dirname, '../../data/');
+// downloadWikiTable(wikiPageList.VanGoghNewList)
+fetchFromChristies();
 //佳士得数据抓取
 //Christie的数据是通过api同态加载的，无法通过html访问
 //这个接口直接访问会返回404: Resource not found
@@ -52,63 +50,80 @@ wikipage_1.downloadWikiTable(wikitable_config_1.wikiPageList.VanGoghNewList);
 //可在chrome inspect中获取接口返回的json
 function fetchFromChristies() {
     return __awaiter(this, void 0, void 0, function () {
-        var imageDir, jsons, i, json_1, imageName, imagePath, error_1;
+        var noImage, imageOutputDir, fileName, artist, pages, i, page, j, lot, imageName, imagePath, error_1;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    imageDir = 'D:\\Arts\\matisse';
-                    if (!fs_1["default"].existsSync(imageDir)) {
-                        fs_1["default"].mkdirSync(imageDir, { recursive: true });
+                    noImage = 'non_NoImag';
+                    imageOutputDir = 'D:\\Arts\\后印象派';
+                    if (!fs_1["default"].existsSync(imageOutputDir)) {
+                        fs_1["default"].mkdirSync(imageOutputDir, { recursive: true });
                     }
+                    fileName = 'Christies_-_Egon Schiele.json';
+                    artist = 'Egon Schiele';
+                    pages = readJsonFile(fileName);
+                    i = 0;
                     _a.label = 1;
                 case 1:
-                    _a.trys.push([1, 7, , 8]);
-                    jsons = readJsonFile('Matisse-from-Chrities.json');
-                    i = 0;
+                    if (!(i < pages.length)) return [3 /*break*/, 9];
+                    page = pages[i];
+                    j = 0;
                     _a.label = 2;
                 case 2:
-                    if (!(i < jsons.length)) return [3 /*break*/, 6];
-                    json_1 = jsons[i];
-                    imageName = json_1.title_secondary_txt + "_" + json_1.object_id + ".jpg";
-                    imagePath = path.join(imageDir, imageName);
-                    return [4 /*yield*/, https_1.downloadFile(json_1.image.image_src, imagePath)];
+                    if (!(j < page.lots.length)) return [3 /*break*/, 8];
+                    lot = page.lots[j];
+                    if (!lot.title_secondary_txt || lot.image.image_src.includes(noImage)) {
+                        return [3 /*break*/, 7];
+                    }
+                    _a.label = 3;
                 case 3:
-                    _a.sent();
-                    console.log("Image downloaded successfully," + i + "/" + jsons.length + ":\t" + imageName + "'");
-                    return [4 /*yield*/, new Promise(function (resolve) { return setTimeout(resolve, 100); })];
+                    _a.trys.push([3, 6, , 7]);
+                    imageName = artist + '_-_' + lot.title_secondary_txt + "_-_from Christies-" + lot.object_id + ".jpg";
+                    imagePath = path.join(imageOutputDir, artist, imageName);
+                    return [4 /*yield*/, https_1.downloadFile(lot.image.image_src, imagePath)];
                 case 4:
                     _a.sent();
-                    _a.label = 5;
+                    console.log("Image downloaded successfully," + j + "/" + page.lots.length + ":\t" + imagePath + "',ImageURL:" + lot.image.image_src);
+                    return [4 /*yield*/, new Promise(function (resolve) { return setTimeout(resolve, 100); })];
                 case 5:
-                    i++;
-                    return [3 /*break*/, 2];
-                case 6: return [3 /*break*/, 8];
-                case 7:
+                    _a.sent();
+                    return [3 /*break*/, 7];
+                case 6:
                     error_1 = _a.sent();
-                    console.error('Error fetching image:', error_1);
-                    return [3 /*break*/, 8];
-                case 8: return [2 /*return*/];
+                    console.error("Error fetching image! Christies lot: " + lot, error_1);
+                    return [3 /*break*/, 7];
+                case 7:
+                    j++;
+                    return [3 /*break*/, 2];
+                case 8:
+                    i++;
+                    return [3 /*break*/, 1];
+                case 9: return [2 /*return*/];
             }
         });
     });
 }
-function fetchHtml(url) {
-    return __awaiter(this, void 0, Promise, function () {
-        var response, html, $;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0: return [4 /*yield*/, https_1.axiosAgented.get(url)];
-                case 1:
-                    response = _a.sent();
-                    html = iconv.decode(Buffer.from(response.data), 'utf-8');
-                    $ = cheerio.load(html);
-                    return [2 /*return*/, $];
-            }
-        });
-    });
-}
+// async function fetchFromChristiesByUrl() {
+//     const url = 'https://www.christies.com/en/lot/lot-6453117'
+//     try {
+//         const resp = await axiosAgented.get(url)
+//         const data = resp.data
+//         console.log(data)
+//         const html = cheerio.load(data)
+//         console.log(html)
+//     } catch (error) {
+//         console.error('Error fetching data:', error);
+//         // Handle error appropriately, e.g., retry, log, or throw
+//     }
+// }
+// async function fetchHtml(url: string): Promise<cheerio.Root> {
+//     const response = await axiosAgented.get(url);
+//     const html = iconv.decode(Buffer.from(response.data), 'utf-8');
+//     const $ = cheerio.load(html);
+//     return $
+// }
 function readJsonFile(fileName) {
-    var p = path.join(wikipage_1.dataBasePath, fileName);
+    var p = path.join(dataBasePath, fileName);
     var dataJson = fs_1["default"].readFileSync(p, 'utf8');
     return JSON.parse(dataJson);
 }

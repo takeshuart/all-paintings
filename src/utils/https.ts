@@ -1,30 +1,41 @@
-import axios, { AxiosResponse } from 'axios';
+import axios, { AxiosInstance, AxiosResponse } from 'axios';
 //Config vsCode setting 'http:proxy' does not work; but using 'socks-proxy-agent' is ok.
 import { SocksProxyAgent } from 'socks-proxy-agent';
 import fs from 'fs';
 
 const proxyUrl = 'socks5://127.0.0.1:1080';
-const socksAgent = new SocksProxyAgent(proxyUrl);
 
-export const axiosAgented = axios.create({  //create an instance using v2ray proxy
-  httpAgent: socksAgent,
-  httpsAgent: socksAgent,
-  headers: {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.77 Safari/537.36'
-  }
-});
+export let axiosAgented: AxiosInstance;
+
+try {
+  const socksAgent = new SocksProxyAgent(proxyUrl);
+
+  // Create axios instance using the v2-ray proxy
+  axiosAgented = axios.create({
+    httpAgent: socksAgent,
+    httpsAgent: socksAgent,
+    headers: {
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.77 Safari/537.36'
+    }
+  });
+
+  console.log('Axios instance created successfully');
+
+} catch (error) {
+  console.error('Error during axios initialization:', error);
+}
 
 testDownload()
 async function testDownload() {
-  const image = 'https://data.spinque.com/iiif/2/vangoghworldwide%2Fkmm%2Fsharepoint%2FKM104_607-lijst.tif/4096,4096,4096,4096/!800,440/0/default.jpg'
-  const dir = "D:\\Arts\\Van Gogh\\demo.jpg"
-  downloadFile(image, dir, { 'Referer': 'https://vangoghworldwide.org/' })
+  const image = 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ab/Egon_Schiele_-_Lovers_-_Google_Art_Project.jpg/654px-Egon_Schiele_-_Lovers_-_Google_Art_Project.jpg'
+  const dir = "D:\\Arts\\Van Gogh\\download_test.jpg"
+  downloadFile(image, dir)
 }
 
 
 export async function downloadFile(url: string, outputPath: string, headers?: any): Promise<void> {
 
-  const response = await axios.get(url,
+  const response = await axiosAgented.get(url,
     {
       responseType: 'stream',
       headers: headers ? headers : {}

@@ -62,6 +62,7 @@ exports.WikiPageWithTable = WikiPageWithTable;
 var wikiDataDomain = 'https://www.wikidata.org/wiki';
 var kunsthistorischesMuseum = new artwork_1.Museum("Kunsthistorisches Museum", "Vienna, Austria");
 var nationGalleryUk = new artwork_1.Museum("The National Gallery,London", " London, UK");
+var vanGoghMusuem = 'https://www.wikidata.org/wiki/Wikidata:WikiProject_sum_of_all_paintings/Collection/Van_Gogh_Museum';
 exports.wikiPageList = {
     // nationGalleryUkMuseum: new WikiPageWithTable('', nationGalleryUkMuseumConfig,undefined, wikiDataDomain + '/Wikidata:WikiProject_sum_of_all_paintings/Collection/National_Gallery'),
     // GettyMuseum: new WikiPageWithTable('', GettyMuseumConfig,undefined, wikiDataDomain + '/Wikidata:WikiProject_sum_of_all_paintings/Collection/J._Paul_Getty_Museum'),

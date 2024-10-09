@@ -43,6 +43,7 @@ var artwork_js_1 = require("./artwork.js");
 var nedb_1 = require("nedb");
 var fs = require("fs");
 var path = require("path");
+var wikitableScraper_js_1 = require("./wikitableScraper.js");
 var db = new nedb_1["default"]({ filename: './nedb.db', autoload: true });
 exports.dataBasePath = path.join(__dirname, '../../data/');
 var filePath = path.join(__dirname, '../../data/data.json');
@@ -66,63 +67,6 @@ var WikiPage = /** @class */ (function () {
             });
         });
     };
-    //解析wikitable
-    WikiPage.prototype.tables = function () {
-        var _this = this;
-        try {
-            var tables = this.$('.wikitable');
-            var result_1 = [];
-            tables.each(function (tableIndex, table) {
-                var tableData = [];
-                var rows = _this.$(table).find('tr');
-                rows.each(function (rowIndex, row) {
-                    var rowData = [];
-                    var tdList = _this.$(row).find('td');
-                    if (tdList.length <= 1) {
-                        return;
-                    } //invalid wikitable
-                    tdList.each(function (colIndex, td) {
-                        var imgTag = _this.$(td).find('img');
-                        if (imgTag.length > 0) { //image box
-                            var imageBox = _this.extractImageInfo(imgTag, td);
-                            rowData.push(imageBox);
-                        }
-                        else { //pure text
-                            rowData.push(_this.$(td).text().trim());
-                        }
-                    });
-                    if (rowData.length > 0) {
-                        tableData.push(rowData);
-                    }
-                });
-                if (tableData.length > 0) {
-                    result_1.push(tableData);
-                }
-            });
-            return result_1;
-        }
-        catch (error) {
-            console.error('Failed to parse wikitable:', error);
-            return [];
-        }
-    };
-    WikiPage.prototype.extractImageInfo = function (imgTag, td) {
-        var imageBox = {};
-        var imgSrc = imgTag.attr('src');
-        if (imgSrc && imgSrc.startsWith('//')) {
-            imgSrc = 'https:' + imgSrc;
-        }
-        imageBox["src"] = imgSrc;
-        if (imgTag.parent().is('a')) {
-            var imageDetailUrl = imgTag.parent().attr('href');
-            imageBox['href'] = imageDetailUrl;
-        }
-        var figcaption = this.$(td).find('figcaption');
-        if (figcaption.length > 0) {
-            imageBox['title'] = figcaption.text();
-        }
-        return imageBox;
-    };
     return WikiPage;
 }());
 exports.WikiPage = WikiPage;
@@ -138,7 +82,7 @@ function downloadWikiTable(wikipageConfig) {
                 case 1:
                     wikiPage = _a.sent();
                     try {
-                        tables = wikiPage.tables();
+                        tables = wikitableScraper_js_1.scrapTables(wikiPage.$);
                         artworks_1 = [];
                         tables[0].forEach(function (element) {
                             var _a, _b;
