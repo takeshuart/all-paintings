@@ -1,5 +1,5 @@
 import { sleep } from "openai/core";
-import { axiosAgented } from "../utils/https";
+import { axiosAgented, downloadFile } from "../utils/https";
 import * as cheerio from 'cheerio';
 import path from "path";
 import fs from 'fs';
@@ -14,7 +14,7 @@ import { readJsonSync, writeJsonSync } from "fs-extra";
  *  /collection/b0701bV1962r	Sheet 2 of letter from Vincent van Gogh to Willemien van Gogh (recto)
  *  /collection/b0701bV1962v	Sheet 2 of letter from Vincent van Gogh to Willemien van Gogh (verso)
  *  以上是一封信的所有webpage，/b0701V1962 该page是一个合集，包含这封信的所有照片。
- *  sheet 2表示这封信有两页纸，/b0701aV1962 中间多了一个字母a表示第一页纸所有照片（正反面）
+ *  sheet {n} of n表示这封信的第n张纸，/b0701aV1962 中间多了一个字母a表示第一页纸所有照片（正反面）
  *  后缀有r的page是纸张正面(recto)照片，v是纸张反面(verso)照片
  *  如果想获取所有照片，只访问//b0701V1962 页面即可，img url的`s280`后缀表示尺寸，可以自行修改
  *  只有一张纸的信url中之后r\v后缀，没有a\b标识第几页纸
@@ -27,7 +27,8 @@ import { readJsonSync, writeJsonSync } from "fs-extra";
 //Vincent Van Gogh 共 1631条记录，无图片或集合类型有一百多个
 const dataBasePath = path.join(__dirname, '../../data/')
 const catalogFile = path.join(dataBasePath, './van gogh/vangoghmuseum-catalog-VincentVanGogh.json');
-const detailsFile = path.join(dataBasePath, './van gogh/vangoghmuseum-demo.json');
+const detailsFile = path.join(dataBasePath, './van gogh/vangoghmuseum-details-VincentVanGogh.json');
+const lettersPhotoFile = path.join(dataBasePath, './van gogh/vangoghmuseum-letters-VincentVanGogh.json');
 
 const vgmDomain = 'https://www.vangoghmuseum.nl'
 
@@ -92,28 +93,66 @@ async function fetchArtWorks() {
     const artworks: any[] = []
     for (let i = 0; i < catalogs.length; i++) {
         const title = catalogs[i].title
-        const href = catalogs[i].href
+        let href = catalogs[i].href
 
         try {
-            const pattern = /^Sheet [0-9] of a letter from/;
+            const pattern = /^Sheet [0-9] of/;
             const letterPrefix = pattern.test(title);
-            if (title.startsWith('Letter from') || letterPrefix) {
-                console.log(`skip letter: \t ${title}\t${href}`)
+            //有两个Letter to
+            if (!title.startsWith('Letter from') && !letterPrefix) {
+                // console.log(`skip letter: \t ${title}\t${href}`)
                 continue
             }
-            const artwork = await fetchDetailPage(vgmDomain + href)
+            //redirect url
+            href = href.replace('/en/', '/en/letters/')
+            const artwork = await fetchLetterPage(vgmDomain + href)
             if (artwork) {
                 artworks.push(artwork)
                 console.log(`${i}/${catalogs.length} \t ${title}\t${href}`)
             }
         } catch (error) {
-            console.error(`${href}`,error)
+            console.error(`${href}`, error)
         }
         sleep(200)
     }
-    writeJsonSync(detailsFile, artworks)
+    writeJsonSync(lettersPhotoFile, artworks)
 }
-async function fetchDetailPage(url: string) {
+
+//信件页面的布局与作品页面不同
+//信件的url /en/collection/ba0008,会自动跳转到/en/letters/collection/ba0008 所以请求速度比较慢，
+//可以在编码中提前转换url
+async function fetchLetterPage(url: string) {
+    try {
+        const resp = await axiosAgented.get(url)
+        const data = resp.data
+        const $ = cheerio.load(data)
+        const imgSrc = $('div.download-buttons-container a').attr('href')
+        if (!imgSrc) { return }
+
+        const letterInfo = $('article .text-bold').text().trim()
+        const title = $('article h1').text().trim()
+
+        let obj: any = {};
+        obj['letterInfo'] = letterInfo
+        obj['imgSrc'] = imgSrc
+        obj['title'] = title
+        let currentField = '';
+
+        $('.list-table dt').each((i, dt) => {
+            currentField = $(dt).text().trim();
+            const dd = $(dt).next('dd');
+            if (dd.length) {
+                const value = dd.text().trim().replace(/\s+/g, ' ');
+                obj[currentField] = value ? value : '';
+            }
+        });
+        return obj
+    } catch (error) {
+        console.error(`Error fetching detail:`, error);
+    }
+}
+
+async function fetchArtworkDetailPage(url: string) {
     try {
         const resp = await axiosAgented.get(url)
         const data = resp.data
@@ -151,4 +190,36 @@ async function fetchDetailPage(url: string) {
     }
 
 }
-fetchArtWorks();
+async function downloadImage() {
+    const output = 'D:\\Arts\\Van Gogh\\all-Van Gogh Museum\\letters'
+    const artworks = readJsonSync(detailsFile)
+    for (let i = 0; i < artworks.length; i++) {
+        const item = artworks[i];
+        if (!item.title || !item.imgSrc) { continue }
+        const url = item.imgSrc
+        const title = item.title.replace(':', ',')
+        const creatorinfo = item.createorInfo.replace('Vincent van Gogh (1853 - 1890), ', '').split(',').join('_-_');
+        const fileName = [item['JH-number'], item['F-number'], title, creatorinfo, 'from&Collection Van Gogh Museum' + '-' + item['Object number']].join('_-_')
+        const fullPath = path.join(output, fileName + '.jpg')
+        console.log(fullPath)
+        await downloadFile(url, fullPath)
+    }
+}
+
+async function downloadLetterImage() {
+    const output = 'D:\\Arts\\Van Gogh\\all-Van Gogh Museum\\letters'
+    const artworks = readJsonSync(lettersPhotoFile)
+    for (let i = 0; i < artworks.length; i++) {
+        const item = artworks[i];
+        if (!item.imgSrc) { continue }
+        const url = vgmDomain + item.imgSrc
+        const title = item.title?.replace(':', ',')
+        const letterNo = item['Edition 2009']?.replace('Letter number: ', '')
+        const creatorinfo = item.letterInfo.replace('Vincent van Gogh (1853 - 1890), ', '').split(',').join('_-_');
+        const fileName = ['Letter No.' + letterNo, item['JH-number'], title, creatorinfo, 'from&Collection Van Gogh Museum' + '-' + item['Object number']].join('_-_')
+        const fullPath = path.join(output, fileName + '.jpg')
+        console.log(fullPath)
+        await downloadFile(url, fullPath)
+    }
+}
+downloadLetterImage();

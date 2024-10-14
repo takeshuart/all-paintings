@@ -17,7 +17,7 @@ import { count } from "console";
 //   示例：https://data.spinque.com/iiif/2/vangoghworldwide/kmm/KM 103.198.jpg/full/!682,440/0/default.jpg
 //   访问图片需要设置header, Referer: https://vangoghworldwide.org/
 //4. vgww官网共有2168个作品，根据f-number去重后，有1882个作品。
-//   原因是部分作品有重复图片，例如F1664
+//   原因是部分作品有重复图片，例如F1664(Portrait of Dr. Gachet版画的复制版)
 
 interface Artwork {
     rank: number;
