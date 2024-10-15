@@ -19,18 +19,70 @@ const mergePath = 'C:\\Users\\Administrator\\Downloads\\vgletter-mergefile'
 const tileImageDomain = 'https://vgtile.vangoghletters.org/vangogh'
 
 const letterMap = new Map<string, string>([
-    // ["Letter No.254_-_Sketch 1 of letter To Theo_-_The Hague_-_6 August 1882", '/VGM001000299_01_n_tiles/zoom0/'],
-    ["Letter No.255_-_Sketch 1 of letter To Theo_-_The Hague_-_11 August 1882", '/VGM001000300_01_n_tiles/zoom0/'],
-    ["Letter No.255_-_Sketch 2 of letter To Theo_-_The Hague_-_11 August 1882", '/VGM001001678_01_n_tiles/zoom0/'],
-    ["Letter No.257_-_Sketch 1 of letter To Theo_-_The Hague_-_14 August 1882", '/VGM001000301_01_n_tiles/zoom0/'],
-    ["Letter No.262_-_Sketch 1 of letter To Theo_-_The Hague_-_11 September 1882", '/VGM001001675_01_n_tiles/zoom0/'],
-    ["Letter No.263_-_Sketch 1 of letter To Theo_-_The Hague_-_17 September 1882", '/VGM001001591_01_n_tiles/zoom0/'],
-    ["Letter No.896_-_Sketch 1 of letter To Theo and Jo-Bonger_-_Auvers-sur-Oise_-_2 July 1890", '/VGM001000943_02_n_tiles/zoom0/'],
-    ["Letter No.893_-_Sketch 1 of letter To Theo_-_Auvers-sur-Oise_-_28 June 1890", '/893_1r_tiles/zoom0/'],
-    ["Letter No.866_-_Sketch 1 of letter To Theo_-_Saint-Rémy_-_2 May 1890", '/VGM001000927_01_n_tiles/zoom0/'],
+
+
+    ["Letter No.387_-_Sketch 1 of letter To Theo_-_Hoogeveen_-_16 September 1883", '/VGM001000446_02_n_tiles/zoom0/'],
+    ["Letter No.491_-_Sketch 1 of letter To Anton Kerssemakers_-_Nuenen_-_9 April 1885", '/491_1r_tiles/zoom0/'],
+    ["Letter No.491_-_Sketch 2 of letter To Anton Kerssemakers_-_Nuenen_-_9 April 1885", '/491_1v_tiles/zoom0/'],
+    ["Letter No.528_-_Sketch 1 of letter To Anthon van Rappard_-_Nuenen_-_18 August 1885", '/VGM001001653_01_n_tiles/zoom0/'],
+    // ["Letter No.331_-_Sketch 1 of letter To Theo_-_The Hague_-_21 March 1883", '/VGM001000372_02_n_tiles/zoom0/'],
+    // ["Letter No.348_-_Sketch 1 of letter To Theo_-_The Hague_-_3 June 1883", '/VGM001001674_01_n_tiles/zoom0/'],
+    // ["Letter No.350_-_Sketch 1 of letter To Theo_-_The Hague_-_5 June 1883", '/VGM001000396_02_n_tiles/zoom0/'],
+    // ["Letter No.352_-_Sketch 1 of letter To Theo_-_The Hague_-_11 June 1883", '/VGM001000372_02_n_tiles/zoom0/'],
+    // ["Letter No.357_-_Sketch 1 of letter To Theo_-_The Hague_-_12 June 1883", '/VGM001000401_02_n_tiles/zoom0/'],
+    // ["Letter No.361_-_Sketch 1 of letter To Theo_-_The Hague_-_11 July 1883", '/VGM001000405_02_n_tiles/zoom0/'],
+    // ["Letter No.362_-_Sketch 1 of letter To Theo_-_The Hague_-_13 July 1883", '/VGM001000408_02_n_tiles/zoom0/'],
+    // ["Letter No.392_-_Sketch 1 of letter To Theo_-_Nieuw-Amsterdam_-_3 October 1883", '/VGM001000453_01_n_tiles/zoom0/'],
+    // ["Letter No.393_-_Sketch 1 of letter To Theo_-_Nieuw-Amsterdam_-_7 October 1883", '/VGM001000454_01_n_tiles/zoom0/'],
+    // ["Letter No.421_-_Sketch 1 of letter To Antoine Philippe Furnée_-_Nuenen_-_18 January 1884", '/VGM001000499_02_n_tiles/zoom0/'],
+    // ["Letter No.428_-_Sketch 1 of letter To Theo_-_Nuenen_-_3 February 1884", '/VGM001000504_02_n_tiles/zoom0/'],
+    // ["Letter No.433_-_Sketch 1 of letter To Anthon van Rappard_-_Nuenen_-_2 March 1884", '/433_3r_tiles/zoom0/'],
+    // ["Letter No.433_-_Sketch 2 of letter To Anthon van Rappard_-_Nuenen_-_2 March 1884", '/433_4r_tiles/zoom0/'],
+    // ["Letter No.444_-_Sketch 1 of letter To Theo_-_Nuenen_-_April 1884", '/VGM001000528_01_n_tiles/zoom0/'],
+    // ["Letter No.450_-_Sketch 1 of letter To Theo_-_Nuenen_-_June 1884", '/VGM001000533_02_n_tiles/zoom0/'],
+    // ["Letter No.492_-_Sketch 1 of letter To Theo_-_Nuenen_-_9 April 1885", '/VGM001000583_01_n_tiles/zoom0/'],
+    // ["Letter No.492_-_Sketch 2 of letter To Theo_-_Nuenen_-_9 April 1885", '/VGM001001659_01_n_tiles/zoom0/'],
+    // ["Letter No.492_-_Sketch 3 of letter To Theo_-_Nuenen_-_9 April 1885", '/VGM001001660_01_n_tiles/zoom0/'],
+    // ["Letter No.493_-_Sketch 1 of letter To Theo_-_Nuenen_-_13 April 1885", '/493_2r_tiles/zoom0/'],
+    // ["Letter No.533_-_Sketch 1 of letter To Theo_-_Nuenen_-_4 October 1885", '/VGM001000623_01_n_tiles/zoom0/'],
+    // ["Letter No.542_-_Sketch 1 of letter To Theo_-_Nuenen_-_17 November 1885", '/VGM001001668_01_n_tiles/zoom0/'],
+    // ["Letter No.587_-_Sketch 1 of letter To Emile Bernard_-_Arles_-_18 March 1888", '/587_1r_tiles/zoom0/'],
+    // ["Letter No.600_-_Sketch 1 of letter To Theo_-_Arles_-_20 April 1888", '/VGM001000698_01_n_tiles/zoom0/'],
+    // ["Letter No.602_-_Sketch 1 of letter To Theo_-_Arles_-_1 May 1888", '/VGM001000695_01_n_tiles/zoom0/'],
+    // ["Letter No.615_-_Sketch 1 of letter To Theo_-_Arles_-_28 March 1888", '/VGM001000716_02_n_tiles/zoom0/'],
+    // ["Letter No.622_-_Sketch 1 of letter To Emile Bernard_-_Arles_-_7 June 1888", '/622_1v_tiles/zoom0/'],
+    // ["Letter No.622_-_Sketch 2 of letter To Emile Bernard_-_Arles_-_7 June 1888", '/622_2r_tiles/zoom0/'],
+    // ["Letter No.622_-_Sketch 3 of letter To Emile Bernard_-_Arles_-_7 June 1888", '/622_2v_tiles/zoom0/'],
+    // ["Letter No.622_-_Sketch 4 of letter To Emile Bernard_-_Arles_-_7 June 1888", '/622_3r_tiles/zoom0/'],
+    // ["Letter No.622_-_Sketch 5 of letter To Emile Bernard_-_Arles_-_7 June 1888", '/622_3v_tiles/zoom0/'],
+    // ["Letter No.628_-_Sketch 1 of letter To Emile Bernard_-_Arles_-_19 June 1888", '/628_1r_tiles/zoom0/'],
+    // ["Letter No.628_-_Sketch 2 of letter To Emile Bernard_-_Arles_-_19 June 1888", '/628_1v_tiles/zoom0/'],
+    // ["Letter No.636_-_Sketch 1 of letter To Theo_-_Arles_-_5 July 1888", '/VGM001000737_02_n_tiles/zoom0/'],
+    // ["Letter No.644_-_Sketch 1 of letter To Theo_-_Arles_-_20 July 1888", '/VGM001000743_01_n_tiles/zoom0/'],
+    // ["Letter No.646_-_Sketch 1 of letter Paul Gauguin to Vincent_-_Pont-Aven_-_22 July 1888", '/VGM001001130_02_n_tiles/zoom0/'],
+    // ["Letter No.687_-_Sketch 1 of letter To Theo_-_Arles_-_25 September 1888", '/687_1r_tiles/zoom0/'],
+    // ["Letter No.688_-_Sketch 1 of letter Paul Gauguin to Vincent_-_Pont-Aven_-_26 September 1888", '/VGM001001136_01_n_tiles/zoom0/'],
+    // ["Letter No.705_-_Sketch 1 of letter To Theo_-_Arles_-_16 October 1888", '/VGM001001667_01_n_tiles/zoom0/'],
+    // ["Letter No.706_-_Sketch 1 of letter To Paul Gauguin_-_Arles_-_17 October 1888", '/706_1v_tiles/zoom0/'],
+    // ["Letter No.709_-_Sketch 1 of letter To Theo_-_Arles_-_21 October 1888", '/VGM001000820_02_n_tiles/zoom0/'],
+    // ["Letter No.714_-_Sketch 1 of letter To Theo_-_Arles_-_28 October 1888", '/VGM001000825_02_n_tiles/zoom0/'],
+    // ["Letter No.719_-_Sketch 1 of letter To Theo_-_Arles_-_12 November 1888", '/VGM001000829_01_n_tiles/zoom0/'],
+    // ["Letter No.720_-_Sketch 1 of letter To Willemien van Gogh_-_Arles_-_12 November 1888", '/VGM001000963_02_n_tiles/zoom0/'],
+    // ["Letter No.722_-_Sketch 1 of letter To Theo_-_Arles_-_21 November 1888", '/VGM001000824_02_n_tiles/zoom0/'],
+    // ["Letter No.756_-_Sketch 1 of letter To Paul Signac_-_Arles_-_10 April 1889", '/756_1v_tiles/zoom0/'],
+    // ["Letter No.776_-_Sketch 1 of letter To Theo_-_Arles_-_23 May 1889", '/776_1r_tiles/zoom0/'],
+    // ["Letter No.776_-_Sketch 2 of letter To Theo_-_Saint-Rémy_-_23 May 1889", '/776_1v_tiles/zoom0/'],
+    // ["Letter No.777_-_Sketch 1 of letter To Theo_-_Saint-Rémy_-_6 June 1889", '/VGM001000876_01_n_tiles/zoom0/'],
+    // ["Letter No.783_-_Sketch 1 of letter To Theo_-_Saint-Rémy_-_25 June 1889", '/VGM001000880_02_n_tiles/zoom0/'],
+    // ["Letter No.817_-_Sketch 1 of letter Paul Gauguin to Vincent_-_Le Pouldu,_-_13 November 1889", '/VGM001001156_02_n_tiles/zoom0/'],
+    // ["Letter No.868_-_Sketch 1 of letter To Theo_-_Saint-Rémy_-_4 May 1890", '/VGM001000926_01_n_tiles/zoom0/'],
+    // ["Letter No.877_-_Sketch 1 of letter To Theo_-_Auvers-sur-Oise_-_3 June 1890", '/VGM001000935_01_n_tiles/zoom0/'],
+    // ["Letter No.RM14_-_Sketch 1 of letter To Theo_-_JH628_-_Nuenen_-_January 1885", '/VGM001001666_01_n_tiles/zoom0/'],
+    // ["Letter No.RM23_-_Sketch 1 of letter To Paul Gauguin_-_Auvers-sur-Oise_-_17 June 1890", '/VGM001000939_02_n_tiles/zoom0/'],
+
 ])
 // 并发处理每个网页
-async function processLettersConcurrently() {
+async function downloadLetterTilesConcurrently() {
     try {
         await Promise.all([...letterMap].map(async ([letterImageName, subPath]) => {
             const tilesDirUrl = tileImageDomain + subPath;
@@ -47,7 +99,7 @@ async function processLettersConcurrently() {
                 matrixRows = parseInt(matrix[matrix.length - 2], 10) + 1;
                 matrixCols = parseInt(matrix[matrix.length - 1], 10) + 1;
             }
-            const batchSize = 20;
+            const batchSize = 30;
             await processRowsInBatches($, rows, batchSize, letterImageName, tilesDirUrl);
         }));
         console.log('All letters processed successfully.');
@@ -151,7 +203,7 @@ async function stitchImagesToGrid(imagePaths: string[], columns: number, rows: n
 
 
 async function mergeImage() {
-    for(let imageName of letterMap.keys()){
+    for (let imageName of letterMap.keys()) {
         const tilesDir = path.join(tilesPath, imageName)
         const matrix = getMatrixSize(tilesDir)
         const imagePaths = generateImagePaths(tilesDir, matrix.maxRow, matrix.maxCol);
@@ -214,4 +266,5 @@ function getMatrixSize(dir: string): { maxRow: number, maxCol: number } {
     return { maxRow: maxRow + 1, maxCol: maxCol + 1 };
 }
 
+// downloadLetterTilesConcurrently()
 mergeImage()
