@@ -16,36 +16,14 @@
   该项目为node.js+typescript项目，通过vscode直接运行.ts文件需要配置`launch.json`文件
 1. `run->start debugging`， 运行的文件配置在`tsconfig.json#outDir`
 
-
-# 目录结构
-crawler-project/
-│
-├── node_modules/          # 包含所有 npm 依赖项
-│
-├── src/                   # 源代码目录
-│   ├── crawlers/          # 爬虫脚本或模块
-│   ├── utils/             # 工具函数，如数据解析、格式化
-│   └── index.js           # 爬虫服务的主要入口文件
-│   ├── controllers/       # 控制器，用于处理请求和返回响应
-│   ├── models/             # 数据模型，用于与数据库交互
-│   ├── routes/           # 路由，定义 URL 到控制器的映射
-│   ├── views/            # 视图文件，如 EJS 或 Pug 模板
-│   └── app.js            # 应用的主入口文件
-│
-├── data/                  # 存储爬取的数据文件（如 JSON、CSV）
-│
-├── logs/                  # 日志文件目录
-├── test/               # 测试代码和资源
-├── public/             # 静态文件，如样式表、JavaScript、图片等
-│
-├── package.json           # 项目的依赖配置文件
-│
-├── package-lock.json      # 确保依赖的一致安装
-│
-└── .env                   # 环境变量文件
-
 #Airbnb的JavaScript编程规范：https://github.com/airbnb/javascript
 
+### 图片文件命名规范
+- 缩写 
+VGM, Van Gogh Museum
+GAP, Google Art Project
+KMM, Kröller-Müller Museum
+wikimedia-VGM, 来自wikimedia，由VGM贡献的图片
 
 ### 数据源
 1. 大都会博物馆开放接口 https://metmuseum.github.io/

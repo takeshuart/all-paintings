@@ -5,6 +5,7 @@ import { axiosAgented, downloadFile } from "../utils/https"
 import path from 'path';
 import { readJsonSync, writeJSONSync, writeJsonSync } from "fs-extra";
 import { sleep } from 'openai/core';
+import { processInBatches } from '../utils/process-in-batches';
 
 
 const dataBasePath = path.join(__dirname, '../../data/')
@@ -14,44 +15,42 @@ const vgwwFile = path.join(dataBasePath, './van gogh/vgww-artworks.json');
 async function fetchCatalog() {
     const kmDomain = 'https://krollermuller.nl'
     const url = kmDomain + '/en/search-the-collection/keywords=%22Vincent+van+Gogh%22/page='
-    const artworks: any[] = []
-
+    let artworks: any[] = []
     for (let index = 0; index < 10; index++) {
         try {
             const resp = await axiosAgented(url + index)
             const data = resp.data
             const $ = cheerio.load(data)
-            const items = $('div.searchresult__item').toArray();
-            for (let i = 0; i < items.length; i++) {
-                const href = $(items[i]).find('a').attr('href')
-                if (!href) { return }
-                const artwork = await fetchDetail(kmDomain + href)
-                artworks.push(artwork)
-                console.log(`${i}/${items.length}\t${artwork.title}\t${artwork.inventory_id}`)
-                sleep(200)
-            }
+            const itemUrls = $('div.searchresult__item').toArray().map((item) => kmDomain + $(item).find('a').attr('href'))
+            const resultsPromise = await processInBatches(10, itemUrls, fetchDetail);
+            artworks.push(resultsPromise);
         } catch (error) {
             console.log(error)
         }
     }
-    writeJSONSync(catalogFile, artworks, 'utf-8')
 
+    writeJSONSync(catalogFile, artworks, 'utf-8')
 }
+
+
 async function fetchDetail(url: string) {
     try {
+
         const resp = await axiosAgented(url)
         const data = resp.data
         const $ = cheerio.load(data)
         let obj: any = {}
-        const imgSrc = $('div.collection-item__viewer img').attr('src')
-        if (!imgSrc) { return }
+        const smallImg = $('div.collection-item__viewer img').attr('src')
+        const largeImg = $('div.collection-item__viewer source').attr('srcset')
+        if (!smallImg) { return }
 
         const title = $('h1.collection-meta__original-title').text().trim()
         const subtitle = $('h2.collection-meta__sub-title').text().trim()
         const intro = $('div.main-content').html()
         obj['title'] = title
         obj['subtitle'] = subtitle
-        obj['imgSrc'] = imgSrc
+        obj['smallImg'] = smallImg
+        obj['largeImg'] = largeImg
         obj['intro'] = intro ? intro : ''
 
         $('div.collection-meta__list p').each((i, item) => {
@@ -64,6 +63,7 @@ async function fetchDetail(url: string) {
                 obj['inventory_id'] = text
             }
         })
+        console.log(`${obj.title}\t${obj.inventory_id}`)
         return obj
     } catch (error) {
         console.error(error)
@@ -75,48 +75,44 @@ async function fetchDetail(url: string) {
  *  kröller-Müller Museum的详情页没有提供JH\F编码，
  *  但是vangoghworldwide同时提供了该博物馆的KM编码和JH编码，可以以此做映射。
  */
-async function downloadImage() {
-    const output = 'D:\\Arts\\Van Gogh\\all-Kröller-Müller Museum'
+const output = 'D:\\Arts\\Van Gogh\\all-Kröller-Müller Museum'
+const kmCodeMap = loadVgwwData()
+
+async function downloadImageInBatches() {
     const artworks = readJsonSync(catalogFile)
-    const kmCodeMap = loadVgwwData()
-    for (let i = 0; i < artworks.length; i++) {
-        const item = artworks[i];
-        let imgSrc = item.imgSrc
-        if (!imgSrc) { continue }
-        //convert large image url
-        if (!imgSrc.includes('/cache/resolve')) {
-            imgSrc = imgSrc.replace('/cache', '/cache/resolve').replace('collection_item_detail_small', 'collection_item_detail_large')
+    processInBatches(20, artworks, downloadImage)
+}
+
+async function downloadImage(item: any) {
+    try {
+        let imgSrc = item.largeImg ? item.largeImg : item.smallImg
+        if (!imgSrc) {
+            console.log(`missing imgage:${JSON.stringify(item)}`)
+            return
         }
         const subtitle = item.subtitle.replace(':', ',')
-        try {
-            const inventoryId = item.inventory_id.replace(' ', '').replace('.', '')
-            if (kmCodeMap.has(inventoryId)) {
-                const vgww = kmCodeMap.get(inventoryId);
-                let jhCode = vgww.jhCode
-                let fCode = vgww.fCode
-                if (jhCode) {
-                    jhCode = 'JH' + jhCode.substring(2).toString().padStart(4, '0');
-                }
-                if (fCode) {
-                    fCode = 'F' + fCode.substring(2).toString().padStart(4, '0');
-                }
-                const fileName = [jhCode, fCode, subtitle, vgww.dateDisplay, vgww.placeOfOrigin, 'from&Collection Kröller-Müller Museum' + '-' + inventoryId].join('_-_')
-                const fullPath = path.join(output, fileName + '.jpg')
-                console.log(fullPath)
-                await downloadFile(imgSrc, fullPath)
-                sleep(100)
-            } else {
-                console.log(`missing vgww:\t ${subtitle}`)
-            }
-        } catch (error) {
-            console.log(`${subtitle}`, error)
-        }
+        const inventoryId = item.inventory_id.replace(' ', '').replace('.', '')
 
+        if (kmCodeMap.has(inventoryId)) {
+            const vgww = kmCodeMap.get(inventoryId);
+            let jhCode = vgww.jhCode
+            let fCode = vgww.fCode
+            const fileName = [jhCode, fCode, subtitle, vgww.dateDisplay, vgww.placeOfOrigin, 'from&Collection Kröller-Müller Museum' + '-' + inventoryId].join('_-_')
+            const fullPath = path.join(output, fileName + '.jpg')
+            console.log(fullPath)
+            await downloadFile(imgSrc, fullPath)
+        } else {
+            console.log(`missing vgww:\t ${subtitle}`)
+        }
+    } catch (error) {
+        console.log(`${item.title}`, error)
     }
+
 }
 
 
-function loadVgwwData() {
+
+export function loadVgwwData() {
     const objarr = readJsonSync(vgwwFile)
     const inventoryIdMap = new Map<string, any>()
     for (const item of objarr) {
@@ -130,4 +126,5 @@ function loadVgwwData() {
     return inventoryIdMap
 }
 
-// downloadImage()
+// fetchCatalog()
+downloadImageInBatches()
