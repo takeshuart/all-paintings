@@ -2,8 +2,9 @@ import { sleep } from "openai/core";
 import { axiosAgented, downloadFile } from "../utils/https";
 import * as cheerio from 'cheerio';
 import path from "path";
-import fs from 'fs';
-import { readJsonSync, writeJsonSync } from "fs-extra";
+import { ensureDir, readJsonSync, writeFileSync, writeJsonSync } from "fs-extra";
+import sharp from "sharp";
+import { processInBatches } from "../utils/process-in-batches";
 /**
  *  --------------------------
  *  /collection/b0701V1962      Letter from Vincent van Gogh to Willemien van Gogh
@@ -85,7 +86,7 @@ async function fetchData() {
             hasMoreResults = false;
         }
     }
-    fs.writeFileSync(catalogFile, JSON.stringify(objects), 'utf-8')
+    writeJsonSync(catalogFile, JSON.stringify(objects), 'utf-8')
 }
 
 async function fetchArtWorks() {
@@ -222,4 +223,135 @@ async function downloadLetterImage() {
         await downloadFile(url, fullPath)
     }
 }
-downloadLetterImage();
+
+//-----download VGM tile image
+interface TileConfig {
+    width: number;
+    height: number;
+    tileSize: number;
+    version: string;
+}
+async function downloadTileConfig(url: string): Promise<TileConfig> {
+    const response = await axiosAgented.get(url);
+    return response.data;
+}
+
+
+function generateTileUrls(baseUrl: string, config: TileConfig): string[] {
+    const { width, height, tileSize } = config;
+    const urls: string[] = [];
+
+    const xSteps = Math.ceil(width / tileSize);
+    const ySteps = Math.ceil(height / tileSize);
+
+    for (let x = 0; x < xSteps; x++) {
+        for (let y = 0; y < ySteps; y++) {
+            const xPos = x * tileSize;
+            const yPos = y * tileSize;
+            const tileWidth = Math.min(tileSize, width - xPos);
+            const tileHeight = Math.min(tileSize, height - yPos);
+
+            const tileUrl = `${baseUrl}/${xPos},${yPos},${tileWidth},${tileHeight}/${tileWidth}/0/default.png`;
+            urls.push(tileUrl);
+        }
+    }
+
+    return urls;
+}
+
+/**
+ * 
+ * @param url /x,y,width,height/ 
+ * https://iiif.micr.io/pMtwg/4096,4096,1024,1024/1024/0/default.png 
+ * @param outputDir 
+ * @returns 
+ */
+async function downloadTile(url: string, outputDir: string): Promise<string> {
+    const match = url.match(/\/(\d+),(\d+),/);
+    if (!match) throw new Error(`Invalid URL format: ${url}`);
+
+    const xPos = match[1];
+    const yPos = match[2];
+
+    // 文件名格式为 tile_x{xPos}_y{yPos}.png
+    const filePath = path.join(outputDir, `tile_x${xPos}_y${yPos}.png`);
+
+    const response = await axiosAgented({ url, responseType: 'arraybuffer' });
+    writeFileSync(filePath, response.data);
+    console.log(`Downloaded: ${filePath}`);
+
+    return filePath;
+}
+
+async function downloadTiles(urls: string[], outputDir: string, concurrentLimit: number): Promise<string[]> {
+    return processInBatches(concurrentLimit, urls, (url) => downloadTile(url, outputDir));
+}
+// 从文件名中提取 xPos 和 yPos
+function extractTilePositionFromFilename(filename: string): { xPos: number; yPos: number } {
+    const match = filename.match(/tile_x(\d+)_y(\d+)\.png/);
+    if (!match) throw new Error(`Invalid filename format: ${filename}`);
+
+    const xPos = parseInt(match[1], 10);
+    const yPos = parseInt(match[2], 10);
+
+    return { xPos, yPos };
+}
+
+// 拼接 tiles 成为完整图片
+async function stitchTiles(filePaths: string[], config: TileConfig, outputFile: string) {
+    const { width, height } = config;
+    const sharpComposite: sharp.OverlayOptions[] = [];
+
+    // 根据文件名中的偏移量拼接 tiles
+    for (const filePath of filePaths) {
+        const { xPos, yPos } = extractTilePositionFromFilename(filePath);
+        sharpComposite.push({
+            input: filePath,
+            top: yPos,
+            left: xPos,
+        });
+    }
+
+    // 创建并拼接最终的图像
+    await sharp({
+        create: {
+            width: width,
+            height: height,
+            channels: 3,
+            background: { r: 255, g: 255, b: 255 },
+        },
+    })
+        .composite(sharpComposite)
+        .toFile(outputFile);
+
+    console.log(`Stitched image saved to: ${outputFile}`);
+}
+
+
+async function downloadTilesImage(iiifInfoUrl:string,tilesDir:string,outputFile:string) {
+    const config = await downloadTileConfig(iiifInfoUrl);
+    console.log('Tile config downloaded:', config);
+
+    const tileUrl='https://iiif.micr.io/TQzrj/'
+    const artworkID=iiifInfoUrl.split('/')[3]
+    const tileUrls = generateTileUrls(tileUrl+artworkID, config);
+    console.log('Generated tile URLs:', tileUrls);
+
+    const downloadedTiles = await downloadTiles(tileUrls, tilesDir, 5);
+    console.log('All tiles downloaded.');
+
+    await stitchTiles(downloadedTiles, config, outputFile);
+}
+// 主程序
+async function main() {
+    const iiifInfoUrl = 'https://i.micr.io/TQzrj/info.json';
+    const outputDir = 'c:\\Users\\Administrator\\Downloads\\tiles_temp'
+    const outputFile = path.join(outputDir, 'stitched_image.png');
+
+    await downloadTilesImage(iiifInfoUrl,outputDir,outputFile);
+
+
+}
+
+main().catch(err => console.error(err));
+

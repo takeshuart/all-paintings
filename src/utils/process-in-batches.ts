@@ -6,15 +6,15 @@
  * @returns - A promise that resolves when all tasks are complete.
  */
 
-export async function processInBatches<T, R>( batchSize: number,items: T[],  taskFn: (item: T) => Promise<R> ): Promise<R[]> {
-    const results: R[] = [];
-  
-    for (let i = 0; i < items.length; i += batchSize) {
-      const batch = items.slice(i, i + batchSize); // Get the current batch of items
-      const batchResults = await Promise.all(batch.map(taskFn)); // Process the batch concurrently
-      results.push(...batchResults); // Store the results
-    }
-  
-    return results;
-  }
-  
+    export async function processInBatches<T, R>( batchSize: number,items: T[],  taskFn: (item: T) => Promise<R> ): Promise<R[]> {
+        const results: R[] = [];
+      
+        for (let i = 0; i < items.length; i += batchSize) {
+          const batch = items.slice(i, i + batchSize); // Get the current batch of items
+          const batchResults = await Promise.all(batch.map(taskFn)); // Process the batch concurrently
+          results.push(...batchResults); // Store the results
+        }
+      
+        return results;
+      }
+      

@@ -14,7 +14,7 @@ const vgwwFile = path.join(dataBasePath, './van gogh/merge-vgww-pubhist-vggaller
  * @param condition 接受一个过滤文件的条件函数
  * @returns 
  */
-async function findFiles(directory: string, condition?: FileCondition): Promise<string[]> {
+export async function findFiles(directory: string, condition?: FileCondition): Promise<string[]> {
     const results: string[] = [];
 
     const files = await fs.promises.readdir(directory);
@@ -129,11 +129,11 @@ const isLargeFile: FileCondition = (filePath, stat) => {
     const SIZE_THRESHOLD = 10 * 1024 * 1024;
     return stat.size > SIZE_THRESHOLD;
 };
-function loadVincentData(): Map<string, any> {
+export function loadVincentData(): Map<string, any> {
     const all = readJsonSync(vgwwFile)
     const jhCodeMap = new Map<string, string>()
     all.forEach((item: any) => {
-        const jhCode = item.fCode
+        const jhCode = item.jhCode
         if (jhCode && !jhCodeMap.has(jhCode)) {
             jhCodeMap.set(jhCode, item)
         }
@@ -151,7 +151,7 @@ function loadVincentData(): Map<string, any> {
             jhCodeMap.set(jhCode, f)
         }
     })
-    console.log(jhCodeMap.size)
+    console.log(files.length)
 })();
 
 async function renameByCondition() {
