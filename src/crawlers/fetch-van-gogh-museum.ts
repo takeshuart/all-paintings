@@ -330,12 +330,11 @@ async function stitchTiles(filePaths: string[], config: TileConfig, outputFile: 
 
 async function downloadTilesImage(iiifInfoUrl:string,tilesDir:string,outputFile:string) {
     const config = await downloadTileConfig(iiifInfoUrl);
-    console.log('Tile config downloaded:', config);
-
-    const tileUrl='https://iiif.micr.io/TQzrj/'
+    
+    const tileDomain='https://iiif.micr.io/'
     const artworkID=iiifInfoUrl.split('/')[3]
-    const tileUrls = generateTileUrls(tileUrl+artworkID, config);
-    console.log('Generated tile URLs:', tileUrls);
+    const tileUrls = generateTileUrls(tileDomain+artworkID, config);
+    console.log(`Dimension:${config.width} * ${config.height},numbers of tile:${tileUrls.length}`);
 
     const downloadedTiles = await downloadTiles(tileUrls, tilesDir, 5);
     console.log('All tiles downloaded.');
@@ -344,7 +343,7 @@ async function downloadTilesImage(iiifInfoUrl:string,tilesDir:string,outputFile:
 }
 // 主程序
 async function main() {
-    const iiifInfoUrl = 'https://i.micr.io/TQzrj/info.json';
+    const iiifInfoUrl = 'https://i.micr.io/rILvE/info.json';
     const outputDir = 'c:\\Users\\Administrator\\Downloads\\tiles_temp'
     const outputFile = path.join(outputDir, 'stitched_image.png');
 

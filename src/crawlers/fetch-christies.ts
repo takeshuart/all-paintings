@@ -5,21 +5,72 @@ import * as iconv from 'iconv-lite';
 import fs from 'fs';
 import * as path from 'path';
 import { json } from "stream/consumers";
-import { downloadFile } from "../utils/https";
+import { axiosAgented, downloadFile } from "../utils/https";
 
 //wikipage, museum, open api
 
 const dataBasePath = path.join(__dirname, '../../data/')
+/**
+ * chrome inspect的headers选项卡最下方有所有所有headers，可通过getman.cn测试
+ */
+const headers = {
+    Accept: 'application/vnd.christies.v1+json',
+    'Accept-Encoding': 'gzip, deflate, br, zstd',
+    Connection: 'keep-alive',
+    Host: 'apim.christies.com',
+    Origin: 'https://www.christies.com',
+    Referer: 'https://www.christies.com/',
+    'Sec-Fetch-Dest': 'empty',
+    'Sec-Fetch-Mode': 'cors',
+    'Sec-Fetch-Site': 'same-site',
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36',
+    'correlation-id': '1a5ed204-42b8-4cf5-872f-b8da0b3af90a',
+    'sec-ch-ua': '"Google Chrome";v="129", "Not=A?Brand";v="8", "Chromium";v="129"',
+    'sec-ch-ua-platform': '"Windows"',
+};
 
-// downloadWikiTable(wikiPageList.VanGoghNewList)
-fetchFromChristies()
+async function fetchPage(keyword: string, page: number): Promise<any | null> {
+    try {
+        const url = `https://apim.christies.com/search-client?keyword=${encodeURIComponent(
+            keyword
+        )}&page=${page}&is_past_lots=True&sortby=relevance&language=en&geocountrycode=JP&show_on_loan=true&datasourceId=182f8bb2-d729-4a38-b539-7cf1a901cf2e`;
 
+        const response = await axiosAgented.get(url, { headers });
 
-//佳士得数据抓取
-//Christie的数据是通过api同态加载的，无法通过html访问
-//这个接口直接访问会返回404: Resource not found
-//https://apim.christies.com/search-client?sortby=alllots_asc
-//可在chrome inspect中获取接口返回的json
+        // 返回分页的结果
+        return {
+            keyword,
+            page,
+            totalPages: response.data.totalPages, // 假设API返回totalPages
+            data: response.data,
+        };
+    } catch (error) {
+        console.error(`Failed to fetch page ${page}:`, error);
+        return null;
+    }
+}
+
+async function fetchAllPages(keyword: string) {
+    let page = 1;
+    let totalPages = 1;
+
+    do {
+        console.log(`Fetching page ${page} of ${totalPages}`);
+        const result = await fetchPage(keyword, page);
+
+        if (result) {
+            console.log(`Page ${page} results:`, result.data);
+
+            totalPages = result.totalPages;
+            page++;
+        } else {
+            console.log(`No more data found for keyword: ${keyword}`);
+            break;
+        }
+    } while (page <= totalPages);
+
+    console.log('All pages fetched.');
+}
 async function fetchFromChristies() {
     const noImage = 'non_NoImag'
     const imageOutputDir = 'D:\\Arts\\后印象派';
@@ -39,7 +90,7 @@ async function fetchFromChristies() {
             }
             try {
                 const imageName = artist + '_-_' + lot.title_secondary_txt + "_-_from Christies-" + lot.object_id + ".jpg"
-                const imagePath = path.join(imageOutputDir,artist, imageName)
+                const imagePath = path.join(imageOutputDir, artist, imageName)
                 await downloadFile(lot.image.image_src, imagePath);
                 console.log(`Image downloaded successfully,${j}/${page.lots.length}:\t${imagePath}',ImageURL:${lot.image.image_src}`);
                 await new Promise(resolve => setTimeout(resolve, 100));
@@ -49,35 +100,11 @@ async function fetchFromChristies() {
         }
     }
 }
-
-// async function fetchFromChristiesByUrl() {
-//     const url = 'https://www.christies.com/en/lot/lot-6453117'
-//     try {
-
-//         const resp = await axiosAgented.get(url)
-//         const data = resp.data
-//         console.log(data)
-//         const html = cheerio.load(data)
-//         console.log(html)
-//     } catch (error) {
-//         console.error('Error fetching data:', error);
-//         // Handle error appropriately, e.g., retry, log, or throw
-//     }
-// }
-
-
-
-// async function fetchHtml(url: string): Promise<cheerio.Root> {
-//     const response = await axiosAgented.get(url);
-//     const html = iconv.decode(Buffer.from(response.data), 'utf-8');
-//     const $ = cheerio.load(html);
-//     return $
-// }
-
-
 function readJsonFile<T>(fileName: string): T[] {
     const p = path.join(dataBasePath, fileName);
     const dataJson = fs.readFileSync(p, 'utf8');
     return JSON.parse(dataJson) as T[];
 }
 
+
+fetchAllPages('Jan Sluijters')

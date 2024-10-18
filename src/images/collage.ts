@@ -3,7 +3,7 @@ import sharp from 'sharp';
 import * as path from 'path';
 import Vibrant from 'node-vibrant';
 
-import { findFiles, loadVincentData } from '../loc_file/loc_files';
+import { findFiles, loadVincentDataJHKey } from '../loc_file/loc_files';
 import { loadVgwwData } from '../crawlers/fetch-kroller-muller-museum';
 import { Palette } from '@vibrant/color';
 
@@ -112,41 +112,45 @@ async function calculateBrightness(imagePath: string) {
     return totalBrightness / pixelCount;
 }
 
-const allVincent = loadVincentData()
+const allVincent = loadVincentDataJHKey()
 
 
-function vgSearchConditions(fileName: string): Boolean {
+function searchVgConditions(file: string): Boolean {
+    const fileName = path.basename(file)
+    if (!fileName.startsWith('JH')) {
+        return false
+    }
     const jhCode = fileName.split('_') ? fileName.split('_')[0] : ''
     const info = allVincent.get(jhCode)
-    if (info) {
-        if (
-            info.technique == 'painting'
-            // &&info.genre == '风景画'
-        ) {
-            return true
-        }
+    if (info
+        && info.technique == 'painting'
+        // && info.genre=='肖像画'
+        // && info.series=='盛开的果园'
+        && info.placeOfOrigin=='Arles'
+    ) {
+        return true
     }
     return false
 
 }
 
 //random
-function shuffleArray(array:any[]) {
+function shuffleArray(array: any[]) {
     for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1)); 
-        [array[i], array[j]] = [array[j], array[i]];  
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
     }
     return array;
 }
 
 const outputPath = 'D:\\Arts\\collage'
-const allCollections = 'D:\\Arts';
+const allCollections = 'D:\\Node.js\\paintings-website\\public\\all-collections';
 
 (async () => {
     const dir = path.join(allCollections, '/')
     let files = (await findFiles(dir))
         .filter(file => /\.(jpg|jpeg|png)$/.test(file))
-        .filter(file => /.*(autumn|automne).*/i.test(file))
+        .filter(file => searchVgConditions(file))
     // .filter(f =>vgSearchConditions(path.basename(f)))
     // .filter(async file => {
     //     const hex = (await getDominantColor(file)).Vibrant?.hex
@@ -155,13 +159,13 @@ const allCollections = 'D:\\Arts';
     //     }
     // })
 
-    files=shuffleArray(files)
-    
+    files = shuffleArray(files)
+
     if (files.length < 9) {
         console.log('图片数量不足:' + files.length)
         return
     }
-    for (let index = 0; index < 10; index++) {
+    for (let index = 0; index < 5; index++) {
         createCollage(files, path.join(outputPath, `collage_${Math.random()}.jpg`))
 
     }

@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { ArtWork } from '../crawlers/artwork';
 import sharp from 'sharp';
-import { readJsonSync } from 'fs-extra';
+import { readJsonSync, renameSync } from 'fs-extra';
 
 type FileCondition = (filePath: string, stat: fs.Stats) => boolean | Promise<boolean>;
 const dataBasePath = path.join(__dirname, '../../data/')
@@ -129,7 +129,7 @@ const isLargeFile: FileCondition = (filePath, stat) => {
     const SIZE_THRESHOLD = 10 * 1024 * 1024;
     return stat.size > SIZE_THRESHOLD;
 };
-export function loadVincentData(): Map<string, any> {
+export function loadVincentDataJHKey(): Map<string, any> {
     const all = readJsonSync(vgwwFile)
     const jhCodeMap = new Map<string, string>()
     all.forEach((item: any) => {
@@ -141,18 +141,7 @@ export function loadVincentData(): Map<string, any> {
     return jhCodeMap
 }
 
-(async () => {
-    const allCollections = 'D:\\Node.js\\paintings-website\\public\\all-collections';
-    const files = await findFiles(allCollections)
-    const jhCodeMap = new Map<string, string>()
-    files.forEach((f: any) => {
-        const jhCode= path.basename(f).split("_")[0]
-        if (jhCode && !jhCodeMap.has(jhCode)) {
-            jhCodeMap.set(jhCode, f)
-        }
-    })
-    console.log(files.length)
-})();
+
 
 async function renameByCondition() {
     const allCollections = 'D:\\Node.js\\paintings-website\\public\\all-collections';
@@ -166,7 +155,7 @@ async function renameByCondition() {
             //path.extname(f)
             let fileName = path.basename(f);
             const newName = fileName.replace(str, '')
-            // await renameFile(f, path.join(allCollections, newName))
+            await renameFile(f, path.join(allCollections, newName))
             console.log(`${fileName}\t${newName}`)
 
         };
@@ -174,3 +163,46 @@ async function renameByCondition() {
         console.error('Error:', error);
     }
 }
+
+async function groupVanGoghWorksByPeriod(files: string[]) {
+    const dir = 'D:\\Node.js\\paintings-website\\public\\all-collections'
+    const jhMap = loadVincentDataJHKey()
+    for (let f of files) {
+        const fileName = path.basename(f)
+        const [jhCode] = fileName.split('_')
+        if (!jhCode.startsWith('JH')) {
+            continue
+        }
+        if (jhMap.has(jhCode)) {
+            const info = jhMap.get(jhCode)
+            let place = info.placeOfOrigin
+            const [period]=info.period?.split(' ')
+            if(!place){
+                place=period
+            }
+            if (place) {
+                const destPath = path.join(dir, place)
+                if (!fs.existsSync(destPath)) {
+                    fs.mkdirSync(destPath);
+                }
+                renameSync(f,path.join(destPath,fileName))
+                console.log(`moved file:${f} To ${path.join(destPath, fileName)}`)
+            }else{
+                console.log('no place')
+            }
+        }
+    }
+
+}
+
+(async () => {
+    const allCollections = 'D:\\Node.js\\paintings-website\\public\\all-collections';
+    const files = (await findFiles(allCollections))
+    // files.forEach(f=>{
+    //     const newName=f.replace(/_-_v\d{1,2}/g, '')
+    //     renameSync(f,newName)
+    //     console.log(newName)
+    // })
+    console.log(files.length)
+    // groupVanGoghWorksByPeriod(files)
+})();

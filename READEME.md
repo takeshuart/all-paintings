@@ -24,6 +24,8 @@ VGM, Van Gogh Museum
 GAP, Google Art Project
 KMM, Kröller-Müller Museum
 wikimedia-VGM, 来自wikimedia，由VGM贡献的图片
+- version
+同一个作品可能会有多个版本的图片，文件名中用_-_v1\v2\v3区别
 
 ### 数据源
 1. 大都会博物馆开放接口 https://metmuseum.github.io/
