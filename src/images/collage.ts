@@ -3,11 +3,16 @@ import sharp from 'sharp';
 import * as path from 'path';
 import Vibrant from 'node-vibrant';
 
-import { findFiles, loadVincentDataJHKey } from '../loc_file/loc_files';
+import { findFiles } from '../loc_file/loc_files';
 import { loadVgwwData } from '../crawlers/fetch-kroller-muller-museum';
 import { Palette } from '@vibrant/color';
+import { searchVgConditions } from '../loc_file/vangogh_images';
 
-
+/**
+ * 拼接九宫格图片
+ * @param files 
+ * @param outputPath 
+ */
 async function createCollage(files: string[], outputPath: string) {
     try {
 
@@ -110,28 +115,6 @@ async function calculateBrightness(imagePath: string) {
     }
 
     return totalBrightness / pixelCount;
-}
-
-const allVincent = loadVincentDataJHKey()
-
-
-function searchVgConditions(file: string): Boolean {
-    const fileName = path.basename(file)
-    if (!fileName.startsWith('JH')) {
-        return false
-    }
-    const jhCode = fileName.split('_') ? fileName.split('_')[0] : ''
-    const info = allVincent.get(jhCode)
-    if (info
-        && info.technique == 'painting'
-        // && info.genre=='肖像画'
-        // && info.series=='盛开的果园'
-        && info.placeOfOrigin=='Arles'
-    ) {
-        return true
-    }
-    return false
-
 }
 
 //random

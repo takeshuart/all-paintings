@@ -1426,7 +1426,7 @@
     "dateStart": "1881-10-01",
     "dateEnd": "1881-11-30",
     "iiifImage": "https://data.spinque.com/iiif/2/vangoghworldwide%2Fdavidbrooks%2Ffull%2FF0886_x01.jpg",
-    "material": "watercolor painting",
+    "material": "watercolor",
     "period": "Etten (1881)"
   },
   {
@@ -13625,8 +13625,8 @@
     ],
     "urlDetail": "https://vangoghworldwide.org/data/artwork/F501",
     "placeOfOrigin": "Arles",
-    "dateStart": "1882-11-01",
-    "dateEnd": "1882-12-31",
+    "dateStart": "1888-11-01",
+    "dateEnd": "1888-12-01",
     "iiifImage": "https://data.spinque.com/iiif/2/vangoghworldwide%2Fdavidbrooks%2Ffull%2FF0501_x01.jpg",
     "dateDisplay": "November-December",
     "creationMonth": "November"
@@ -16842,8 +16842,8 @@
     "urlDetail": "https://vangoghworldwide.org/data/artwork/F441a",
     "technique": "painting",
     "placeOfOrigin": "Arles",
-    "dateStart": "1882-11-01",
-    "dateEnd": "1882-12-31",
+    "dateStart": "1888-11-01",
+    "dateEnd": "1888-11-01",
     "iiifImage": "https://data.spinque.com/iiif/2/vangoghworldwide%2Fdavidbrooks%2Ffull%2FF0441a_x01.jpg",
     "dateDisplay": "December",
     "creationMonth": "December"
@@ -20467,8 +20467,8 @@
     ],
     "urlDetail": "https://vangoghworldwide.org/data/artwork/F440",
     "placeOfOrigin": "Arles",
-    "dateStart": "1882-11-01",
-    "dateEnd": "1882-12-31",
+    "dateStart": "1888-11-01",
+    "dateEnd": "1888-11-01",
     "iiifImage": "https://data.spinque.com/iiif/2/vangoghworldwide%2Fdavidbrooks%2Ffull%2FF0440_x01.jpg",
     "dateDisplay": "December",
     "creationMonth": "December"
@@ -26206,8 +26206,8 @@
     ],
     "urlDetail": "https://data.kmm.nl/artwork/KMM_36353",
     "accessionNo": "KM 100.549",
-    "dateStart": "1905-01-01",
-    "dateEnd": "1909-01-01",
+    "dateStart": "1889-05-01",
+    "dateEnd": "1889-06-01",
     "dateDisplay": "c. 1905-1909",
     "iiifImage": "https://data.spinque.com/iiif/2/vangoghworldwide%2Fkmm%2FKM%20100.549.jpg",
     "ownerCountry": "Netherlands",
@@ -31159,8 +31159,8 @@
     ],
     "urlDetail": "https://data.kmm.nl/artwork/KMM_36354",
     "accessionNo": "KM 101.462",
-    "dateStart": "1905-01-01",
-    "dateEnd": "1910-12-31",
+    "dateStart": "1889-05-01",
+    "dateEnd": "1889-05-01",
     "dateDisplay": "before c. 1910",
     "iiifImage": "https://data.spinque.com/iiif/2/vangoghworldwide%2Fkmm%2FKM%20101.462.jpg",
     "ownerCountry": "Netherlands",
@@ -38034,8 +38034,8 @@
     ],
     "urlDetail": "https://data.kmm.nl/artwork/KMM_36351",
     "accessionNo": "KM 109.239",
-    "dateStart": "1900-01-01",
-    "dateEnd": "1911-12-31",
+    "dateStart": "1886-07-01",
+    "dateEnd": "1886-07-01",
     "dateDisplay": "before 1912",
     "iiifImage": "https://data.spinque.com/iiif/2/vangoghworldwide%2Fkmm%2FKM%20109.239.jpg",
     "ownerCountry": "Netherlands",
@@ -38800,8 +38800,8 @@
     ],
     "urlDetail": "https://data.kmm.nl/artwork/KMM_36352",
     "accessionNo": "KM 106.681",
-    "dateStart": "1900-01-01",
-    "dateEnd": "1920-12-31",
+    "dateStart": "1886-07-01",
+    "dateEnd": "1886-07-01",
     "dateDisplay": "date unknown",
     "iiifImage": "https://data.spinque.com/iiif/2/vangoghworldwide%2Fkmm%2FKM%20106.681.jpg",
     "ownerCountry": "Netherlands",
@@ -40560,8 +40560,8 @@
     ],
     "urlDetail": "https://data.kmm.nl/artwork/KMM_36350",
     "accessionNo": "KM 108.567",
-    "dateStart": "1908-01-01",
-    "dateEnd": "1912-12-31",
+    "dateStart": "1886-07-01",
+    "dateEnd": "1886-07-15",
     "dateDisplay": "before 1913",
     "iiifImage": "https://data.spinque.com/iiif/2/vangoghworldwide%2Fkmm%2FKM%20108.567.jpg",
     "ownerCountry": "Netherlands",
@@ -43013,7 +43013,7 @@
   },
   {
     "dimension": "510 x 350 mm",
-    "material": "Watercolour",
+    "material": "watercolor",
     "owner": "Private collection",
     "fCode": "F870",
     "jhCode": "JH84",
@@ -43039,7 +43039,7 @@
   },
   {
     "dimension": "190 x 280 mm",
-    "material": "watercolor painting",
+    "material": "watercolor",
     "owner": "St. Louis Art Museum",
     "fCode": "F874v",
     "jhCode": "JH3",
@@ -43121,7 +43121,7 @@
   },
   {
     "dimension": "480 x 350 mm",
-    "material": "watercolor painting",
+    "material": "watercolor",
     "owner": "P. and N. de Boer Foundation, Amsterdam",
     "fCode": "F869",
     "jhCode": "JH83",
@@ -43439,7 +43439,7 @@
   },
   {
     "dimension": "235 x 310 mm",
-    "material": "watercolor painting",
+    "material": "watercolor",
     "owner": "P. and N. de Boer Foundation, Amsterdam",
     "fCode": "F863",
     "jhCode": "JH34",
@@ -45795,7 +45795,7 @@
   },
   {
     "dimension": "240 x 350 cm",
-    "material": "Watercolour",
+    "material": "watercolor",
     "owner": "The Cleveland Museum of Art, Cleveland",
     "fCode": "F1100",
     "jhCode": "JH400",
@@ -48813,7 +48813,7 @@
   },
   {
     "dimension": "404 x 555 mm",
-    "material": "Watercolour",
+    "material": "watercolor",
     "owner": "Hermitage, St. Petersburg",
     "fCode": "F1429",
     "jhCode": "JH1459",
@@ -49173,7 +49173,7 @@
   },
   {
     "dimension": "315 x 236 mm",
-    "material": "watercolor painting",
+    "material": "watercolor",
     "owner": "Metropolitan Museum of Art, New York",
     "relatedWorks": [
       "/w7356"
@@ -49444,7 +49444,7 @@
   },
   {
     "dimension": "60 x 73.7 cm",
-    "material": "Watercolour",
+    "material": "watercolor",
     "owner": "Collezione Grassi",
     "fCode": "F1422",
     "jhCode": "JH1654",
@@ -50217,7 +50217,7 @@
   },
   {
     "dimension": "444 x 630 mm",
-    "material": "watercolor painting",
+    "material": "watercolor",
     "owner": "Private collection",
     "fCode": "F1463",
     "jhCode": "JH1576",
@@ -50430,7 +50430,7 @@
   },
   {
     "dimension": "240 x 310 mm",
-    "material": "watercolor painting",
+    "material": "watercolor",
     "owner": "Private collection",
     "jhCode": "JH1518",
     "literatures": [
@@ -50650,7 +50650,7 @@
   },
   {
     "dimension": "300 x 500 mm",
-    "material": "watercolor painting",
+    "material": "watercolor",
     "owner": "Private collection",
     "fCode": "F1464",
     "jhCode": "JH1497",
@@ -51115,7 +51115,7 @@
   },
   {
     "dimension": "300 x 300 mm",
-    "material": "Watercolour",
+    "material": "watercolor",
     "owner": "Private collection",
     "fCode": "F1480",
     "jhCode": "JH1382",
@@ -52865,7 +52865,7 @@
   },
   {
     "dimension": "130 x 210 mm",
-    "material": "watercolor painting",
+    "material": "watercolor",
     "owner": "Private collection",
     "fCode": "F864",
     "jhCode": "JH51",
@@ -53303,7 +53303,7 @@
   },
   {
     "dimension": "495 x 315 mm",
-    "material": "watercolor painting",
+    "material": "watercolor",
     "owner": "Location unknown",
     "fCode": "F867",
     "jhCode": "JH67",
@@ -53722,7 +53722,7 @@
   },
   {
     "dimension": "600 x 450 mm",
-    "material": "watercolor painting",
+    "material": "watercolor",
     "owner": "Location unknown",
     "fCode": "F866a",
     "jhCode": "JH27",
@@ -54136,7 +54136,7 @@
   },
   {
     "dimension": "400 x 600 mm",
-    "material": "watercolor painting",
+    "material": "watercolor",
     "owner": "Collection Jan Krugier and Marie-Anne Krugier-Poniatowski, Geneva",
     "fCode": "F1022",
     "jhCode": "JH344",
@@ -54706,7 +54706,7 @@
   },
   {
     "dimension": "200 x 360 mm",
-    "material": "Watercolour",
+    "material": "watercolor",
     "owner": "Private collection",
     "fCode": "F1035a",
     "jhCode": "JH375",
@@ -54852,7 +54852,7 @@
   },
   {
     "dimension": "380 x 560 mm",
-    "material": "watercolor painting",
+    "material": "watercolor",
     "owner": "Private collection",
     "fCode": "F910",
     "jhCode": "JH99",
@@ -55163,7 +55163,7 @@
   },
   {
     "dimension": "270 x 450 mm",
-    "material": "Watercolour",
+    "material": "watercolor",
     "owner": "Private collection",
     "fCode": "F982",
     "jhCode": "JH247",
@@ -55337,7 +55337,7 @@
   },
   {
     "dimension": "245 x 355 mm",
-    "material": "watercolor painting",
+    "material": "watercolor",
     "owner": "Private collection",
     "fCode": "F1680",
     "jhCode": "JH97",
@@ -55618,7 +55618,7 @@
   },
   {
     "dimension": "240 x 350 mm",
-    "material": "watercolor painting",
+    "material": "watercolor",
     "owner": "Location unknown",
     "fCode": "F1088",
     "jhCode": "JH168",
@@ -55781,7 +55781,7 @@
   },
   {
     "dimension": "300 x 525 mm",
-    "material": "watercolor painting",
+    "material": "watercolor",
     "owner": "Location unknown",
     "fCode": "F916",
     "jhCode": "JH162",
@@ -56074,7 +56074,7 @@
   },
   {
     "dimension": "335 x 595 mm",
-    "material": "watercolor painting",
+    "material": "watercolor",
     "owner": "Georg Schäfer, Euerbach, Germany",
     "fCode": "F926",
     "jhCode": "JH166",
@@ -56142,7 +56142,7 @@
   },
   {
     "dimension": "270 x 375 mm",
-    "material": "watercolor painting",
+    "material": "watercolor",
     "owner": "Fondation Pierre Gianadda, Martigny",
     "fCode": "F909",
     "jhCode": "JH94",
@@ -56239,7 +56239,7 @@
   },
   {
     "dimension": "320 x 520 mm",
-    "material": "Watercolour",
+    "material": "watercolor",
     "owner": "Location unknown",
     "fCode": "F946v",
     "jhCode": "JH95",
@@ -56302,7 +56302,7 @@
   },
   {
     "dimension": "330 x 260 mm",
-    "material": "watercolor painting",
+    "material": "watercolor",
     "owner": "Location unknown",
     "fCode": "F910a",
     "jhCode": "JH90",
@@ -56397,7 +56397,7 @@
   },
   {
     "dimension": "300 x 490 mm",
-    "material": "watercolor painting",
+    "material": "watercolor",
     "owner": "Location unknown",
     "fCode": "F927",
     "jhCode": "JH161",
@@ -56906,7 +56906,7 @@
   },
   {
     "dimension": "125 x 210 mm",
-    "material": "watercolor painting",
+    "material": "watercolor",
     "owner": "Private collection",
     "fCode": "F1039",
     "jhCode": "JH196",
@@ -57088,7 +57088,7 @@
   },
   {
     "dimension": "350 x 435 mm",
-    "material": "watercolor painting",
+    "material": "watercolor",
     "owner": "Private collection",
     "fCode": "F1091",
     "jhCode": "JH252",
@@ -58299,7 +58299,7 @@
   },
   {
     "dimension": "475 x 300 mm",
-    "material": "watercolor painting",
+    "material": "watercolor",
     "owner": "Location unknown",
     "fCode": "F1068",
     "jhCode": "JH219",
@@ -58367,7 +58367,7 @@
   },
   {
     "dimension": "665 x 375 mm",
-    "material": "watercolor painting",
+    "material": "watercolor",
     "owner": "Collection Prof Max Stähelin, Binningen, Switzerland",
     "fCode": "F934",
     "jhCode": "JH255",
@@ -58394,7 +58394,7 @@
   },
   {
     "dimension": "360 x 250 mm",
-    "material": "Watercolour",
+    "material": "watercolor",
     "owner": "Cincinnati Art Museum, Cincinnati",
     "fCode": "F948",
     "jhCode": "JH171",
@@ -59517,7 +59517,7 @@
   },
   {
     "dimension": "250 x 370 mm",
-    "material": "Watercolour",
+    "material": "watercolor",
     "owner": "Location unknown",
     "fCode": "F951",
     "jhCode": "JH197",
@@ -60216,7 +60216,7 @@
   },
   {
     "dimension": "345 x 240 mm",
-    "material": "Watercolour",
+    "material": "watercolor",
     "owner": "Collection A. Farmanformaian, Teheran",
     "fCode": "F949",
     "jhCode": "JH169",
@@ -60818,7 +60818,7 @@
   },
   {
     "dimension": "255 x 400 mm",
-    "material": "watercolor painting",
+    "material": "watercolor",
     "owner": "Location unknown",
     "fCode": "F1087",
     "jhCode": "JH200",
@@ -60917,7 +60917,7 @@
   },
   {
     "dimension": "385 x 810 mm",
-    "material": "Watercolour",
+    "material": "watercolor",
     "owner": "Groninger Museum, Groningen",
     "fCode": "F1098",
     "jhCode": "JH425",
@@ -61134,7 +61134,7 @@
   },
   {
     "dimension": "410 x 540 mm",
-    "material": "watercolor painting",
+    "material": "watercolor",
     "owner": "Private collection",
     "fCode": "F1094",
     "jhCode": "JH398",
@@ -61161,7 +61161,7 @@
   },
   {
     "dimension": "250 x 365 mm",
-    "material": "watercolor painting",
+    "material": "watercolor",
     "owner": "Location unknown",
     "fCode": "F1102",
     "jhCode": "JH402",
@@ -61438,7 +61438,7 @@
   },
   {
     "dimension": "240 x 355 mm",
-    "material": "watercolor painting",
+    "material": "watercolor",
     "owner": "Private collection",
     "fCode": "F1101",
     "jhCode": "JH401",
@@ -67773,7 +67773,7 @@
   },
   {
     "dimension": "305 x 470 mm",
-    "material": "Watercolour",
+    "material": "watercolor",
     "owner": "Location unknown",
     "fCode": "F1144a",
     "jhCode": "JH523",
@@ -68873,7 +68873,7 @@
   },
   {
     "dimension": "230 x 420 mm",
-    "material": "Watercolour",
+    "material": "watercolor",
     "owner": "Collection H. Doyer Family, Chailly-Lausanne, Switzerland",
     "fCode": "F1296",
     "jhCode": "JH877",
@@ -68895,7 +68895,7 @@
   },
   {
     "dimension": "325 x 250 mm",
-    "material": "watercolor painting",
+    "material": "watercolor",
     "owner": "Location unknown",
     "fCode": "F1081",
     "jhCode": "JH515",
@@ -69400,7 +69400,7 @@
   },
   {
     "dimension": "440 x 350 mm",
-    "material": "Watercolour",
+    "material": "watercolor",
     "owner": "Location unknown",
     "fCode": "F1116av",
     "jhCode": "JH499",
@@ -69660,7 +69660,7 @@
   },
   {
     "dimension": "305 x 430 mm",
-    "material": "Watercolour",
+    "material": "watercolor",
     "owner": "Corolla Nankai Co., Toyola, Japan",
     "fCode": "F1119",
     "jhCode": "JH449",
@@ -69944,7 +69944,7 @@
     "creationMonth": "August"
   },
   {
-    "material": "watercolor painting",
+    "material": "watercolor",
     "owner": "Location unknown",
     "fCode": "F1688",
     "jhCode": "JH482",
@@ -70496,7 +70496,7 @@
   },
   {
     "dimension": "250 x 180 mm",
-    "material": "watercolor painting",
+    "material": "watercolor",
     "owner": "Formerly collection Jacques O'Hana Ltd., London",
     "fCode": "F1194",
     "jhCode": "JH588",
@@ -72154,7 +72154,7 @@
   },
   {
     "dimension": "320 x 430 mm",
-    "material": "watercolor painting",
+    "material": "watercolor",
     "owner": "Dallas Museum of Art, Dallas",
     "fCode": "F1223",
     "jhCode": "JH894",
@@ -75496,7 +75496,7 @@
   },
   {
     "dimension": "46.5 x 61.5 cm",
-    "material": "watercolor painting",
+    "material": "watercolor",
     "owner": "Private collection",
     "fCode": "F1536",
     "jhCode": "JH1712",
@@ -77134,7 +77134,7 @@
   },
   {
     "dimension": "610 x 470 mm",
-    "material": "watercolor painting",
+    "material": "watercolor",
     "owner": "Location unknown",
     "fCode": "F1526",
     "jhCode": "JH1707",
@@ -81560,7 +81560,7 @@
   },
   {
     "dimension": "340 x 510 mm",
-    "material": "Watercolour",
+    "material": "watercolor",
     "owner": "Van Gogh Museum, Amsterdam",
     "fCode": "F1405",
     "jhCode": "JH1187",

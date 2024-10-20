@@ -3,10 +3,10 @@ import * as path from 'path';
 import { ArtWork } from '../crawlers/artwork';
 import sharp from 'sharp';
 import { readJsonSync, renameSync } from 'fs-extra';
+import { loadVGDataByJHKey } from './vangogh_images';
 
 type FileCondition = (filePath: string, stat: fs.Stats) => boolean | Promise<boolean>;
 const dataBasePath = path.join(__dirname, '../../data/')
-const vgwwFile = path.join(dataBasePath, './van gogh/merge-vgww-pubhist-vggallery.json');
 
 
 /**
@@ -14,7 +14,7 @@ const vgwwFile = path.join(dataBasePath, './van gogh/merge-vgww-pubhist-vggaller
  * @param condition 接受一个过滤文件的条件函数
  * @returns 
  */
-export async function findFiles(directory: string, condition?: FileCondition): Promise<string[]> {
+export async function findFiles(directory: string): Promise<string[]> {
     const results: string[] = [];
 
     const files = await fs.promises.readdir(directory);
@@ -26,17 +26,10 @@ export async function findFiles(directory: string, condition?: FileCondition): P
             const stat = await fs.promises.stat(filePath);
 
             if (stat.isDirectory()) {
-                const nestedResults = await findFiles(filePath, condition);
+                const nestedResults = await findFiles(filePath);
                 results.push(...nestedResults);
             } else {
-                if (condition) {
-                    const isMatch = await condition(filePath, stat);
-                    if (isMatch) {
-                        results.push(filePath);
-                    }
-                } else {
-                    results.push(filePath)
-                }
+                results.push(filePath)
             }
         } catch (error) {
             console.error(`Error processing file: ${filePath}`, error);
@@ -129,17 +122,7 @@ const isLargeFile: FileCondition = (filePath, stat) => {
     const SIZE_THRESHOLD = 10 * 1024 * 1024;
     return stat.size > SIZE_THRESHOLD;
 };
-export function loadVincentDataJHKey(): Map<string, any> {
-    const all = readJsonSync(vgwwFile)
-    const jhCodeMap = new Map<string, string>()
-    all.forEach((item: any) => {
-        const jhCode = item.jhCode
-        if (jhCode && !jhCodeMap.has(jhCode)) {
-            jhCodeMap.set(jhCode, item)
-        }
-    })
-    return jhCodeMap
-}
+
 
 
 
@@ -147,9 +130,7 @@ async function renameByCondition() {
     const allCollections = 'D:\\Node.js\\paintings-website\\public\\all-collections';
     const str = '_tif'
     try {
-        const largeFiles = await findFiles(allCollections, (file, stat) => {
-            return file.includes(str)
-        });
+        const largeFiles = await findFiles(allCollections);
         let search = ''
         for (let f of largeFiles) {
             //path.extname(f)
@@ -166,7 +147,7 @@ async function renameByCondition() {
 
 async function groupVanGoghWorksByPeriod(files: string[]) {
     const dir = 'D:\\Node.js\\paintings-website\\public\\all-collections'
-    const jhMap = loadVincentDataJHKey()
+    const jhMap = loadVGDataByJHKey()
     for (let f of files) {
         const fileName = path.basename(f)
         const [jhCode] = fileName.split('_')
