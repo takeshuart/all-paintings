@@ -38,7 +38,7 @@ async function main() {
             // new Promise(resolve => setTimeout(resolve, 10));
 
         }
-        await batchUploadFiles(tasks, 10)
+        // await batchUploadFiles(tasks, 10)
 
     } catch (error) {
         console.error('Fatal Error during initialization or setup:', (error as Error).message);
