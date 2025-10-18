@@ -5,7 +5,7 @@ import * as iconv from 'iconv-lite';
 import fs from 'fs';
 import * as path from 'path';
 import { json } from "stream/consumers";
-import { axiosAgented, downloadFile } from "../utils/https";
+import { axiosAgented, downloadFile, downloadFileWithProxy } from "../utils/https"
 
 //wikipage, museum, open api
 
@@ -33,7 +33,7 @@ async function fetchPage(keyword: string, page: number): Promise<any | null> {
     try {
         const url = `https://apim.christies.com/search-client?keyword=${encodeURIComponent(
             keyword
-        )}&page=${page}&is_past_lots=True&sortby=relevance&language=en&geocountrycode=JP&show_on_loan=true&datasourceId=182f8bb2-d729-4a38-b539-7cf1a901cf2e`;
+        )}&page=${page}&is_past_lots=True&sortby=relevance&language=en&geocountrycode=JP&show_on_loan=true&datasourceId=182f8bb2-d729-4a38-b539-7cf1a9`;
 
         const response = await axiosAgented.get(url, { headers });
 
@@ -52,50 +52,51 @@ async function fetchPage(keyword: string, page: number): Promise<any | null> {
 
 async function fetchAllPages(keyword: string) {
     let page = 1;
-    let totalPages = 1;
-
+    let totalPages;
+    const data:any[]=[]
     do {
-        console.log(`Fetching page ${page} of ${totalPages}`);
         const result = await fetchPage(keyword, page);
-
+        
         if (result) {
             console.log(`Page ${page} results:`, result.data);
-
-            totalPages = result.totalPages;
+            data.push(result.data)
+            totalPages = result.data.total_pages;
             page++;
+            console.log(`Fetched page ${page} of ${totalPages}`);
         } else {
             console.log(`No more data found for keyword: ${keyword}`);
             break;
         }
     } while (page <= totalPages);
-
     console.log('All pages fetched.');
+    
+    console.log('Starting download images..');
+    downloadImages(keyword,data)
+
 }
-async function fetchFromChristies() {
+async function downloadImages(artist:string,data:any[]) {
     const noImage = 'non_NoImag'
-    const imageOutputDir = 'D:\\Arts\\后印象派';
-    if (!fs.existsSync(imageOutputDir)) {
-        fs.mkdirSync(imageOutputDir, { recursive: true });
+    const outputDir = path.join('D:\\Arts\\后印象派', artist);
+    if (!fs.existsSync(outputDir)) {
+        fs.mkdirSync(outputDir, { recursive: true });
     }
-    const fileName = 'Christies_-_Egon Schiele.json';
-    const artist = 'Egon Schiele'
-    //Christies 分页数据
-    const pages = readJsonFile<any>(fileName)
-    for (let i = 0; i < pages.length; i++) {
-        const page = pages[i];
+
+    for (let i = 0; i < data.length; i++) {
+        const page = data[i];
         for (let j = 0; j < page.lots.length; j++) {
             const lot = page.lots[j];
             if (!lot.title_secondary_txt || lot.image.image_src.includes(noImage)) {
                 continue;
             }
+            const title=lot.title_secondary_txt.replace(':','-')
             try {
-                const imageName = artist + '_-_' + lot.title_secondary_txt + "_-_from Christies-" + lot.object_id + ".jpg"
-                const imagePath = path.join(imageOutputDir, artist, imageName)
-                await downloadFile(lot.image.image_src, imagePath);
+                const imageName = artist + '_-_' + title + "_-_from Christies-" + lot.object_id + ".jpg"
+                const imagePath = path.join(outputDir, imageName)
+                await downloadFileWithProxy(lot.image.image_src, imagePath);
                 console.log(`Image downloaded successfully,${j}/${page.lots.length}:\t${imagePath}',ImageURL:${lot.image.image_src}`);
                 await new Promise(resolve => setTimeout(resolve, 100));
             } catch (error) {
-                console.error(`Error fetching image! Christies lot: ${lot}`, error);
+                console.error(`Error fetching image! Christies lot: ${title} - ${lot.object_id}`, error);
             }
         }
     }
@@ -107,4 +108,4 @@ function readJsonFile<T>(fileName: string): T[] {
 }
 
 
-fetchAllPages('Jan Sluijters')
+fetchAllPages('Anton Mauve')

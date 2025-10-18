@@ -4,7 +4,7 @@ import { dataBasePath } from './wikipage';
 import * as crypto from 'crypto';
 import { promisify } from 'util';
 import sizeOf from 'image-size';
-import { downloadFile } from '../utils/https';
+import { downloadFile } from '../utils/https'
 import { json } from 'stream/consumers';
 import { exec } from 'child_process';
 import fsExtra from 'fs-extra';
@@ -167,7 +167,7 @@ const fileHashes: { [key: string]: string } = {};
 function calculateMD5(filePath: string): string {
     const hash = crypto.createHash('md5');
     const fileData = fs.readFileSync(filePath);
-    hash.update(fileData);
+    // hash.update(fileData);
     return hash.digest('hex');
 }
 

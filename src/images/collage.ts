@@ -3,10 +3,10 @@ import sharp from 'sharp';
 import * as path from 'path';
 import Vibrant from 'node-vibrant';
 
-import { findFiles } from '../loc_file/loc_files';
-import { loadVgwwData } from '../crawlers/fetch-kroller-muller-museum';
+import { findFiles } from 'loc_file/loc_files';
+import { loadVgwwData } from '../crawlers/fetch-kroller-muller-museum'
 import { Palette } from '@vibrant/color';
-import { searchVgConditions } from '../loc_file/vangogh_images';
+import { searchVgConditions } from '../vangogh/vangogh_images';
 
 /**
  * 拼接九宫格图片

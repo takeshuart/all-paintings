@@ -1,5 +1,5 @@
 import * as cheerio from 'cheerio';
-import { axiosAgented } from "../utils/https.js";
+import { axiosAgented } from "../utils/https.js"
 import { ArtWork, ArtWorkProperties, createArtWorkFromWikiTable } from './artwork.js';
 import { WikiPageWithTable } from './wikitable-config.js';
 import Datastore from 'nedb';

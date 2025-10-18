@@ -1,13 +1,11 @@
-import Database from 'better-sqlite3';
-import { ArtWork } from '../crawlers/artwork';
+import { ArtWork } from '../crawlers/artwork'
+import { dbArtwork } from './db';
 
-export const dbArtwork = new Database('../artwork.db', { verbose: console.log });
-
-function toSnakeCase(str: string): string {
+export function toSnakeCase(str: string): string {
     return str.replace(/([A-Z])/g, "_$1").toLowerCase();
 }
 
-function mapObjectKeysToSnakeCase(obj: Record<string, any>): Record<string, any> {
+export  function mapKeysToSnakeCase(obj: Record<string, any>): Record<string, any> {
     const mappedObj: Record<string, any> = {};
     Object.keys(obj).forEach((key) => {
         if (obj[key] !== undefined) { // 排除未赋值的字段
@@ -39,7 +37,7 @@ function mapObjectKeysToSnakeCase(obj: Record<string, any>): Record<string, any>
 export function insert(artwork: ArtWork) {
     try {
 
-        const artworkDb = mapObjectKeysToSnakeCase(artwork);
+        const artworkDb = mapKeysToSnakeCase(artwork);
 
         const keys = Object.keys(artworkDb);
         const values = Object.values(artworkDb);
@@ -70,5 +68,3 @@ export function run() {
     // const artworkDb = mapObjectKeysToSnakeCase(artwork);
     // console.log(artworkDb)
 }
-
-run()

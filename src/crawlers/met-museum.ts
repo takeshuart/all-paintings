@@ -1,7 +1,7 @@
 import axios from 'axios';
 import fs from 'fs';
 import * as path from 'path';
-import { axiosAgented } from '../utils/https';
+import { axiosAgented } from '../utils/https'
 import { ArtWork } from './artwork';
 
 // Met open access https://metmuseum.github.io/

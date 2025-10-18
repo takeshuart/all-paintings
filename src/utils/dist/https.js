@@ -36,7 +36,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 exports.__esModule = true;
-exports.downloadFile = exports.axiosAgented = void 0;
+exports.downloadFile = exports.downloadFileWithProxy = exports.axiosAgented = void 0;
 var axios_1 = require("axios");
 //Config vsCode setting 'http:proxy' does not work; but using 'socks-proxy-agent' is ok.
 var socks_proxy_agent_1 = require("socks-proxy-agent");
@@ -69,12 +69,29 @@ function testDownload() {
         });
     });
 }
+function downloadFileWithProxy(url, outputPath, headers) {
+    return __awaiter(this, void 0, Promise, function () {
+        return __generator(this, function (_a) {
+            return [2 /*return*/, downloadFileStream(url, outputPath, exports.axiosAgented, headers)];
+        });
+    });
+}
+exports.downloadFileWithProxy = downloadFileWithProxy;
+//without proxy
 function downloadFile(url, outputPath, headers) {
+    return __awaiter(this, void 0, Promise, function () {
+        return __generator(this, function (_a) {
+            return [2 /*return*/, downloadFileStream(url, outputPath, axios_1["default"], headers)];
+        });
+    });
+}
+exports.downloadFile = downloadFile;
+function downloadFileStream(url, outputPath, axiosInstance, headers) {
     return __awaiter(this, void 0, Promise, function () {
         var response, writer;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, exports.axiosAgented.get(url, {
+                case 0: return [4 /*yield*/, axiosInstance.get(url, {
                         responseType: 'stream',
                         headers: headers ? headers : {}
                     })];
@@ -99,4 +116,3 @@ function downloadFile(url, outputPath, headers) {
         });
     });
 }
-exports.downloadFile = downloadFile;

@@ -5,7 +5,7 @@ import { axiosAgented, downloadFile } from "../utils/https"
 import path from 'path';
 import { readJsonSync, writeJSONSync, writeJsonSync } from "fs-extra";
 import { sleep } from 'openai/core';
-import { processInBatches } from '../utils/process-in-batches';
+import { processInBatches } from '../utils/process-in-batches'
 
 
 const dataBasePath = path.join(__dirname, '../../data/')

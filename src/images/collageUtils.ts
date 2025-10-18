@@ -1,7 +1,7 @@
 
 
 import sharp from 'sharp';
-import { loadVanGoghDataWithImages } from '../loc_file/vangogh_images';
+import { loadVanGoghDataWithImages } from '../vangogh/vangogh_images';
 import { col } from 'sequelize';
 /**
  * 任意图片集拼接成一张图片
@@ -12,7 +12,7 @@ import { col } from 'sequelize';
  */
 async function createCollage(imagePaths: string[], canvasWidth: number, canvasHeight: number, outputImagePath: string) {
     const imageCount = imagePaths.length;
-    const { cols, rows } = calculateGridWithThreshold(imageCount, canvasWidth, canvasHeight, 0.009);
+    const { cols, rows } = calculateGridWithThreshold(imageCount, canvasWidth, canvasHeight, 0.015);
 
     const cellWidth = canvasWidth / cols;
     const cellHeight = canvasHeight / rows;
@@ -91,7 +91,8 @@ function calculateGridWithThreshold(imageCount: number, canvasWidth: number, can
         .filter(item => {
             return item.imagePath 
                 && item.jhCode
-                && (item.technique == 'painting'|| item.material=='watercolor')
+                && (item.placeOfOrigin== 'Auvers-sur-Oise')
+                && (item.technique == 'painting')
         }).sort((a, b) => {
             const jhA = parseInt(a.jhCode.slice(2), 10);
             const jhB = parseInt(b.jhCode.slice(2), 10);
@@ -104,5 +105,5 @@ function calculateGridWithThreshold(imageCount: number, canvasWidth: number, can
         console.log(`${x.jhCode}\t ${x.dateStart}\t`)
     })
     console.log(sortedData.length)
-    createCollage(imagePaths, 2400, 3200, outputImagePath)
+    createCollage(imagePaths, 2700, 3600, outputImagePath)
 })().catch((err) => console.error(err));

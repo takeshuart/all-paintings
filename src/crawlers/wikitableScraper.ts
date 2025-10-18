@@ -1,5 +1,5 @@
 import { any } from "bluebird";
-import { axiosAgented } from "../utils/https";
+import { axiosAgented } from "../utils/https"
 import * as cheerio from 'cheerio';
 
 

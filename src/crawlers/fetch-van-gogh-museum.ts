@@ -1,10 +1,10 @@
 import { sleep } from "openai/core";
-import { axiosAgented, downloadFile } from "../utils/https";
+import { axiosAgented, downloadFile } from "../utils/https"
 import * as cheerio from 'cheerio';
 import path from "path";
 import { ensureDir, readJsonSync, writeFileSync, writeJsonSync } from "fs-extra";
 import sharp from "sharp";
-import { processInBatches } from "../utils/process-in-batches";
+import { processInBatches } from "../utils/process-in-batches"
 /**
  *  --------------------------
  *  /collection/b0701V1962      Letter from Vincent van Gogh to Willemien van Gogh

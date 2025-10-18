@@ -33,21 +33,27 @@ async function testDownload() {
 }
 
 
-export async function downloadFile(url: string, outputPath: string, headers?: any): Promise<void> {
+export async function downloadFileWithProxy(url: string, outputPath: string, headers?: any): Promise<void> {
+  return downloadFileStream(url, outputPath,axiosAgented, headers);
+}
 
-  const response = await axiosAgented.get(url,
-    {
-      responseType: 'stream',
-      headers: headers ? headers : {}
-    });
+//without proxy
+export async function downloadFile(url: string, outputPath: string, headers?: any): Promise<void> {
+  return downloadFileStream(url, outputPath,axios, headers);
+}
+
+async function downloadFileStream(url: string, outputPath: string, axiosInstance: any, headers?: any): Promise<void> {
+  const response = await axiosInstance.get(url, {
+    responseType: 'stream',
+    headers: headers ? headers : {},
+  });
 
   const writer: fs.WriteStream = fs.createWriteStream(outputPath);
 
   return new Promise((resolve, reject) => {
-
     response.data.pipe(writer);
     let error: Error | null = null;
-    writer.on('error', err => {
+    writer.on('error', (err) => {
       error = err;
       writer.close();
       reject(err);
@@ -58,6 +64,5 @@ export async function downloadFile(url: string, outputPath: string, headers?: an
       }
     });
   });
-
 }
 

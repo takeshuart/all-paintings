@@ -1,13 +1,11 @@
-import { axiosAgented } from "../utils/https";
+import { axiosAgented } from "../utils/https"
 import path from "path";
 import { dataBasePath } from "./wikipage";
 
 import fs, { fchmod } from 'fs';
 import { sleep } from "openai/core";
 import { readJSONSync, readJson, readJsonSync } from "fs-extra";
-import { attr } from "cheerio/lib/api/attributes";
-import { ArtWork } from "./artwork";
-import { count } from "console";
+
 
 //TODO cleaning merge-vgww-pubhist-vggallery.json
 

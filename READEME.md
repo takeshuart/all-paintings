@@ -1,20 +1,37 @@
-## 运行项目
+# Tech stack
+- SQLite
+   数据文件: artwork-database\artwork.db
+   数据写入脚本：`artwork\vangogh.ts`
+   客户端工具：[DB Browser for SQLite](https://github.com/sqlitebrowser)
+- nedb
+   记不清这个数据库的作用了，可能在技术选型中临时测试过。
+   
+
+#　How to run?
+该项目包含2个子项目：
+1. 一个是工具类的爬虫脚本，位于/crawlers目录下。
+  配置`.vscode/launch.json`后，通过vscode `run->start debugging`运行
+  运行的文件配置在`tsconfig.json#outDir`
+
+2. 一个为前端页面提供数据服务的api项目，位于/routers目录下
+  - tsc （每次修改后需要重新编译)
+  - > node .\dist\app.js` 
+  - 或配置开发环境自动重新编译：
+   a.  npm install --save-dev ts-node-dev typescript
+   b.  package.json 
+      "scripts": {
+        "dev": "ts-node-dev --respawn --transpile-only src/app.ts"
+      }
+   c. npm run dev  -- start 
+
+3. 前端项目位于`paintings-website`项目中
+
+## 运行单个文件
 1. 根目录下执行命令'tsc',把.ts文件编译成.js文件
 2. 运行在dist目录下生成的.js文件
 3. dist目录默认与.ts文件在同一文件夹下，可以配置tsconfig.json文件中的outDir参数
 4. .vscode/launch.json  program配置项
 
-## artwork-admin项目
-1. 先启动admin-api 
-   `artwork-database> node .\dist\app.js ## start node project`
-2. 启动artwork-admin项目
-   `art-admin> npm start # start react project `
-   - 先编译tsc 
-
-## 运行artwork-database项目
-- 环境配置 
-  该项目为node.js+typescript项目，通过vscode直接运行.ts文件需要配置`launch.json`文件
-1. `run->start debugging`， 运行的文件配置在`tsconfig.json#outDir`
 
 #Airbnb的JavaScript编程规范：https://github.com/airbnb/javascript
 

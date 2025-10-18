@@ -1,12 +1,12 @@
 import fs from 'fs';
 import * as path from 'path';
-import { axiosAgented } from '../utils/https';
+import { axiosAgented } from '../utils/https'
 import { ArticArtWork, ArticArtWorkInfo } from './artic-model';
 import { ArtWork } from './artwork';
 import { saveArtWorksToJSON } from './wikipage';
 import { json } from 'stream/consumers';
 import { fineArtsIds } from './artic-config';
-import { insert } from '../db/sqllite-utils';
+import { insert } from '../db/sqllite-utils'
 import axios, { AxiosError } from 'axios';
 
 //使用wikidata list信息补充：https://www.wikidata.org/wiki/Wikidata:WikiProject_sum_of_all_paintings/Collection/Art_Institute_of_Chicago

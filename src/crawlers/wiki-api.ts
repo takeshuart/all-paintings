@@ -1,5 +1,5 @@
 import { AxiosResponse } from 'axios';
-import { axiosAgented, downloadFile } from '../utils/https';
+import { axiosAgented, downloadFile } from '../utils/https'
 import cheerio from 'cheerio';
 import { fileHomePath } from './artic-museum';
 import path from 'path';

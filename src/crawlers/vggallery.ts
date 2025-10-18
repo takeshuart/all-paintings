@@ -1,7 +1,7 @@
 
 //爬取www.vggallery.com数据
 
-import { axiosAgented } from "../utils/https";
+import { axiosAgented } from "../utils/https"
 import * as cheerio from 'cheerio';
 import { dataBasePath, saveJsonToFile } from "./wikipage";
 import * as iconv from 'iconv-lite';

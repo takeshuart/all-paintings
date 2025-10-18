@@ -2,7 +2,7 @@
 import express from 'express';
 import cors from 'cors';
 import artworkRouter from './routers/artwork';
-import vangoghRouter from './routers/vangogh';
+import vangoghRouter, { sequelize } from './routers/vangogh';
 
 const app = express();
 app.use(cors());
@@ -12,6 +12,8 @@ app.use('/artworks', artworkRouter);
 app.use('/artworks/vincent', vangoghRouter);
 
 const PORT = 5001;
-app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
+
+sequelize.authenticate().then(() => {
+  console.log('Database connected.');
+  app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 });
