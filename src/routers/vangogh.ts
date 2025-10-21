@@ -55,10 +55,18 @@ router.get('/bypage', async (req: any, res) => {
         const periods: string[] = Array.isArray(req.query.periods) ? req.query.periods : [];
         const genres: string[] = Array.isArray(req.query.genres) ? req.query.genres : [];
         const techniques: string[] = Array.isArray(req.query.techniques) ? req.query.techniques : [];
-
+        const hexcolors = req.query.hexColor
         console.log(`request:${JSON.stringify(req.query)}`);
 
-        const result = await findAllByPage(searchText, genres, periods, techniques, hasImage, page, pageSize);
+        const result = await findAllByPage(
+            searchText,
+            genres,
+            periods,
+            techniques,
+            hasImage,
+            hexcolors,
+            page,
+            pageSize);
 
         res.json(result);
     } catch (error) {
@@ -87,11 +95,19 @@ async function findSearchConditions(cond: string) {
 }
 
 
-async function findAllByPage(searchText: string, genres: string[], periods: string[],
-    techniques: string[], hasImage: boolean, page = 1, pageSize = 10) {
+async function findAllByPage(
+    searchText: string,
+    genres: string[],
+    periods: string[],
+    techniques: string[],
+    hasImage: boolean,
+    hexColor?: string,
+    page = 1,
+    pageSize = 10) {
+
     const offset = (page - 1) * pageSize;
 
-    const whereClause: any = {};
+    let whereClause: any = {};
     if (genres.length > 0) {
         whereClause['genre'] = genres
     }
@@ -119,13 +135,44 @@ async function findAllByPage(searchText: string, genres: string[], periods: stri
         }
 
     }
+    let colorWhere: any = {};
+    const tolerance = 30 //越小越精准
+    if (hexColor) {
+        const rgb = hexToRgb(hexColor);
+        if (!rgb) throw new Error('Invalid hex color');
+
+        const { r, g, b } = rgb;
+
+        // SQLite 直接用欧氏距离判断
+        colorWhere = Sequelize.literal(`
+                    (r - ${r})*(r - ${r}) + 
+                    (g - ${g})*(g - ${g}) + 
+                    (b - ${b})*(b - ${b}) <= ${tolerance * tolerance}
+                `);
+        whereClause = {
+            ...whereClause,
+            technique: { [Op.ne]: 'drawing' }, // technique != 'drawing'
+        };
+    }
+
     try {
         // Fetch artworks
         const { count, rows } = await VincentArtwork.findAndCountAll({
-            where: whereClause,
+            where: Sequelize.and(
+                whereClause,
+                hexColor ? colorWhere : {}
+            ),
+            order: [
+                // 排序：rankScore降序，分数相同用id排序
+                // rankScore计算规则见 db/calc_rankingScore.sql
+                ['rank_score', 'DESC'], 
+                ['id', 'ASC']
+            ],
             limit: pageSize,
             offset: offset,
         });
+        console.log(JSON.stringify(whereClause, null, 2));
+        console.log('查询结果：' + count)
         return { count, rows };
     } catch (err) {
         console.error(`Error fetching artworks: ${err}, whereClause: ${JSON.stringify(whereClause)}`)
@@ -138,6 +185,21 @@ function isChinese(text: string): boolean {
     const chineseRegex = /[\u4E00-\u9FA5\uF900-\uFA2D]/;
     return chineseRegex.test(text);
 }
+
+function hexToRgb(hex: string): { r: number; g: number; b: number } | null {
+    if (!hex) return null;
+    let sanitized = hex.replace('#', '');
+    if (sanitized.length === 3) {
+        sanitized = sanitized.split('').map(c => c + c).join('');
+    }
+    if (sanitized.length !== 6) return null;
+
+    const r = parseInt(sanitized.slice(0, 2), 16);
+    const g = parseInt(sanitized.slice(2, 4), 16);
+    const b = parseInt(sanitized.slice(4, 6), 16);
+    return { r, g, b };
+}
+
 
 export default router;
 

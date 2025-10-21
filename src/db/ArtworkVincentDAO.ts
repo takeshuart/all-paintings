@@ -35,6 +35,10 @@ export interface ArtworkVincent {
     material?: string;
     inventoryCode?: string;
     dataSource?: string;
+    colors?:string;
+    r?:number;
+    g?:number;
+    b?:number;
 }
 
 const tableName = 'artwork_vincent';
@@ -90,7 +94,7 @@ export class ArtworkVincentDao {
         if (!row) return undefined;
         return toCamelCase(row);
     }
-    
+
     @catchDbError
     findByField(field: keyof ArtworkVincent, value: any): ArtworkVincent[] {
         const column = field.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);

@@ -1,6 +1,5 @@
 import { readJsonSync } from "fs-extra"
 import path from "path"
-import { findFiles } from "loc_file/loc_files";
 import { ArtWork } from "../crawlers/artwork"
 
 
@@ -60,33 +59,3 @@ interface Artwork {
 }
 
 
-/**
- * 增加本地图片路径信息
- * @returns 
- */
-export async function loadVanGoghDataWithImages(): Promise<any[]> {
-    const imagePaths = (await findFiles(vgImagesDir))
-    const artworkInfos= loadVGData()
-    const imageMap = new Map<string, string>();
-
-    imagePaths.forEach((filePath) => {
-        const match = filePath.match(/JH\d+/);
-        if (match) {
-            const JHcode = match[0];
-            imageMap.set(JHcode, filePath);
-        }
-    });
-
-    //add filepath property
-    return artworkInfos.map((info:any) => {
-        const jhCode=info.jhCode
-        if (jhCode && imageMap.has(jhCode)) {
-            return {
-                ...info,
-                imagePath: imageMap.get(jhCode)
-            };
-        } else {
-            return info;
-        }
-    });
-}

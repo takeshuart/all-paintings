@@ -5,7 +5,7 @@ import { Table, Column, Model, DataType } from 'sequelize-typescript';
   timestamps: false,
 })
 export class VincentArtwork extends Model<VincentArtwork> {
-  
+
   @Column({
     type: DataType.INTEGER,
     primaryKey: true,
@@ -106,4 +106,18 @@ export class VincentArtwork extends Model<VincentArtwork> {
 
   @Column({ type: DataType.TEXT, field: 'data_source', allowNull: false, defaultValue: '' })
   dataSource!: string;
+
+  @Column({ type: DataType.TEXT, field: 'colors', allowNull: false, defaultValue: '' })
+  colors!: string;
+
+  @Column({ type: DataType.INTEGER, field: 'r', allowNull: false, defaultValue: 0 })
+  r!: number;
+  @Column({ type: DataType.INTEGER, field: 'g', allowNull: false, defaultValue: 0 })
+  g!: number;
+  @Column({ type: DataType.INTEGER, field: 'b', allowNull: false, defaultValue: 0 })
+  b!: number;
+  @Column({ type: DataType.TEXT, field: 'letters', allowNull: false, defaultValue: '' })
+  letters!: string;
+  @Column({ type: DataType.REAL, field: 'rank_score', allowNull: false, defaultValue: 0.0 })
+  rankScore!: string;
 }

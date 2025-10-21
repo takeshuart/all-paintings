@@ -1,7 +1,6 @@
 
 
 import sharp from 'sharp';
-import { loadVanGoghDataWithImages } from '../vangogh/vangogh_images';
 import { col } from 'sequelize';
 /**
  * 任意图片集拼接成一张图片
@@ -83,27 +82,27 @@ function calculateGridWithThreshold(imageCount: number, canvasWidth: number, can
 }
 
 
-(async () => {
-    // canvas size
-    const outputImagePath = 'c:\\Users\\Administrator\\Downloads\\collage.jpg';
-    const vgData = await loadVanGoghDataWithImages()
-    const sortedData = vgData
-        .filter(item => {
-            return item.imagePath 
-                && item.jhCode
-                && (item.placeOfOrigin== 'Auvers-sur-Oise')
-                && (item.technique == 'painting')
-        }).sort((a, b) => {
-            const jhA = parseInt(a.jhCode.slice(2), 10);
-            const jhB = parseInt(b.jhCode.slice(2), 10);
-            return jhA - jhB;
-            // return new Date(a.dateStart).getTime() - new Date(b.dateStart).getTime();
-        });
+// (async () => {
+//     // canvas size
+//     const outputImagePath = 'c:\\Users\\Administrator\\Downloads\\collage.jpg';
+//     const vgData = await loadVanGoghDataWithImages()
+//     const sortedData = vgData
+//         .filter(item => {
+//             return item.imagePath 
+//                 && item.jhCode
+//                 && (item.placeOfOrigin== 'Auvers-sur-Oise')
+//                 && (item.technique == 'painting')
+//         }).sort((a, b) => {
+//             const jhA = parseInt(a.jhCode.slice(2), 10);
+//             const jhB = parseInt(b.jhCode.slice(2), 10);
+//             return jhA - jhB;
+//             // return new Date(a.dateStart).getTime() - new Date(b.dateStart).getTime();
+//         });
 
-    const imagePaths = sortedData.map(item => item.imagePath);
-    sortedData.forEach(x => {
-        console.log(`${x.jhCode}\t ${x.dateStart}\t`)
-    })
-    console.log(sortedData.length)
-    createCollage(imagePaths, 2700, 3600, outputImagePath)
-})().catch((err) => console.error(err));
+//     const imagePaths = sortedData.map(item => item.imagePath);
+//     sortedData.forEach(x => {
+//         console.log(`${x.jhCode}\t ${x.dateStart}\t`)
+//     })
+//     console.log(sortedData.length)
+//     createCollage(imagePaths, 2700, 3600, outputImagePath)
+// })().catch((err) => console.error(err));

@@ -52,3 +52,5 @@ function buildSqlQuery(artMovementsSelected:string[], isCountQuery = false) {
 }
 
 export default router;
+
+

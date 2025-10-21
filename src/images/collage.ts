@@ -3,7 +3,6 @@ import sharp from 'sharp';
 import * as path from 'path';
 import Vibrant from 'node-vibrant';
 
-import { findFiles } from 'loc_file/loc_files';
 import { loadVgwwData } from '../crawlers/fetch-kroller-muller-museum'
 import { Palette } from '@vibrant/color';
 import { searchVgConditions } from '../vangogh/vangogh_images';
@@ -131,9 +130,10 @@ const allCollections = 'D:\\Node.js\\paintings-website\\public\\all-collections'
 
 (async () => {
     const dir = path.join(allCollections, '/')
-    let files = (await findFiles(dir))
-        .filter(file => /\.(jpg|jpeg|png)$/.test(file))
-        .filter(file => searchVgConditions(file))
+    let files :any
+    // = (await findFiles(dir))
+    //     .filter(file => /\.(jpg|jpeg|png)$/.test(file))
+    //     .filter(file => searchVgConditions(file))
     // .filter(f =>vgSearchConditions(path.basename(f)))
     // .filter(async file => {
     //     const hex = (await getDominantColor(file)).Vibrant?.hex
