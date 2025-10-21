@@ -3,18 +3,11 @@ import path from "path";
 import { DataTypes, Model, Op, QueryTypes, literal } from "sequelize";
 import { Sequelize } from 'sequelize-typescript';
 import { VincentArtwork } from "../db/models/VincentArtwork";
+import { initDatabase, sequelize } from "../db/db2";
 
 const router = express.Router();
-export const dbFile = path.join(__dirname, '../../artwork.db');
 
-export const sequelize = new Sequelize({
-    dialect: 'sqlite',
-    storage: dbFile,
-    logging: true,
-    models: [VincentArtwork]
-});
-
-
+initDatabase()
 
 router.get('/supriseme', async (req: any, res) => {
     try {

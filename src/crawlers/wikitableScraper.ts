@@ -5,7 +5,7 @@ import * as cheerio from 'cheerio';
 
 const url = '   '
 
-scrapeWikiTable(url)
+// scrapeWikiTable(url)
 
 async function scrapeWikiTable(url: string) {
     const response = await axiosAgented.get(url);

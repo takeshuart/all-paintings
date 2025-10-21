@@ -1,10 +1,6 @@
-import { WikiPage, downloadWikiTable } from "./wikipage";
-import { wikiPageList } from "./wikitable-config";
-import * as cheerio from 'cheerio';
-import * as iconv from 'iconv-lite';
+
 import fs from 'fs';
 import * as path from 'path';
-import { json } from "stream/consumers";
 import { axiosAgented, downloadFile, downloadFileWithProxy } from "../utils/https"
 
 //wikipage, museum, open api
@@ -108,4 +104,3 @@ function readJsonFile<T>(fileName: string): T[] {
 }
 
 
-fetchAllPages('Anton Mauve')

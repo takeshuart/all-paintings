@@ -18,7 +18,6 @@ const vgWorksBriefPath = path.join(dataBasePath, pubhistVgList)
 const vgWorksDetailsPath = path.join(dataBasePath, pubhistVangoghWorksDetails)
 
 // scrapeDetailPage('https://www.pubhist.com/w14640')
-mergeVggalleryData()
 //elt数据
 function resolveMistakeInfo() {
 

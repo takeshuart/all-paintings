@@ -36,27 +36,30 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 exports.__esModule = true;
-exports.downloadFile = exports.downloadFileWithProxy = exports.axiosAgented = void 0;
+exports.downloadFile = exports.downloadFileWithProxy = exports.initAxiosAgented = exports.axiosAgented = void 0;
 var axios_1 = require("axios");
 //Config vsCode setting 'http:proxy' does not work; but using 'socks-proxy-agent' is ok.
 var socks_proxy_agent_1 = require("socks-proxy-agent");
 var fs_1 = require("fs");
 var proxyUrl = 'socks5://127.0.0.1:1080';
-try {
-    var socksAgent = new socks_proxy_agent_1.SocksProxyAgent(proxyUrl);
-    // Create axios instance using the v2-ray proxy
-    exports.axiosAgented = axios_1["default"].create({
-        httpAgent: socksAgent,
-        httpsAgent: socksAgent,
-        headers: {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.77 Safari/537.36'
-        }
-    });
-    console.log('Axios instance created successfully');
+function initAxiosAgented() {
+    try {
+        var socksAgent = new socks_proxy_agent_1.SocksProxyAgent(proxyUrl);
+        // Create axios instance using the v2-ray proxy
+        exports.axiosAgented = axios_1["default"].create({
+            httpAgent: socksAgent,
+            httpsAgent: socksAgent,
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.77 Safari/537.36'
+            }
+        });
+        console.log('Axios instance created successfully');
+    }
+    catch (error) {
+        console.error('Error during axios initialization:', error);
+    }
 }
-catch (error) {
-    console.error('Error during axios initialization:', error);
-}
+exports.initAxiosAgented = initAxiosAgented;
 testDownload();
 function testDownload() {
     return __awaiter(this, void 0, void 0, function () {

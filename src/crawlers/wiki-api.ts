@@ -12,7 +12,6 @@ import { dataBasePath } from './wikipage';
 //1. 根据wikimedia的api获取某Category下的所有Item 
 //2. 根据wikimedia PageId(从1中获取）抓取图片文件的详情信息
 
-runner()
 function runner() {
     //fetchWikimediaCategory('Category:Google Art Project works by Vincent van Gogh')
     downloadVanGoghImageFile()

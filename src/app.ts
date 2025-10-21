@@ -2,7 +2,8 @@
 import express from 'express';
 import cors from 'cors';
 import artworkRouter from './routers/artwork';
-import vangoghRouter, { sequelize } from './routers/vangogh';
+import vangoghRouter from './routers/vangogh';
+import { sequelize } from './db/db2';
 
 const app = express();
 app.use(cors());

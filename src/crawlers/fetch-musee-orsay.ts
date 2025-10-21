@@ -76,4 +76,4 @@ async function scrapeDetails(url: string) {
 
 }
 
-crawlerArtWorks()
+// crawlerArtWorks()

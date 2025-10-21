@@ -26,6 +26,7 @@ function parseLetter(filePath: string): Letter {
   const letterNo = $("#metadata strong").first().text().trim() || "";
   const sender = metaBlock.match(/From:\s*([^\n]+)/)?.[1].trim() || "";
   const recipient = metaBlock.match(/To:\s*([^\n]+)/)?.[1].trim() || "";
+  //日期从大标题中解析
   const match = metaBlock.match(/Date:([\s\S]*?)(?:Source|Location|Date)/)?.[1].trim() || "";
   const dateStr = match.replace(/\n\s*/, ' ').trim();
 
@@ -91,7 +92,7 @@ function traverse(dir: string): string[] {
   return results;
 }
 
-async function main1() {
+async function main() {
   const BASE_DIR = "D:\\Arts\\Van Gogh\\vangoghletters.org\\vangoghletters.org\\vg\\letters";
   const OUTPUT_FILE = "D:\\Arts\\Van Gogh\\vangoghletters.org\\vangogh_letters.csv";
   const files = traverse(BASE_DIR);
@@ -103,7 +104,7 @@ async function main1() {
     const letter = parseLetter(file);
     const progress = `${i + 1} / ${files.length}`;
     if (letter) {
-      console.log(`Processing ${progress} (let${letter.letterNo})`);
+      console.log(`${letter.letterNo}\t ${letter.date}\t ${letter.place}\t${letter.sender}\t${letter.recipient}`)
       letters.push(letter);
     } else {
       console.log(`Skipping ${progress} (parse failed)`);
@@ -127,12 +128,9 @@ async function main1() {
     ],
   });
 
-  await csvWriter.writeRecords(letters);
+  // await csvWriter.writeRecords(letters);
   console.log(`✅ Exported ${letters.length} letters to ${OUTPUT_FILE}`);
 }
 
-// main().catch(console.error);
+main().catch(console.error);
 
-// const file = "D:\\Arts\\Van Gogh\\vangoghletters.org\\vangoghletters.org\\vg\\letters\\let014\\print.html";
-// const str = JSON.stringify(parseLetter(file))
-// console.log(str);

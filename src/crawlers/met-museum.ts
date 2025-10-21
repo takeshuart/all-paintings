@@ -86,8 +86,6 @@ async function processFile() {
     }
 }
 
-processFile();
-
 
 
 class MetArtwork {

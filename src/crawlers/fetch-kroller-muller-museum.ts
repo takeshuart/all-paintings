@@ -127,4 +127,4 @@ export function loadVgwwData() {
 }
 
 // fetchCatalog()
-downloadImageInBatches()
+// downloadImageInBatches()

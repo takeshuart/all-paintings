@@ -7,22 +7,24 @@ const proxyUrl = 'socks5://127.0.0.1:1080';
 
 export let axiosAgented: AxiosInstance;
 
-try {
-  const socksAgent = new SocksProxyAgent(proxyUrl);
+export function initAxiosAgented() {
+  try {
+    const socksAgent = new SocksProxyAgent(proxyUrl);
 
-  // Create axios instance using the v2-ray proxy
-  axiosAgented = axios.create({
-    httpAgent: socksAgent,
-    httpsAgent: socksAgent,
-    headers: {
-      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.77 Safari/537.36'
-    }
-  });
+    // Create axios instance using the v2-ray proxy
+    axiosAgented = axios.create({
+      httpAgent: socksAgent,
+      httpsAgent: socksAgent,
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.77 Safari/537.36'
+      }
+    });
 
-  console.log('Axios instance created successfully');
+    console.log('Axios instance created successfully');
 
-} catch (error) {
-  console.error('Error during axios initialization:', error);
+  } catch (error) {
+    console.error('Error during axios initialization:', error);
+  }
 }
 
 testDownload()
@@ -34,12 +36,12 @@ async function testDownload() {
 
 
 export async function downloadFileWithProxy(url: string, outputPath: string, headers?: any): Promise<void> {
-  return downloadFileStream(url, outputPath,axiosAgented, headers);
+  return downloadFileStream(url, outputPath, axiosAgented, headers);
 }
 
 //without proxy
 export async function downloadFile(url: string, outputPath: string, headers?: any): Promise<void> {
-  return downloadFileStream(url, outputPath,axios, headers);
+  return downloadFileStream(url, outputPath, axios, headers);
 }
 
 async function downloadFileStream(url: string, outputPath: string, axiosInstance: any, headers?: any): Promise<void> {

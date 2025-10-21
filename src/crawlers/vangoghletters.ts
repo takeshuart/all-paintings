@@ -218,5 +218,3 @@ function getMatrixSize(dir: string): { maxRow: number, maxCol: number } {
     return { maxRow: maxRow + 1, maxCol: maxCol + 1 };
 }
 
-
-downloadLetterTilesConcurrently()

@@ -191,8 +191,6 @@ async function downloadImages() {
     }
 }
 
-// 调用函数以下载图片
-downloadImages();
 
 
 
