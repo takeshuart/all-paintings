@@ -1,5 +1,5 @@
-import { ArtWork } from '../crawlers/artwork'
-import { dbArtwork } from './db';
+import { ArtWork } from '../scripts/crawlers/artwork.js'
+import { dbArtwork } from './db.js';
 
 export function toSnakeCase(str: string): string {
     return str.replace(/([A-Z])/g, "_$1").toLowerCase();

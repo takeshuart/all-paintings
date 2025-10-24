@@ -1,6 +1,6 @@
-import { catchDbError } from '../utils/decorators';
-import { dbArtwork } from './db';
-import { toCamelCase, toSnakeCase } from './dbUtils';
+import { catchDbError } from '../utils/decorators.js';
+import { dbArtwork } from './db.js';
+import { toCamelCase, toSnakeCase } from './dbUtils.js';
 
 export interface ArtworkVincent {
     id?: number;

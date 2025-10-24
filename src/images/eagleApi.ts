@@ -1,5 +1,3 @@
-import fetch from "node-fetch";
-
 //Eagele API服务与Eagle软件一起启动，https://api.eagle.cool/item/list
 //仅操作当前打开的文件库
 
@@ -57,7 +55,7 @@ export async function searchEagleItems(options: EagleQueryOptions): Promise<Eagl
 
     const url = `${EAGLE_BASE_URL}/item/list?${params.toString()}`;
 
-    const response = await fetch(url, { method: "GET", redirect: "follow" });
+    const response = await fetch(url, { method: 'GET', redirect: 'follow' });
     if (!response.ok) {
         throw new Error(`Eagle API request failed: ${response.status} ${response.statusText}`);
     }
@@ -157,7 +155,7 @@ async function getItemsByFolderIds(folderIds: string[]): Promise<EagleItem[]> {
             }));
             results.push(...processed);
         }
-    } catch(err) {
+    } catch (err) {
         console.error(err)
     }
     return results;

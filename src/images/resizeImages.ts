@@ -1,4 +1,4 @@
-import { getAllItemsOfPath, searchEagleItems } from "./eagleApi";
+import { getAllItemsOfPath, searchEagleItems } from "./eagleApi.js";
 import fs from "fs-extra";
 import path from "path";
 import sharp from "sharp";

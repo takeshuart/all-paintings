@@ -1,4 +1,4 @@
-import { ArtworkVincent } from "./ArtworkVincentDAO";
+import { ArtworkVincent } from "./ArtworkVincentDAO.js";
 
 
 export function toSnakeCase(obj: Record<string, any>): Record<string, any> {

@@ -1,3 +1,15 @@
+# 命名规范
+- Files & Folders	   kebab-case	      user.routes.js, auth.service.js
+- Variables	         camelCase	      const userName = 'John';
+- Constants	         UPPER_SNAKE_CASE	const MAX_USERS = 100;
+- Classes	         PascalCase	      class UserService {}
+- Functions	         camelCase	      getUserById()
+- Routes	            Plural nouns	   /api/v1/users
+- Route Parameters	camelCase 	      req.params.userId, /users/:user_id (in code, snake_case in URLs)
+- Database Tables	   snake_case	      user_profiles
+- Environment Vars	UPPER_SNAKE_CASE	DB_HOST=localhost
+- Scripts            underline         diff_image.ts
+
 # Tech stack
 - SQLite
    数据文件: artwork-database\artwork.db
@@ -9,11 +21,11 @@
 
 #　How to run?
 该项目包含2个子项目：
-1. 一个是工具类的爬虫脚本，位于/crawlers目录下。
-  配置`.vscode/launch.json`后，通过vscode `run->start debugging`运行
-  运行的文件配置在`tsconfig.json#outDir`
-
-2. 一个为前端页面提供数据服务的api项目，位于/routers目录下
+1. 本地脚本，位于/scripts目录下。
+  `.vscode/launch.json`已配置`ts-node ESM`,通过vscode `run->start debugging`运行当前打开的`.ts`文件
+ -  编译`npm run build`
+ -命令行运行 ：`node --loader ts-node/esm ./src/scripts/compute_color_scores.ts`
+2. api项目，位于/routers目录下,为react项目提供数据服务。
   - tsc （每次修改后需要重新编译)
   - > node .\dist\app.js` 
   - 或配置开发环境自动重新编译：

@@ -12,7 +12,7 @@ export class VincentArtwork extends Model<VincentArtwork> {
     autoIncrement: true,
     field: 'id',
   })
-  id!: number;
+  declare id: number;
 
   @Column({ type: DataType.TEXT, field: 'title_en', allowNull: false, defaultValue: '' })
   titleEn!: string;

@@ -1,8 +1,7 @@
 import { json } from "sequelize";
-import { ArtworkVincentDao } from "../db/ArtworkVincentDAO";
-import { VincentArtwork } from "../db/models/VincentArtwork";
-import { extractVgCodeFromFileName } from "../vangogh/VangoghUtils";
-import { EagleItem, getAllItemsOfPath } from "./eagleApi";
+import { ArtworkVincentDao } from "../db/ArtworkVincentDAO.js";
+import { extractVgCodeFromFileName } from "../scripts/vangogh/VangoghUtils.js";
+import { EagleItem, getAllItemsOfPath } from "./eagleApi.js";
 
 
 //处理色彩信息

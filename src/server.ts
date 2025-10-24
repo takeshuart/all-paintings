@@ -1,3 +1,4 @@
+import { CURRENT_DIR } from '@utils/files.js';
 import express from 'express';
 import Datastore from 'nedb';
 import path from "path"
@@ -5,7 +6,7 @@ const app = express();
 const db = new Datastore({ filename: './nedb.db', autoload: true });
 
 app.set('view engine', 'ejs'); //view template engine
-app.set('views', path.join(__dirname, '../src/views'));  // the path of template file
+app.set('views', path.join(CURRENT_DIR, '../src/views'));  // the path of template file
 
 app.listen(3000, () => {
     console.log('Server is running on port 3000');

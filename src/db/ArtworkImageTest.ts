@@ -1,4 +1,4 @@
-import { ArtworkImage, ArtworkImageDao } from "./ArtworkImageDAO";
+import { ArtworkImage, ArtworkImageDao } from "./ArtworkImageDAO.js";
 
 async function main() {
     const images: ArtworkImage[] = [{

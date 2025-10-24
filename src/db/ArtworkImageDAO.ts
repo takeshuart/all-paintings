@@ -1,4 +1,4 @@
-import { dbArtwork } from './db';
+import { dbArtwork } from './db.js';
 
 
 const tableName = "artwork_image"

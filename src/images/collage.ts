@@ -3,9 +3,7 @@ import sharp from 'sharp';
 import * as path from 'path';
 import Vibrant from 'node-vibrant';
 
-import { loadVgwwData } from '../crawlers/fetch-kroller-muller-museum'
 import { Palette } from '@vibrant/color';
-import { searchVgConditions } from '../vangogh/vangogh_images';
 
 /**
  * 拼接九宫格图片

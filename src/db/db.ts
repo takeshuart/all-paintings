@@ -2,10 +2,11 @@ import Database from 'better-sqlite3';
 import path from 'path';
 import dotenv from 'dotenv';
 import { Sequelize } from "sequelize";
+import { PROJECT_ROOT } from '@utils/files.js';
 
 dotenv.config();
-const dbFileProd = path.join(__dirname, '../../artwork.db')
-const dbFileTest = path.join(__dirname, '../../artwork-test.db')
+const dbFileProd = path.join(PROJECT_ROOT, './artwork.db')
+const dbFileTest = path.join(PROJECT_ROOT, './artwork-test.db')
 
 const env = process.env.NODE_ENV || 'prod';
 const dbFile = env === 'test' ? dbFileTest : dbFileProd;
