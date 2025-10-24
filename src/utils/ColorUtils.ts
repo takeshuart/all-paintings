@@ -1,6 +1,5 @@
 import convert from 'color-convert';
-
-import deltaE from 'delta-e';
+import DeltaE from 'delta-e';
 
 interface Lab {
     L: number;
@@ -26,6 +25,5 @@ export function calculateDeltaE2000(lab1: LabColor, lab2: LabColor): number {
     // 映射到 delta-e 库要求的 { L: L, A: A, B: B } 格式
     const labToDeltaEFormat = (lab: LabColor): Lab => ({ L: lab.l, A: lab.a, B: lab.b });
     
-    // 正确调用导入的 deltaE2000 函数
-    return (deltaE as any).deltaE2000(labToDeltaEFormat(lab1), labToDeltaEFormat(lab2));
+    return DeltaE.getDeltaE00(labToDeltaEFormat(lab1), labToDeltaEFormat(lab2));
 }
