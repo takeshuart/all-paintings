@@ -1,3 +1,6 @@
+# 别名导入有问题，改为相对路径：
+'@/db/models/ArtworkColorFeature.js' -> '../db/models/ArtworkColorFeature.js'
+
 # 命名规范
 - Files & Folders	   kebab-case	      user.routes.js, auth.service.js
 - Variables	         camelCase	      const userName = 'John';

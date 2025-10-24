@@ -1,10 +1,22 @@
-import { Table, Column, Model, DataType } from 'sequelize-typescript';
+import { Table, Column, Model, DataType, HasOne } from 'sequelize-typescript';
+import { ArtworkColorFeature } from './ArtworkColorFeature.js';
+
+
+ // 为连表定义一个别名，用于 include
+export const JOIN_ARTWORK_COLOR_FEATURE_JOIN = 'artwork-colorFeatures';
 
 @Table({
   tableName: 'artwork_vincent',
   timestamps: false,
 })
 export class VincentArtwork extends Model<VincentArtwork> {
+
+  @HasOne(() => ArtworkColorFeature, {
+    sourceKey: 'id', // VincentArtwork id
+    foreignKey: 'image_id', // ArtworkColorFeature id
+    as: JOIN_ARTWORK_COLOR_FEATURE_JOIN
+  })
+  colorFeatures!: ArtworkColorFeature;
 
   @Column({
     type: DataType.INTEGER,

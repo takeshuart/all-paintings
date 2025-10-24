@@ -13,10 +13,10 @@ export class ArtworkColorFeature extends Model<ArtworkColorFeature> {
     @ForeignKey(() => VincentArtwork)
     image_id!: string;
 
-    @Column({ type: DataType.TEXT, field: 'f_code', allowNull: false, defaultValue: '' })
+    @Column({ type: DataType.TEXT, field: 'f_code' , allowNull: true})
     fCode!: string;
 
-    @Column({ type: DataType.TEXT, field: 'jh_code', allowNull: false, defaultValue: '' })
+    @Column({ type: DataType.TEXT, field: 'jh_code', allowNull: true })
     jhCode!: string;
 
     @Column({ type: DataType.REAL, field: 'score_01', defaultValue: 0 })

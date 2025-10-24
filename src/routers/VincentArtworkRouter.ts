@@ -1,9 +1,10 @@
-import express from "express";
+import express, { Request, Response } from "express";
 import path from "path";
 import { DataTypes, Model, Op, QueryTypes, literal } from "sequelize";
 import { Sequelize } from 'sequelize-typescript';
 import { VincentArtwork } from "../db/models/VincentArtwork.js";
 import { initDatabase, sequelize } from "../db/db2.js";
+import { ArtworkSearchParams, findVincentArtworks } from "services/artwork.service.js";
 
 const router = express.Router();
 
@@ -37,32 +38,53 @@ router.get('/id/:id', async (req: any, res) => {
 })
 
 
-router.get('/bypage', async (req: any, res) => {
+/**
+ * GET /api/artworks/bypage
+ * Handler for fetching artworks with complex filtering, pagination, and conditional color sorting.
+ */
+router.get('/bypage', async (req: Request, res: Response) => {
     try {
-        const page = parseInt(req.query.page) || 0;
-        const pageSize = parseInt(req.query.pageSize) || 5;
-        const searchText = req.query.search || '';
-        const hasImage = req.query.hasImage === 'true';
-        const period = req.query.period || '';
-        const genres: string[] = Array.isArray(req.query.genres) ? req.query.genres : [];
-        const techniques: string[] = Array.isArray(req.query.techniques) ? req.query.techniques : [];
-        const rgbColor: number[] = req.query.rgbColor ? req.query.rgbColor.split(',').map(Number) : [];
-        console.log(`request:\t${JSON.stringify(req.query)}\n`);
+        // Pagination: default to page 1 and size 5.
+        const page = parseInt(req.query.page as string) || 1;
+        const pageSize = parseInt(req.query.pageSize as string) || 5;
 
-        const result = await findAllByPage(
-            searchText,
-            genres,
-            period,
-            techniques,
-            hasImage,
-            rgbColor,
-            page,
-            pageSize);
+        const searchText = (req.query.search as string) || null;
+        const period = (req.query.period as string) || null;
+        const hasImage = (req.query.hasImage === 'true');
 
-        res.json(result);
-    } catch (err) {
-        console.error(err)
-        res.status(500).json({ error: `Internal server error.\t ${err}` });
+        const genres = Array.isArray(req.query.genres) ? (req.query.genres as string[]) : [];
+        const techniques = Array.isArray(req.query.techniques) ? (req.query.techniques as string[]) : [];
+
+        // Color Sorting Field: Expecting a score field name string (e.g., 'score_05'), default to null.
+        const colorField = (req.query.colorField as string) || null;
+
+        console.log(`Incoming request parameters: ${JSON.stringify(req.query)}\n`);
+
+        // Map query parameters to the service layer
+        const searchParams: ArtworkSearchParams = {
+            page: page,
+            pageSize: pageSize,
+            searchText: searchText,
+            hasImage: hasImage,
+            period: period,
+            genres: genres,
+            techniques: techniques,
+            colorField: colorField,
+        };
+
+        const {artworks:rows,totalCount:count} = await findVincentArtworks(searchParams);
+
+        res.json({
+            rows:rows,
+            totalCount:count
+        });
+
+    } catch (err: any) {
+        console.error(`Error in /bypage router: ${err.message || err}`);
+        res.status(500).json({
+            error: `Internal server error during artwork search.`,
+            details: err.message || 'An unknown error occurred.'
+        });
     }
 });
 
@@ -85,113 +107,6 @@ async function findSearchConditions(cond: string) {
         throw error;
     }
 }
-
-
-async function findAllByPage(
-    searchText: string,
-    genres: string[],
-    period: string,
-    techniques: string[],
-    hasImage: boolean,
-    rgbColor: number[],
-    page = 1,
-    pageSize = 10) {
-
-    const offset = (page - 1) * pageSize;
-
-    let whereClause: any = {};
-    if (genres.length > 0) {
-        whereClause['genre'] = genres
-    }
-    if (period) {
-        whereClause['period'] = period
-    }
-    if (techniques.length > 0) {
-        whereClause['technique'] = techniques
-    }
-    if (hasImage) {
-        whereClause['primary_image_small'] = literal('length(primary_image_small)>0');
-    }
-    if (searchText) {
-        if (isChinese(searchText)) {
-            whereClause[Op.or] = { title_zh: { [Op.like]: `%${searchText}%` } };
-        } else {
-            //TODO merge multiple field to one field 
-            const searchConditions = [
-                { title_en: { [Op.like]: `%${searchText}%` } },
-                Sequelize.literal(`UPPER(f_code) = UPPER(${sequelize.escape(searchText)})`),
-                Sequelize.literal(`UPPER(jh_code) = UPPER(${sequelize.escape(searchText)})`),
-                { collection: { [Op.like]: `%${searchText}%` } }
-            ];
-            whereClause[Op.or] = searchConditions;
-        }
-
-    }
-    let colorWhere: any = {};
-    const tolerance = 30 //越小越精准
-    if (rgbColor.length > 0) {
-        // const rgb = hexToRgb(rgbColor);
-        // if (!rgb) throw new Error('Invalid hex color');
-
-        const [r, g, b] = rgbColor;
-
-        // SQLite 直接用欧氏距离判断
-        colorWhere = Sequelize.literal(`
-                    (r - ${r})*(r - ${r}) + 
-                    (g - ${g})*(g - ${g}) + 
-                    (b - ${b})*(b - ${b}) <= ${tolerance * tolerance}
-                `);
-        whereClause = {
-            ...whereClause,
-            technique: { [Op.ne]: 'drawing' }, // technique != 'drawing'
-        };
-    }
-
-    try {
-        // Fetch artworks
-        const { count, rows } = await VincentArtwork.findAndCountAll({
-            where: Sequelize.and(
-                whereClause,
-                rgbColor ? colorWhere : {}
-            ),
-            order: [
-                // 排序：rankScore降序，分数相同用id排序
-                // rankScore计算规则见 db/calc_rankingScore.sql
-                ['rank_score', 'DESC'],
-                ['id', 'ASC']
-            ],
-            limit: pageSize,
-            offset: offset,
-        });
-        console.log(JSON.stringify(whereClause, null, 2));
-        console.log('查询结果：' + count)
-        return { count, rows };
-    } catch (err) {
-        console.error(`Error fetching artworks: ${err}, whereClause: ${JSON.stringify(whereClause)}`)
-        throw new Error(`Error fetching artworks: ${err}`);//response data
-    }
-}
-
-
-function isChinese(text: string): boolean {
-    const chineseRegex = /[\u4E00-\u9FA5\uF900-\uFA2D]/;
-    return chineseRegex.test(text);
-}
-
-function hexToRgb(hex: string): { r: number; g: number; b: number } | null {
-    if (!hex) return null;
-    let sanitized = hex.replace('#', '');
-    if (sanitized.length === 3) {
-        sanitized = sanitized.split('').map(c => c + c).join('');
-    }
-    if (sanitized.length !== 6) return null;
-
-    const r = parseInt(sanitized.slice(0, 2), 16);
-    const g = parseInt(sanitized.slice(2, 4), 16);
-    const b = parseInt(sanitized.slice(4, 6), 16);
-    return { r, g, b };
-}
-
 
 export default router;
 

@@ -1,7 +1,12 @@
 // constants.ts
 
-// 1. 前端展示用的主题色板 (用于检索的 C_theme)
-// scoreField 使用固定 ID (score_01 到 score_10)
+
+/**
+ * 计算过程见Notion笔记
+ * @searchColorRGB  使用 K-Means 聚类对梵高的所有作品分析得出的10个主要色调。
+ * @displayColor 前端展示色块，饱和度、亮度略高于主题色（searchColorRGB）
+ * @scoreFiled 对应的数据库字段
+ */
 export const VAN_GOGH_PALETTE = [
     { id: 1, name: '湖水青蓝', displayColor: '#4A97A8', searchColorRGB: [102, 125, 131], scoreField: 'score_01' },
     { id: 2, name: '深空靛蓝', displayColor: '#4F6FA8', searchColorRGB: [107, 134, 172], scoreField: 'score_02' },
@@ -15,7 +20,13 @@ export const VAN_GOGH_PALETTE = [
     { id: 10, name: '向日葵亮黄', displayColor: '#F3D860', searchColorRGB: [217, 197, 103], scoreField: 'score_10' }
 ];
 
-export const SCORE_FIELDS = VAN_GOGH_PALETTE.map(p => p.scoreField);
+export const COLORE_SCORE_FIELDS = VAN_GOGH_PALETTE.map(p => p.scoreField);
 
-// 3. 固定的 ΔE2000 宽容度阈值
-export const DE_THRESHOLD = 8.0;
+/**
+ * ΔE2000 宽容度阈值
+ * 精确匹配（几乎相同颜色） 	1.5 – 2.5	如校色工具
+ * 同色系识别（视觉一致）	    3 – 4 	推荐用于橙色占比统计
+ * 主色调归类（大致属于橙色）	5 – 6 	推荐用于检索“橙色图片”
+ * 宽松聚类（粗略分组）	        7 – 10	聚类或初筛阶段
+*/
+export const DE_THRESHOLD = 5.0;

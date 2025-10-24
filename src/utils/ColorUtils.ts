@@ -21,7 +21,7 @@ export function rgbToLab(rgb: [number, number, number]): LabColor {
     return { l: labArray[0], a: labArray[1], b: labArray[2] };
 }
 
-export function calculateDeltaE2000(lab1: LabColor, lab2: LabColor): number {
+export function calculateDeltaE00(lab1: LabColor, lab2: LabColor): number {
     // 映射到 delta-e 库要求的 { L: L, A: A, B: B } 格式
     const labToDeltaEFormat = (lab: LabColor): Lab => ({ L: lab.l, A: lab.a, B: lab.b });
     

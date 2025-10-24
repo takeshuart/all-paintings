@@ -1,8 +1,9 @@
 
+import { ArtworkColorFeature } from '../db/models/ArtworkColorFeature.js';
 import { initDatabase } from '../db/db2.js';
 import { VincentArtwork } from '../db/models/VincentArtwork.js';
-import { calculateDeltaE2000, ImageFeature, LabColor, rgbToLab } from '../utils/ColorUtils.js';
-import { DE_THRESHOLD, SCORE_FIELDS, VAN_GOGH_PALETTE } from '../utils/constants.js';
+import { calculateDeltaE00, ImageFeature, LabColor, rgbToLab } from '../utils/ColorUtils.js';
+import { DE_THRESHOLD, COLORE_SCORE_FIELDS, VAN_GOGH_PALETTE } from '../utils/constants.js';
 import { Op } from 'sequelize';
 
 
@@ -28,28 +29,26 @@ interface ThemeColorLab {
  * 4. 如果 de2000 小于等于预设的宽容度阈值 (DE_THRESHOLD)，则认为 C' 被 C_theme 风格所“覆盖”。
  * 5. 将 C' 的比例 (Weight) 累加到 C_theme 对应的分数 (score_XX) 中。
  * * 最终，每个 score_XX 分数表示图片中“与该主题色相似的颜色”所占的总体百分比（0-1）。
- * * @param featureData - 原始色彩特征 JSON 解析后的对象数组。
+ *  占比多大，色彩匹配都越高
+ * @param rgbFeatures - 原始RGB色彩特征 例如：[{"color":[96,83,44],"ratio":37},{"color":[168,126,38],"ratio":16}
  * @param themesLab - 10 个主题色的 L*a*b* 值和对应的数据库字段名。
  * @returns 包含 10 个主题得分的对象。
  */
-function calculateThemeScores(
-    featureData: ImageFeature[],
-    themesLab: ThemeColorLab[]
-): { [key: string]: number } {
+function calculateThemeScores(rgbFeatures: ImageFeature[], themesLab: ThemeColorLab[]): { [key: string]: number } {
 
 
     const scores: { [key: string]: number } = {};
-    SCORE_FIELDS.forEach(field => scores[field] = 0);
+    COLORE_SCORE_FIELDS.forEach(field => scores[field] = 0);
 
-    for (const feature of featureData) {
-        const weight = feature.ratio / 100;
+    for (const rgb of rgbFeatures) {
+        const weight = rgb.ratio / 100;
         if (weight === 0) continue;
 
         //RGB -> L*a*b*
-        const C_prime_lab = rgbToLab(feature.color);
+        const C_prime_lab = rgbToLab(rgb.color);
 
         for (const theme of themesLab) {
-            const de2000 = calculateDeltaE2000(C_prime_lab, theme.lab);
+            const de2000 = calculateDeltaE00(C_prime_lab, theme.lab);
 
             if (de2000 <= DE_THRESHOLD) {
                 scores[theme.fieldName] = (scores[theme.fieldName] as number) + weight;
@@ -71,6 +70,7 @@ async function precomputeThemeScores() {
 
         console.log("--- 主题色彩分数预计算开始 ---");
 
+        //RGB to Lab
         const THEME_COLORS_LAB = VAN_GOGH_PALETTE.map(item => ({
             fieldName: item.scoreField,
             lab: rgbToLab(item.searchColorRGB as [number, number, number])
@@ -97,14 +97,14 @@ async function precomputeThemeScores() {
             const scoresToUpsert: ScoreAttributes[] = [];
 
             for (const artwork of artworks) {
-                if(!artwork.colors)continue
-                
+                if (!artwork.colors) continue
+
                 const { id: artworkId, colors, fCode, jhCode } = artwork;
 
                 try {
-                    const featureData = JSON.parse(colors) as ImageFeature[];
+                    const rgbFeatures = JSON.parse(colors) as ImageFeature[];
 
-                    const calculatedScores = calculateThemeScores(featureData, THEME_COLORS_LAB);
+                    const calculatedScores = calculateThemeScores(rgbFeatures, THEME_COLORS_LAB);
 
                     const finalScoreObject: ScoreAttributes = {
                         image_id: artworkId,
@@ -119,12 +119,12 @@ async function precomputeThemeScores() {
                 }
             }
 
-            // if (scoresToUpsert.length > 0) {
-            //     await ArtworkColorFeature.bulkCreate(scoresToUpsert as any, {
-            //         updateOnDuplicate: ['fCode', 'jhCode', ...(SCORE_FIELDS as (keyof ArtworkColorFeature)[])],
-            //         ignoreDuplicates: false
-            //     });
-            // }
+            if (scoresToUpsert.length > 0) {
+                await ArtworkColorFeature.bulkCreate(scoresToUpsert as any, {
+                    updateOnDuplicate: ['fCode', 'jhCode', ...(COLORE_SCORE_FIELDS as (keyof ArtworkColorFeature)[])],
+                    ignoreDuplicates: false
+                });
+            }
 
             recordsProcessed += artworks.length;
             offset += BATCH_SIZE;

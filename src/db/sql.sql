@@ -144,3 +144,35 @@ CREATE TABLE letter_translations (
     UNIQUE(letter_id, lang),
     FOREIGN KEY (letter_id) REFERENCES letters(letter_id)
 );
+
+
+CREATE TABLE IF NOT EXISTS "artwork_color_scores" (
+    -- 主键和外键： INTEGER NOT NULL PRIMARY KEY
+    -- 对应 @Column({ type: DataType.INTEGER, primaryKey: true, allowNull: false, field: 'image_id' })
+    "image_id" INTEGER NOT NULL PRIMARY KEY, 
+    
+    -- f_code
+    -- 对应 @Column({ type: DataType.TEXT, field: 'f_code', allowNull: false, defaultValue: '' })
+    "f_code" TEXT,
+    
+    -- jh_code
+    -- 对应 @Column({ type: DataType.TEXT, field: 'jh_code', allowNull: false, defaultValue: '' })
+    "jh_code" TEXT ,
+    
+    -- score_01 到 score_10 (所有得分字段)
+    -- 对应 @Column({ type: DataType.REAL, field: 'score_XX', defaultValue: 0 })
+    "score_01" REAL DEFAULT 0.0, -- 湖水青蓝
+    "score_02" REAL DEFAULT 0.0, -- 深空靛蓝
+    "score_03" REAL DEFAULT 0.0, -- 柔和米灰
+    "score_04" REAL DEFAULT 0.0, -- 清新薄荷绿
+    "score_05" REAL DEFAULT 0.0, -- 深沉橄榄
+    "score_06" REAL DEFAULT 0.0, -- 古典棕绿
+    "score_07" REAL DEFAULT 0.0, -- 浓郁焦棕
+    "score_08" REAL DEFAULT 0.0, -- 暖调赤土
+    "score_09" REAL DEFAULT 0.0, -- 亮金赭石
+    "score_10" REAL DEFAULT 0.0, -- 向日葵亮黄
+    
+    -- 外键约束：确保 image_id 必须引用 VincentArtwork 表中的记录
+    -- 假设 VincentArtwork 编译后对应的表名是 'vincent_artworks'，其主键是 'id'。
+    FOREIGN KEY("image_id") REFERENCES "artwork_vincent"("id")
+);
