@@ -25,7 +25,8 @@
 #　How to run?
 该项目包含2个子项目：
 1. 本地脚本，位于/scripts目录下。
-  `.vscode/launch.json`已配置`ts-node ESM`,通过vscode `run->start debugging`运行当前打开的`.ts`文件
+  `.vscode/launch.json`已配置`ts-node ESM`,
+  通过vscode `run->start debugging`运行当前打开的`.ts`文件
  -  编译`npm run build`
  -命令行运行 ：`node --loader ts-node/esm ./src/scripts/compute_color_scores.ts`
 2. api项目，位于/routers目录下,为react项目提供数据服务。

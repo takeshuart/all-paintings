@@ -2,12 +2,14 @@ import { Table, Column, Model, DataType, HasOne } from 'sequelize-typescript';
 import { ArtworkColorFeature } from './ArtworkColorFeature.js';
 
 
- // 为连表定义一个别名，用于 include
+// 为连表定义一个别名，用于 include
 export const JOIN_ARTWORK_COLOR_FEATURE_JOIN = 'artwork-colorFeatures';
 
 @Table({
   tableName: 'artwork_vincent',
-  timestamps: false,
+  timestamps: true,
+  createdAt: 'create_at',   // default createAt
+  updatedAt: 'update_at',
 })
 export class VincentArtwork extends Model<VincentArtwork> {
 
@@ -40,6 +42,8 @@ export class VincentArtwork extends Model<VincentArtwork> {
 
   @Column({ type: DataType.TEXT, field: 'collection', allowNull: false, defaultValue: '' })
   collection!: string;
+   @Column({ type: DataType.TEXT, field: 'collection_zh', allowNull: false, defaultValue: '' })
+  collectionZh!: string;
 
   @Column({ type: DataType.TEXT, field: 'genre', allowNull: false, defaultValue: '' })
   genre!: string;
@@ -52,6 +56,9 @@ export class VincentArtwork extends Model<VincentArtwork> {
 
   @Column({ type: DataType.TEXT, field: 'display_date', allowNull: false, defaultValue: '' })
   displayDate!: string;
+  
+  @Column({ type: DataType.TEXT, field: 'display_date_zh', allowNull: true, defaultValue: '' })
+  displayDateZh!: string;
 
   @Column({ type: DataType.TEXT, field: 'location_city', allowNull: false, defaultValue: '' })
   locationCity!: string;

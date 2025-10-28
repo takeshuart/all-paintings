@@ -11,6 +11,9 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
+# keys
+google_cloud_api_keys.json
+
 # Editor directories and files
 .idea
 .vscode

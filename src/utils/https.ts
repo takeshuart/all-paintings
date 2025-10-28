@@ -2,9 +2,10 @@ import axios, { AxiosInstance, AxiosResponse } from 'axios';
 //Config vsCode setting 'http:proxy' does not work; but using 'socks-proxy-agent' is ok.
 import { SocksProxyAgent } from 'socks-proxy-agent';
 import fs from 'fs';
+import { Agent } from 'openai/_shims/node-types.mjs';
 
 const proxyUrl = 'socks5://127.0.0.1:1080';
-
+export let socksAgent: Agent;
 export let axiosAgented: AxiosInstance;
 
 export function initAxiosAgented() {
