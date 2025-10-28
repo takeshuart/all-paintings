@@ -1,4 +1,4 @@
-import { sequelize } from '@db/db2.js';
+import { sequelize } from '../db/db2.js';
 import { ArtworkColorFeature } from '../db/models/ArtworkColorFeature.js';
 import { JOIN_ARTWORK_COLOR_FEATURE_JOIN, VincentArtwork } from '../db/models/VincentArtwork.js';
 import { COLORE_SCORE_FIELDS } from '../utils/constants.js';
