@@ -19,6 +19,5 @@ const PORT = 5001;
 
 sequelize.authenticate().then(() => {
   console.log('Database connected.');
-  //listen all ip adress
-  app.listen(PORT, '0.0.0.0', () => console.log(`Server running on port ${PORT}`));
+  app.listen(PORT,'0.0.0.0', () => console.log(`Server running on port ${PORT}`));
 });

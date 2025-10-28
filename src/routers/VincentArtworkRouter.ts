@@ -4,7 +4,7 @@ import { DataTypes, Model, Op, QueryTypes, literal } from "sequelize";
 import { Sequelize } from 'sequelize-typescript';
 import { VincentArtwork } from "../db/models/VincentArtwork.js";
 import { initDatabase, sequelize } from "../db/db2.js";
-import { ArtworkSearchParams, findVincentArtworks } from "services/artwork.service.js";
+import { ArtworkSearchParams, findVincentArtworks } from "../services/artwork.service.js";
 
 const router = express.Router();
 
