@@ -5,7 +5,7 @@ import { Op } from "sequelize";
 const router = express.Router();
 export default router;
 
-router.get('/byletids', async (req: any, res) => {
+router.get('/', async (req: any, res) => {
     const rawIds = req.query.ids as string | undefined;
 
     let letterIds = rawIds?.split(',')

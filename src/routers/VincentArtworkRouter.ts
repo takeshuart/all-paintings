@@ -8,7 +8,11 @@ import { ArtworkSearchParams, findVincentArtworks } from "../services/artwork.se
 
 const router = express.Router();
 
-router.get('/supriseme', async (req: any, res) => {
+/**
+ * random a artwork
+ * before '/:id'
+ */
+router.get('/surprise', async (req: any, res) => {
     try {
         const artwork = await VincentArtwork.findOne({
             where: { isHighlight: 1 },
@@ -17,7 +21,7 @@ router.get('/supriseme', async (req: any, res) => {
 
         if (artwork) {
             const at: VincentArtwork = artwork as VincentArtwork
-            console.log('surpriseme:' + at.id)
+            console.log('[API LOG] /surprise:' + at.id)
             res.json(artwork)
         }
     } catch (error) {
@@ -25,24 +29,33 @@ router.get('/supriseme', async (req: any, res) => {
     }
 })
 
+//test case: http://localhost:5001/artworks/vincent/bypage?page=5&pageSize=10&period=Paris
+router.get('/config', async (req: any, res) => {
+    const condition = req.query.cond || ''
+    const result = await findSearchConditions(condition)
+    res.json(result)
+});
 
-router.get('/id/:id', async (req: any, res) => {
+async function findSearchConditions(cond: string) {
     try {
-        const artwork = await VincentArtwork.findByPk(req.params.id);
-        if (artwork) {
-            res.json(artwork)
-        }
+        const sql = `SELECT DISTINCT ${cond} FROM artwork_vincent`
+        const distinctGenres = await sequelize.query(sql, {
+            type: QueryTypes.SELECT
+        });
+        return distinctGenres;
     } catch (error) {
-        console.error('Error finding artwork by ID:', error);
+        console.error('Error executing distinct query:', error);
+        throw error;
     }
-})
+}
+
 
 
 /**
- * GET /api/artworks/bypage
+ * GET /api/artworks/vincent
  * Handler for fetching artworks with complex filtering, pagination, and conditional color sorting.
  */
-router.get('/bypage', async (req: Request, res: Response) => {
+router.get('/', async (req: Request, res: Response) => {
     try {
         // Pagination: default to page 1 and size 5.
         const page = parseInt(req.query.page as string) || 1;
@@ -88,25 +101,17 @@ router.get('/bypage', async (req: Request, res: Response) => {
     }
 });
 
-//test case: http://localhost:5001/artworks/vincent/bypage?page=5&pageSize=10&period=Paris
-router.get('/config', async (req: any, res) => {
-    const condition = req.query.cond || ''
-    const result = await findSearchConditions(condition)
-    res.json(result)
-});
-
-async function findSearchConditions(cond: string) {
+router.get('/:id', async (req: any, res) => {
     try {
-        const sql = `SELECT DISTINCT ${cond} FROM artwork_vincent`
-        const distinctGenres = await sequelize.query(sql, {
-            type: QueryTypes.SELECT
-        });
-        return distinctGenres;
+        const artwork = await VincentArtwork.findByPk(req.params.id);
+        if (artwork) {
+            res.json(artwork)
+        }
     } catch (error) {
-        console.error('Error executing distinct query:', error);
-        throw error;
+        console.error('Error finding artwork by ID:', error);
     }
-}
+})
+
 
 export default router;
 

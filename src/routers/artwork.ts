@@ -5,7 +5,7 @@ import Database from "better-sqlite3";
 const router = express.Router();
 const db = new Database('artwork.db');
 
-router.get('/data', (req: any, res) => {
+router.get('/', (req: any, res) => {
     // 获取分页参数
     try {
         const page = parseInt(req.query.page) || 0;

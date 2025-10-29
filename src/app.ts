@@ -2,7 +2,7 @@
 import express from 'express';
 import cors from 'cors';
 import artworkRouter from './routers/artwork.js';
-import vangoghRouter from './routers/VincentArtworkRouter.js';
+import VincentRouter from './routers/VincentArtworkRouter.js';
 import vincentLetterRouter from './routers/VincentLetterRouter.js';
 import { initDatabase, sequelize } from './db/db2.js';
 
@@ -11,9 +11,12 @@ app.use(cors());
 initDatabase()
 
 // 使用 artwork 路由
-app.use('/artworks', artworkRouter);
-app.use('/artworks/vincent', vangoghRouter);
-app.use('/vincent/letter', vincentLetterRouter);
+
+const API_PREFIX = '/api/v1'; // 定义版本前缀
+
+// app.use('api/artworks', artworkRouter);
+app.use(`${API_PREFIX}/artworks/vincent`, VincentRouter);
+app.use(`${API_PREFIX}/letters/vincent`, vincentLetterRouter);
 
 const PORT = 5001;
 
