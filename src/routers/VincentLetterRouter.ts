@@ -1,6 +1,5 @@
 import express from "express";
-import { VincentLetter } from "../db/models/VincentLetter.js";
-import { Op } from "sequelize";
+import { prisma } from "lib/prismaDB.js";
 
 const router = express.Router();
 export default router;
@@ -15,16 +14,14 @@ router.get('/', async (req: any, res) => {
     }
 
     try {
-        const ids=letterIds.map((e:string)=>{
-            return e.startsWith("rm")?e.toUpperCase():e //
+        const ids = letterIds.map((e: string) => {
+            return e.startsWith("rm") ? e.toUpperCase() : e //
         })
-        const results = await VincentLetter.findAll({
+        const results = await prisma.vincentLetter.findMany({
             where: {
-                letterId: {
-                    [Op.in]: ids
-                }
+                letterId: { in: ids }
             }
-        });
+        })
 
         return res.json(results);
 

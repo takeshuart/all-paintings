@@ -1,0 +1,158 @@
+datasource db {
+    provider = "sqlite"
+    url      = env("DATABASE_URL")
+}
+
+// Generates the type-safe Prisma Client.
+generator client {
+    provider = "prisma-client-js"
+}
+
+model VincentArtwork {
+    id Int @id @default(autoincrement()) @map("id")
+
+    // Relations: One-to-One with Color Features
+    colorFeatures ArtworkColorFeature?
+
+    titleEn       String? @default("") @map("title_en")
+    titleZh       String? @default("") @map("title_zh")
+    fCode         String? @default("") @map("f_code")
+    jhCode        String? @default("") @map("jh_code")
+    collection    String? @default("") @map("collection")
+    collectionZh  String? @default("") @map("collection_zh")
+    genre         String? @default("") @map("genre")
+    depicts       String? @default("") @map("depicts")
+    period        String? @default("") @map("period")
+    displayDate   String? @default("") @map("display_date")
+    displayDateZh String? @default("") @map("display_date_zh")
+    locationCity  String? @default("") @map("location_city")
+    placeOfOrigin String? @default("") @map("place_of_origin")
+    dimension     String? @default("") @map("dimension")
+    isHighlight   Int?    @default(0) @map("is_highlight")
+    shortDesc     String? @default("") @map("short_desc")
+    colorPalette  String? @default("") @map("color_palette_json")
+    description   String? @default("") @map("description")
+    technique     String? @default("") @map("technique")
+
+    // Image URLs
+    primaryImageSmall    String? @default("") @map("primary_image_small")
+    primaryImageMedium   String? @default("") @map("primary_image_medium")
+    primaryImageLarge    String? @default("") @map("primary_image_large")
+    primaryImageOriginal String? @default("") @map("primary_image_original")
+
+    // Other fields
+    relatedLetters String? @default("") @map("related_letters")
+    relatedArtwork String? @default("") @map("related_artwork")
+    extLinks       String? @default("") @map("ext_links")
+    exhibitions    String? @default("") @map("exhibitions")
+    literature     String? @default("") @map("literature")
+    dateStart      String? @default("") @map("date_start")
+    dateEnd        String? @default("") @map("date_end")
+    material       String? @default("") @map("material")
+    inventoryCode  String? @default("") @map("inventory_code")
+    dataSource     String? @default("") @map("data_source")
+    colors         String? @default("") @map("colors")
+    r              Int?    @default(0)
+    g              Int?    @default(0)
+    b              Int?    @default(0)
+    letters        String? @default("")
+    rankScore      Float?  @default(0.0) @map("rank_score")
+
+    // Timestamps
+    createAt         DateTime          @default(now()) @map("create_at")
+    updateAt         DateTime          @updatedAt @map("update_at")
+    artworkFavorites UserFavorite[]
+
+    @@map("artwork_vincent")
+}
+
+/// Stores color analysis features for an artwork (corresponding to 'artwork_color_scores' table).
+/// It has a One-to-One relationship with VincentArtwork.
+model ArtworkColorFeature {
+    // Primary Key (and Foreign Key) linking back to VincentArtwork
+    imageId Int @id @map("image_id")
+
+    // Relation: One-to-One linking back to the artwork (BelongsTo in Sequelize)
+    artwork VincentArtwork @relation(fields: [imageId], references: [id])
+
+    // Other identifying fields
+    fCode  String? @map("f_code")
+    jhCode String? @map("jh_code")
+
+    // Color Scores (DataType.REAL -> Float)
+    score_01 Float @default(0.0) // Lake Blue-Green
+    score_02 Float @default(0.0) // Deep Space Indigo
+    score_03 Float @default(0.0) // Soft Beige-Gray
+    score_04 Float @default(0.0) // Fresh Mint Green
+    score_05 Float @default(0.0) // Deep Olive
+    score_06 Float @default(0.0) // Classic Brown-Green
+    score_07 Float @default(0.0) // Rich Burnt Umber
+    score_08 Float @default(0.0) // Warm Terracotta
+    score_09 Float @default(0.0) // Bright Golden Ochre
+    score_10 Float @default(0.0) // Sunflower Bright Yellow
+
+    @@map("artwork_color_scores")
+}
+
+/// Represents a letter written by Vincent Van Gogh (corresponding to 'vincent_letters' table).
+model VincentLetter {
+    id Int @id @default(autoincrement()) @map("id")
+
+    letterId String @unique @map("letter_id") // vgl number
+
+    // Sender/Recipient/Place/Date Fields
+    senderZh    String? @map("sender_zh")
+    senderEn    String? @map("sender_en")
+    recipientZh String? @map("recipient_zh")
+    recipientEn String? @map("recipient_en")
+    placeZh     String? @map("place_zh")
+    placeEn     String? @map("place_en")
+    weekdayZh   String? @map("weekday_zh")
+    weekdayEn   String? @map("weekday_en")
+    dateZh      String? @map("date_zh")
+    dateEn      String? @map("date_en")
+    vglUrl      String? @map("vgl_url")
+
+    // Content/Translation Fields (TEXT)
+    original         String? @map("original")
+    translationEnVgm String? @map("translation_en_vgm") // VGM English translation
+    translationZhVgm String? @map("translation_zh_vgm") // Chinese translation (VGM based)
+    translationZhAi  String? @map("translation_zh_ai") // AI generated Chinese translation
+
+    // JSON/Misc Fields (Stored as TEXT/String)
+    notes     String? @map("notes") // Notes in JSON format
+    facsimile String? @map("facsimile") // Scanned images in JSON format
+    artworks  String? @map("artworks") // Artworks mentioned in the letter (JSON)
+
+    @@map("vincent_letters")
+}
+
+//--------------------
+//   User
+//--------------------
+
+model User {
+    id           Int       @id @default(autoincrement())
+    email        String?    @unique
+    phone        String?   @unique
+    username     String    @unique
+    passwordHash String
+    memberType   String    @default("BASIC")
+    registeredAt DateTime  @default(now())
+    lastLoginAt  DateTime?
+    isActive     Boolean   @default(true)
+
+    favorites UserFavorite[]
+}
+
+model UserFavorite {
+    id        Int            @id @default(autoincrement())
+    user      User           @relation(fields: [userId], references: [id])
+    userId    Int
+    artwork   VincentArtwork @relation(fields: [artworkId], references: [id])
+    artworkId Int
+    createdAt DateTime       @default(now())
+
+    @@unique([userId, artworkId]) //One artwork can only be  favorited ONCE
+	@@map("ArtworkFavorite")
+}
