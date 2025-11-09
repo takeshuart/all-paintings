@@ -50,7 +50,7 @@
 ## prisma
 ORM框架已由Sequelize-ts切换为Prisma
 修改`schema.prisma`后，运行`npx prisma generate`更新 `@prisma/client`的类型。
-
+Prisma Error Code: [https://www.prisma.io/docs/orm/reference/error-reference]
 ## 运行单个文件
 1. 根目录下执行命令'tsc',把.ts文件编译成.js文件
 2. 运行在dist目录下生成的.js文件

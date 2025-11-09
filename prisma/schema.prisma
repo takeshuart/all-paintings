@@ -59,9 +59,9 @@ model VincentArtwork {
     rankScore      Float?  @default(0.0) @map("rank_score")
 
     // Timestamps
-    createAt         DateTime          @default(now()) @map("create_at")
-    updateAt         DateTime          @updatedAt @map("update_at")
-    artworkFavorites UserFavorite[]
+    createAt         DateTime        @default(now()) @map("create_at")
+    updateAt         DateTime        @updatedAt @map("update_at")
+    artworkFavorites UserFavorites[]
 
     @@map("artwork_vincent")
 }
@@ -127,32 +127,39 @@ model VincentLetter {
     @@map("vincent_letters")
 }
 
-//--------------------
+//-------------------------------
 //   User
-//--------------------
+//-------------------------------
 
 model User {
-    id           Int       @id @default(autoincrement())
-    email        String?    @unique
-    phone        String?   @unique
-    username     String    @unique
-    passwordHash String
-    memberType   String    @default("BASIC")
-    registeredAt DateTime  @default(now())
-    lastLoginAt  DateTime?
-    isActive     Boolean   @default(true)
+    id                  Int             @id @default(autoincrement()) @map("id")
+    userId            String            @unique @map("user_id")
+    email               String?         @unique @map("email")
+    phone               String?         @unique @map("phone")
+    nickName            String          @map("nickname")
+    passwordHash        String          @map("password_hash")
+    memberType          String          @default("BASIC") @map("member_type")
+    registeredAt        DateTime        @default(now()) @map("registered_at")
+    lastLoginAt         DateTime?       @map("last_login_at")
+    isActive            Boolean         @default(false) @map("is_active")
+    updateAt            DateTime        @default(now()) @map("update_at")
+    favorites           UserFavorites[]
+    emailVerifyCode     String?         @map("email_verify_code")
+    emailVerifyExpireAt DateTime?       @map("email_verify_expire_at")
+    isEmailVerified     Boolean         @default(false)@map("is_email_verified")
 
-    favorites UserFavorite[]
+    @@map("user")
 }
 
-model UserFavorite {
-    id        Int            @id @default(autoincrement())
+model UserFavorites {
+    id        Int            @id @default(autoincrement()) @map("id")
     user      User           @relation(fields: [userId], references: [id])
-    userId    Int
+    userId    Int            @map("user_id")
     artwork   VincentArtwork @relation(fields: [artworkId], references: [id])
-    artworkId Int
-    createdAt DateTime       @default(now())
+    artworkId Int            @map("artwork_id")
+    createdAt DateTime       @default(now()) @map("created_at")
+    deletedAt DateTime? //Null means user canceled favorite
 
-    @@unique([userId, artworkId]) //One artwork can only be  favorited ONCE
-	@@map("ArtworkFavorite")
+    @@unique([userId, artworkId])
+    @@map("user_favorites")
 }

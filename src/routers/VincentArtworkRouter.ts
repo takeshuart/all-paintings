@@ -1,6 +1,5 @@
 import express, { Request, Response } from "express";
-import path from "path";
-import { DataTypes, Model, Op, QueryTypes, literal } from "sequelize";
+import {  QueryTypes } from "sequelize";
 import { Sequelize } from 'sequelize-typescript';
 import { VincentArtwork } from "../db/models/VincentArtwork.js";
 import { initDatabase, sequelize } from "../db/db2.js";

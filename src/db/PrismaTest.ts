@@ -1,8 +1,9 @@
 // /src/services/vincentArtwork.ts
 
 import { PrismaClient, VincentArtwork } from '@prisma/client';
+import { prisma } from 'lib/prismaDB.js';
 
-const prisma = new PrismaClient();
+// const prisma = new PrismaClient();
 
 export async function findArtworkById(id: number): Promise<VincentArtwork | null> {
     console.log(`正在查询 ID 为 ${id} 的艺术品...`);
@@ -32,20 +33,14 @@ interface FindAllResult {
 export async function findAllArtworks({ page, pageSize }: FindAllParams): Promise<FindAllResult> {
     const offset = (page - 1) * pageSize;
     
-    console.log(`\n📚 正在查询第 ${page} 页，每页 ${pageSize} 条记录 (跳过 ${offset} 条)...`);
+    console.log(`\n正在查询第 ${page} 页，每页 ${pageSize} 条记录 (跳过 ${offset} 条)...`);
 
-    // Prisma 的 findMany 和 count 必须在单独的查询中执行，
-    // 或者使用 $transaction 来确保原子性（这里使用 $transaction）。
     const [totalCount, artworks] = await prisma.$transaction([
-        // 1. 获取总数
         prisma.vincentArtwork.count(),
         
-        // 2. 获取分页数据
         prisma.vincentArtwork.findMany({
-            // 默认排序（例如按 ID 降序）
             orderBy: { id: 'desc' }, 
             
-            // 分页参数：skip (跳过) = offset, take (获取) = limit
             skip: offset,
             take: pageSize,
         }),
@@ -54,7 +49,7 @@ export async function findAllArtworks({ page, pageSize }: FindAllParams): Promis
     return { artworks, totalCount };
 }
 
-async function runSimpleQueries() {
+async function runArtworkQueries() {
     try {
         const id=9220
         const singleArtwork = await findArtworkById(id); 
@@ -81,4 +76,10 @@ async function runSimpleQueries() {
     }
 }
 
-runSimpleQueries();
+async function userTest() {
+    const user=prisma.user.findMany()
+    console.log(user)
+}
+
+userTest()
+// runArtworkQueries();

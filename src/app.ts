@@ -4,9 +4,12 @@ import cors from 'cors';
 import artworkRouter from './routers/artwork.js';
 import VincentRouter from './routers/VincentArtworkRouter.js';
 import vincentLetterRouter from './routers/VincentLetterRouter.js';
+import userRouter from './routers/UserRouter.js';
 import { initDatabase, sequelize } from './db/db2.js';
 
 const app = express();
+app.use(express.json());//json requery body
+app.use(express.urlencoded({ extended: true }));//form request
 app.use(cors());
 initDatabase()
 
@@ -17,6 +20,7 @@ const API_PREFIX = '/api/v1'; // 定义版本前缀
 // app.use('api/artworks', artworkRouter);
 app.use(`${API_PREFIX}/artworks/vincent`, VincentRouter);
 app.use(`${API_PREFIX}/letters/vincent`, vincentLetterRouter);
+app.use(`${API_PREFIX}/user`, userRouter);
 
 const PORT = 5001;
 
