@@ -1,6 +1,6 @@
 import { Prisma, User } from "@prisma/client";
 import bcrypt from "bcrypt";
-import { prisma } from "lib/prismaDB.js";
+import { prisma } from "../lib/prismaDB.js";
 import validator from 'validator';
 
 class UserService {
@@ -21,6 +21,17 @@ class UserService {
     const maxRandom = 9999;
     const randomPart = Math.floor(Math.random() * (maxRandom - minRandom + 1) + minRandom).toString();
     return timestampPart + randomPart;
+  }
+
+  async findUser(userId: string) {
+    const user = await prisma.user.findUnique({ where: { userId: userId} })
+    if (!user) { return null }
+    return {
+      userId: user.userId,
+      nickname: user.nickName,
+      email: user.email,
+      phone: user.phone,
+    };
   }
 
   async login(identifier: string, password: string) {
@@ -49,7 +60,6 @@ class UserService {
     });
 
     return {
-      id: user.id,
       userId: user.userId,
       nickname: user.nickName,
       email: user.email,

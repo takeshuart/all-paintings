@@ -43,7 +43,8 @@
       "scripts": {
         "dev": "ts-node-dev --respawn --transpile-only src/app.ts"
       }
-   c. `npm run dev` 
+   c. `npm run dev`  
+   （如果用vscode start debugging ，需要修改`launch.json` "program": "${workspaceFolder}/src/app.ts"
 
 3. 前端项目位于`paintings-website`项目中
 

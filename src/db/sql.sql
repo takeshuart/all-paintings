@@ -195,8 +195,8 @@ CREATE TABLE IF NOT EXISTS "artwork_color_scores" (
 CREATE TABLE "user" (
     "id" INTEGER PRIMARY KEY AUTOINCREMENT,
     "user_id" TEXT NOT NULL UNIQUE,
-    "email" TEXT UNIQUE,
-    "phone" TEXT UNIQUE,
+    "email" TEXT,
+    "phone" TEXT ,
     "nickname" TEXT NOT NULL,
     "password_hash" TEXT NOT NULL,
     "member_type" TEXT NOT NULL DEFAULT 'BASIC',

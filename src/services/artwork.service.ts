@@ -1,4 +1,4 @@
-import { prisma } from 'lib/prismaDB.js';
+import { prisma } from '../lib/prismaDB.js';
 import { COLORE_SCORE_FIELDS } from '../utils/constants.js';
 
 /**

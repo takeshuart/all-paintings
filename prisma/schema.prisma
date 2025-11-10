@@ -133,9 +133,9 @@ model VincentLetter {
 
 model User {
     id                  Int             @id @default(autoincrement()) @map("id")
-    userId            String            @unique @map("user_id")
-    email               String?         @unique @map("email")
-    phone               String?         @unique @map("phone")
+    userId              String          @unique @map("user_id")
+    email               String?         @map("email")
+    phone               String?         @map("phone")
     nickName            String          @map("nickname")
     passwordHash        String          @map("password_hash")
     memberType          String          @default("BASIC") @map("member_type")
@@ -146,7 +146,7 @@ model User {
     favorites           UserFavorites[]
     emailVerifyCode     String?         @map("email_verify_code")
     emailVerifyExpireAt DateTime?       @map("email_verify_expire_at")
-    isEmailVerified     Boolean         @default(false)@map("is_email_verified")
+    isEmailVerified     Boolean         @default(false) @map("is_email_verified")
 
     @@map("user")
 }

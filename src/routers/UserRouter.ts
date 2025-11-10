@@ -1,17 +1,25 @@
 import express from "express";
-import userService from "services/user.service.js";
+import userService from "../services/user.service.js";
+import jwt from "jsonwebtoken";
+import { optionalAuthJWT } from "../middleware/auth.js";
 
 const router = express.Router();
-
+export const COOKIE_KEY = 'accessToken'
 // ======================================
 // User API Routes
-// Prefix: /api/v1/users
+// Prefix: /api/v1/user
 // ======================================
+const JWT_SECRET = process.env.JWT_SECRET;
+
+if (!JWT_SECRET) {
+    console.error("Fatal Error: JWT_SECRET is not set in environment variables!");
+    process.exit(1);
+}
 
 router.post("/register", async (req, res) => {
     try {
-        const {password, email, phone } = req.body;
-        const user = await userService.register( password, email, phone);
+        const { password, email, phone } = req.body;
+        const user = await userService.register(password, email, phone);
 
         res.json({ success: true, user });
     } catch (err: any) {
@@ -24,17 +32,85 @@ router.post("/register", async (req, res) => {
 router.post("/login", async (req, res) => {
     try {
         const { id, password } = req.body;
+
         if (!id || !password) {
             return res.status(400).json({ error: "ID and password are required" });
         }
+
         const user = await userService.login(id, password);
         if (!user) {
             return res.status(401).json({ success: false, error: "Invalid credentials" });
         }
-        res.json({ success: true, user });
+
+        //JWT Token
+        const accessToken = jwt.sign(
+            { id: user.userId },
+            JWT_SECRET,
+            {
+                expiresIn: "6h",
+                subject: user.userId.toString(),
+            }
+        );
+
+
+        // 3.set JWT HTTP Only Cookie
+        res.cookie(COOKIE_KEY, accessToken, {
+            httpOnly: true,
+            // secure: process.env.NODE_ENV === 'production',// if TRUE ,only attach cookie in HTTPS request
+            sameSite: 'lax',
+            maxAge: 6 * 3600000,
+        });
+
+        return res.status(200).json({
+            success: true,
+            message: "Login successful",
+            user    //without password
+        });
+
     } catch (err: any) {
         console.error("Login error:", err);
-        res.status(500).json({ success: false, error:err.message});
+        res.status(500).json({ success: false, error: "Internal server error" });
+    }
+});
+
+/**
+ * GET /me
+ *
+ * This endpoint allows the front-end to restore the user's authentication state
+ * after a page refresh without requiring the user to log in again.
+ * It relies on the JWT stored in the HttpOnly cookie to identify the user.
+ */
+router.post('/me', optionalAuthJWT, async (req, res) => {
+    try {
+        const userId = req.user?.userId;
+        if (!userId) {
+            return res.status(401).json({ success: false, error: "Not Find login statue" });
+        }
+
+        const user = await userService.findUser(userId.toString())
+        return res.status(200).json({
+            success: true,
+            message: "Relogin successful",
+            user    //without password
+        });
+    } catch (err: any) {
+        console.error("relogin error:", err);
+        res.status(500).json({ success: false, error: "Internal server error" });
+    }
+})
+
+router.post('/logout', (_, res) => {
+    try {
+        res.clearCookie(COOKIE_KEY, {
+            httpOnly: true,
+            sameSite: 'lax',
+            // secure: process.env.NODE_ENV === 'production', // 如果 login 时用了 secure
+        });
+
+        return res.status(200).json({ success: true, message: 'Logout successful' });
+    } catch (err) {
+        console.error('Logout error:', err);
+        return res.status(500).json({ success: false, error: 'Internal server error' });
     }
 });
 

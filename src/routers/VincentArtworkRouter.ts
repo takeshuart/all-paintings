@@ -1,9 +1,10 @@
 import express, { Request, Response } from "express";
-import {  QueryTypes } from "sequelize";
+import { QueryTypes } from "sequelize";
 import { Sequelize } from 'sequelize-typescript';
 import { VincentArtwork } from "../db/models/VincentArtwork.js";
 import { initDatabase, sequelize } from "../db/db2.js";
 import { ArtworkSearchParams, findVincentArtworks } from "../services/artwork.service.js";
+import { optionalAuthJWT } from "../middleware/auth.js";
 
 const router = express.Router();
 
@@ -11,8 +12,10 @@ const router = express.Router();
  * random a artwork
  * before '/:id'
  */
-router.get('/surprise', async (req: any, res) => {
+router.get('/surprise', optionalAuthJWT, async (req: any, res) => {
     try {
+        const userId = req.user?.userId;
+        console.log(`[API LOG] /surprise.\t UserID:${userId}`)
         const artwork = await VincentArtwork.findOne({
             where: { isHighlight: 1 },
             order: Sequelize.literal('RANDOM()'), // SQLite
@@ -84,11 +87,11 @@ router.get('/', async (req: Request, res: Response) => {
             colorField: colorField,
         };
 
-        const {artworks:rows,totalCount:count} = await findVincentArtworks(searchParams);
+        const { artworks: rows, totalCount: count } = await findVincentArtworks(searchParams);
 
         res.json({
-            rows:rows,
-            totalCount:count
+            rows: rows,
+            totalCount: count
         });
 
     } catch (err: any) {
@@ -100,16 +103,24 @@ router.get('/', async (req: Request, res: Response) => {
     }
 });
 
-router.get('/:id', async (req: any, res) => {
-    try {
-        const artwork = await VincentArtwork.findByPk(req.params.id);
-        if (artwork) {
-            res.json(artwork)
+router.get('/:id',
+    optionalAuthJWT,
+    async (req: any, res) => {
+        const artworkID = req.params.id;
+        const userId = req.user?.userId;
+        if (userId) {
+            console.log(`log: UserID: ${userId}, ArtworkID:${artworkID}`);
         }
-    } catch (error) {
-        console.error('Error finding artwork by ID:', error);
-    }
-})
+
+        try {
+            const artwork = await VincentArtwork.findByPk(artworkID);
+            if (artwork) {
+                res.json(artwork)
+            }
+        } catch (error) {
+            console.error('Error finding artwork by ID:', error);
+        }
+    })
 
 
 export default router;

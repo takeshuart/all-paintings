@@ -11,7 +11,7 @@ const dbFile = path.join(PROJECT_ROOT, './artwork.db');
 export const sequelize = new Sequelize({
     dialect: 'sqlite',
     storage: dbFile,
-    logging: true,
+    logging: false,
     models: [VincentArtwork,VincentLetter,ArtworkColorFeature]
 });
 
