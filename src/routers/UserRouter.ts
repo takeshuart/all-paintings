@@ -2,6 +2,10 @@ import express from "express";
 import userService from "../services/user.service.js";
 import jwt from "jsonwebtoken";
 import { optionalAuthJWT } from "../middleware/auth.js";
+import { AppError } from "../error/AppError.js";
+import { ERROR_CODES } from "../error/errorCodes.js";
+import { validate } from "../middleware/validate.js";
+import { RegisterSchema } from "../schemas/user.schema.js";
 
 const router = express.Router();
 export const COOKIE_KEY = 'accessToken'
@@ -16,33 +20,23 @@ if (!JWT_SECRET) {
     process.exit(1);
 }
 
-router.post("/register", async (req, res) => {
+router.post("/register", validate(RegisterSchema), async (req, res, next) => {
     try {
         const { password, email, phone } = req.body;
         const user = await userService.register(password, email, phone);
-
         res.json({ success: true, user });
-    } catch (err: any) {
-        console.error("Register error:", err);
-        res.status(400).json({ success: false, error: err.message });
+    } catch (err) {
+        next(err);
     }
 });
 
 
-router.post("/login", async (req, res) => {
+router.post("/login", async (req, res, next) => {
     try {
         const { id, password } = req.body;
 
-        if (!id || !password) {
-            return res.status(400).json({ error: "ID and password are required" });
-        }
-
         const user = await userService.login(id, password);
-        if (!user) {
-            return res.status(401).json({ success: false, error: "Invalid credentials" });
-        }
-
-        //JWT Token
+        
         const accessToken = jwt.sign(
             { id: user.userId },
             JWT_SECRET,
@@ -67,9 +61,8 @@ router.post("/login", async (req, res) => {
             user    //without password
         });
 
-    } catch (err: any) {
-        console.error("Login error:", err);
-        res.status(500).json({ success: false, error: "Internal server error" });
+    } catch (err) {
+        next(err)
     }
 });
 
@@ -84,10 +77,12 @@ router.post('/me', optionalAuthJWT, async (req, res) => {
     try {
         const userId = req.user?.userId;
         if (!userId) {
-            return res.status(401).json({ success: false, error: "Not Find login statue" });
+            if (!userId) throw AppError.unauthorized("No login status found");
         }
 
         const user = await userService.findUser(userId.toString())
+        if (!user) throw new AppError(ERROR_CODES.USER_NOT_FOUND, "User not found", 404);
+
         return res.status(200).json({
             success: true,
             message: "Relogin successful",

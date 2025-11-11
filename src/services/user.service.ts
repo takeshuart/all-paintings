@@ -2,6 +2,8 @@ import { Prisma, User } from "@prisma/client";
 import bcrypt from "bcrypt";
 import { prisma } from "../lib/prismaDB.js";
 import validator from 'validator';
+import { AppError } from "../error/AppError.js";
+import { ERROR_CODES } from "../error/errorCodes.js";
 
 class UserService {
 
@@ -24,7 +26,7 @@ class UserService {
   }
 
   async findUser(userId: string) {
-    const user = await prisma.user.findUnique({ where: { userId: userId} })
+    const user = await prisma.user.findUnique({ where: { userId: userId } })
     if (!user) { return null }
     return {
       userId: user.userId,
@@ -35,24 +37,20 @@ class UserService {
   }
 
   async login(identifier: string, password: string) {
-
     let whereClause: any = {};
 
-    if (validator.isEmail(identifier)) {
-      whereClause = { email: identifier };
-    }
-    else if (validator.isMobilePhone(identifier, 'zh-CN')) {
-      whereClause = { phone: identifier };
-    } else {
-      throw new Error("Invalid ID!");
+    if (!validator.isEmail(identifier)) {
+      throw new AppError(ERROR_CODES.INVALID_INPUT, "Invalid login ID format", 400);
     }
 
-    const user = await prisma.user.findFirst({ where: whereClause });
+    const user = await prisma.user.findFirst({ where: { email: identifier } });
 
-    if (!user) throw new Error("User not found");
+    
+    const isMatch = user && await bcrypt.compare(password, user.passwordHash);
 
-    const match = await bcrypt.compare(password, user.passwordHash);
-    if (!match) throw new Error("Invalid password");
+    if (!user || !isMatch) {
+      throw new AppError(ERROR_CODES.INVALID_CREDENTIALS, 'Invalid credentials (ID or password mismatch)', 401);
+    }
 
     await prisma.user.update({
       where: { id: user.id },
@@ -68,28 +66,7 @@ class UserService {
   }
 
 
-
   async register(plainPassword: string, email?: string, phone?: string) {
-    if (!email && !phone) {
-      throw new Error("Email or phone is required");
-    }
-
-    if (email) {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(email)) {
-        throw new Error("Invalid email format");
-      }
-    }
-
-    if (phone) {
-      const phoneRegex = /^1[3-9]\d{9}$/;
-      if (!phoneRegex.test(phone)) {
-        throw new Error("Invalid phone number format");
-      }
-    }
-    if (!this.validatePassword(plainPassword)) {
-      throw new Error("Invalid password format!")
-    }
 
     //find user by email or phone
     const existing = await prisma.user.findFirst({
@@ -98,7 +75,7 @@ class UserService {
     });
 
     if (existing) {
-      throw new Error("This email or phone has already been registered");
+      throw new AppError(ERROR_CODES.EMAIL_ALREADY_EXISTS, "This email has already been registered", 400);
     }
 
     const userId = this.generateUserCode();
