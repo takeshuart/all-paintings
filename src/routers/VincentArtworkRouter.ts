@@ -5,6 +5,11 @@ import { VincentArtwork } from "../db/models/VincentArtwork.js";
 import { initDatabase, sequelize } from "../db/db2.js";
 import { ArtworkSearchParams, findVincentArtworks } from "../services/artwork.service.js";
 import { optionalAuthJWT } from "../middleware/auth.js";
+import { error, success } from "../utils/responseHandler.js";
+import { StatusCodes } from "http-status-codes";
+import { HttpStatusCode } from "axios";
+import { ERROR_CODES } from "../error/errorCodes.js";
+import { prisma } from "../lib/prismaDB.js";
 
 const router = express.Router();
 
@@ -24,7 +29,8 @@ router.get('/surprise', optionalAuthJWT, async (req: any, res) => {
         if (artwork) {
             const at: VincentArtwork = artwork as VincentArtwork
             console.log('[API LOG] /surprise:' + at.id)
-            res.json(artwork)
+            // res.json(artwork)
+            success(res, artwork, StatusCodes.OK)
         }
     } catch (error) {
         console.error('Error finding surprise', error);
@@ -89,11 +95,11 @@ router.get('/', async (req: Request, res: Response) => {
 
         const { artworks: rows, totalCount: count } = await findVincentArtworks(searchParams);
 
-        res.json({
-            rows: rows,
-            totalCount: count
-        });
-
+        // res.json({
+        //     rows: rows,
+        //     totalCount: count
+        // });
+        success(res, rows, StatusCodes.OK, { totalCount: count })
     } catch (err: any) {
         console.error(`Error in /bypage router: ${err.message || err}`);
         res.status(500).json({
@@ -103,24 +109,39 @@ router.get('/', async (req: Request, res: Response) => {
     }
 });
 
-router.get('/:id',
-    optionalAuthJWT,
-    async (req: any, res) => {
+//TODO: switch Squenlize to Prisma,then use join-query
+router.get('/:id', optionalAuthJWT, async (req: any, res) => {
+    try {
         const artworkID = req.params.id;
         const userId = req.user?.userId;
+        const artwork = await VincentArtwork.findByPk(artworkID);
+        if (!artwork) {
+            return error(res, StatusCodes.NOT_FOUND, ERROR_CODES.NOT_FOUND);
+        }
+        let jsonObj:any = artwork.toJSON()
+        
         if (userId) {
-            console.log(`log: UserID: ${userId}, ArtworkID:${artworkID}`);
+            const favorite = await prisma.userFavorites.findFirst({
+                where: {
+                    userId: parseInt(userId),
+                    artworkId: parseInt(artworkID),
+                    deletedAt: null
+                },
+                select: { id: true }
+            })
+
+            if (favorite) {
+                jsonObj.isFavorited = true
+            }
         }
 
-        try {
-            const artwork = await VincentArtwork.findByPk(artworkID);
-            if (artwork) {
-                res.json(artwork)
-            }
-        } catch (error) {
-            console.error('Error finding artwork by ID:', error);
-        }
-    })
+        req.log.info({ userId, artworkID })
+        success(res, jsonObj)
+    } catch (err) {
+        req.log.error({err:err})
+        error(res, StatusCodes.INTERNAL_SERVER_ERROR, ERROR_CODES.NOT_FOUND)
+    }
+})
 
 
 export default router;

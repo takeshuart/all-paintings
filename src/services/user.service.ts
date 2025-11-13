@@ -1,9 +1,10 @@
-import { Prisma, User } from "@prisma/client";
+import { Prisma, User, UserFavorites } from "@prisma/client";
 import bcrypt from "bcrypt";
 import { prisma } from "../lib/prismaDB.js";
 import validator from 'validator';
 import { AppError } from "../error/AppError.js";
 import { ERROR_CODES } from "../error/errorCodes.js";
+import { SafeUser, userSelect } from "../db/SelectedFields.js";
 
 class UserService {
 
@@ -26,14 +27,12 @@ class UserService {
   }
 
   async findUser(userId: string) {
-    const user = await prisma.user.findUnique({ where: { userId: userId } })
+    const user = await prisma.user.findUnique({ 
+      where: { userId: userId },
+      select:userSelect    
+    })
     if (!user) { return null }
-    return {
-      userId: user.userId,
-      nickname: user.nickName,
-      email: user.email,
-      phone: user.phone,
-    };
+    return user as SafeUser;
   }
 
   async login(identifier: string, password: string) {
@@ -45,24 +44,19 @@ class UserService {
 
     const user = await prisma.user.findFirst({ where: { email: identifier } });
 
-    
     const isMatch = user && await bcrypt.compare(password, user.passwordHash);
 
     if (!user || !isMatch) {
       throw new AppError(ERROR_CODES.INVALID_CREDENTIALS, 'Invalid credentials (ID or password mismatch)', 401);
     }
 
-    await prisma.user.update({
+    const updatedUser = await prisma.user.update({
       where: { id: user.id },
       data: { lastLoginAt: new Date() },
+      select: userSelect
     });
 
-    return {
-      userId: user.userId,
-      nickname: user.nickName,
-      email: user.email,
-      phone: user.phone,
-    };
+    return updatedUser as SafeUser
   }
 
 
@@ -90,7 +84,8 @@ class UserService {
         email,
         phone,
       },
-    });
+      select: userSelect
+    }) as SafeUser;
 
     return newUser;
   }
@@ -153,37 +148,47 @@ class UserService {
   }
 
 
-  async addFavorite(userId: number, artworkId: number) {
-    const existing = await prisma.userFavorites.findUnique({
-      where: { userId_artworkId: { userId, artworkId } },
-    });
+  async addFavorite(userId: number, artworkId: number): Promise<UserFavorites> {
+    try {
+      //update or insert
+      const favorite = await prisma.userFavorites.upsert({
+        where: {
+          userId_artworkId: { userId: userId, artworkId: artworkId },
+        },
+        update: {
+          deletedAt: null,  //restore favorite
+        },
+        create: {
+          userId: userId,
+          artworkId: artworkId, //new favorite
+        },
+      });
+      return favorite;
 
-    if (existing) {
-      if (existing.deletedAt) {
-        return prisma.userFavorites.update({
-          where: { userId_artworkId: { userId, artworkId } },
-          data: { deletedAt: null },
-        });
-      } else {
-        throw new Error("The Artwork has favorited!");
-      }
+    } catch (error: any) {
+
+      throw error;
     }
-
-    return prisma.userFavorites.create({
-      data: { userId, artworkId },
-    });
   }
 
-  async removeFavorite(userId: number, artworkId: number) {
-    const existing = await prisma.userFavorites.findUnique({
-      where: { userId_artworkId: { userId, artworkId } },
-    });
-    if (!existing || existing.deletedAt) throw new Error("Has Canceled favorite!");
+  async removeFavorite(userId: number, artworkId: number): Promise<boolean> {
 
-    await prisma.userFavorites.update({
-      where: { userId_artworkId: { userId, artworkId } },
-      data: { deletedAt: new Date() },
+    const result = await prisma.userFavorites.updateMany({
+      where: {
+        userId: userId,
+        artworkId: artworkId,
+        deletedAt: null,  //'deletedAt' is not unique field, cannot use update()
+      },
+      data: {
+        deletedAt: new Date(),
+      },
     });
+
+    //not found data or has soft-deleted
+    if (result.count === 0) {
+      return false;
+    }
+
     return true;
   }
 

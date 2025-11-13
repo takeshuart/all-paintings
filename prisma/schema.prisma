@@ -158,7 +158,7 @@ model UserFavorites {
     artwork   VincentArtwork @relation(fields: [artworkId], references: [id])
     artworkId Int            @map("artwork_id")
     createdAt DateTime       @default(now()) @map("created_at")
-    deletedAt DateTime? //Null means user canceled favorite
+    deletedAt DateTime?      @map("deleted_at") //Null means user canceled favorite
 
     @@unique([userId, artworkId])
     @@map("user_favorites")

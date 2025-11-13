@@ -210,12 +210,15 @@ CREATE TABLE "user" (
 );
 
 CREATE TABLE "user_favorites" (
-    "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     "user_id" INTEGER NOT NULL,
     "artwork_id" INTEGER NOT NULL,
-    "created_at" DATETIME NOT NULL DEFAULT (datetime('now')),
-    FOREIGN KEY ("user_id") REFERENCES "user"("id"),
-    --ON DELETE CASCADE
-    FOREIGN KEY ("artwork_id") REFERENCES "artwork_vincent"("id"),
-    UNIQUE ("user_id", "artwork_id")
+    "created_at" DATETIME NOT NULL DEFAULT (STRFTIME('%Y-%m-%d %H:%M:%f', 'NOW')),
+    "deleted_at" DATETIME,
+    
+    UNIQUE ("user_id", "artwork_id"),
+
+    FOREIGN KEY ("user_id") REFERENCES "user" ("user_id") ON DELETE CASCADE,
+    
+    FOREIGN KEY ("artwork_id") REFERENCES "artwork_vincent" ("id") ON DELETE CASCADE
 );

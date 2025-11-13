@@ -5,11 +5,16 @@ import artworkRouter from './routers/artwork.js';
 import VincentRouter from './routers/VincentArtworkRouter.js';
 import vincentLetterRouter from './routers/VincentLetterRouter.js';
 import userRouter from './routers/UserRouter.js';
+import favoriteRouter from './routers/FavoriteRouter.js';
 import { initDatabase, sequelize } from './db/db2.js';
 import cookieParser from 'cookie-parser'; 
 import { errorHandler } from './middleware/errorHandler.js';
+import { accessLogger } from './middleware/accessLogger.js';
+import { requestTracer } from './middleware/tracer.js';
 
 const app = express();
+app.use(requestTracer);
+app.use(accessLogger);
 
 const allowedOrigins = [
   "http://localhost:3000",
@@ -34,9 +39,12 @@ const API_PREFIX = '/api/v1'; // 定义版本前缀
 // app.use('api/artworks', artworkRouter);
 app.use(`${API_PREFIX}/artworks/vincent`, VincentRouter);
 app.use(`${API_PREFIX}/letters/vincent`, vincentLetterRouter);
-app.use(`${API_PREFIX}/user`, userRouter);
+//userRouter.get('/:userId/profile')
+app.use(`${API_PREFIX}/users`, userRouter);
+// favoriteRouter.post('/:userId/favorites')
+app.use(`${API_PREFIX}/users`,favoriteRouter);
 
-app.use(errorHandler);
+// app.use(errorHandler);
 
 const PORT = 5001;
 

@@ -6,6 +6,8 @@ import { AppError } from "../error/AppError.js";
 import { ERROR_CODES } from "../error/errorCodes.js";
 import { validate } from "../middleware/validate.js";
 import { RegisterSchema } from "../schemas/user.schema.js";
+import { error, success } from "../utils/responseHandler.js";
+import { StatusCodes } from "http-status-codes";
 
 const router = express.Router();
 export const COOKIE_KEY = 'accessToken'
@@ -24,7 +26,7 @@ router.post("/register", validate(RegisterSchema), async (req, res, next) => {
     try {
         const { password, email, phone } = req.body;
         const user = await userService.register(password, email, phone);
-        res.json({ success: true, user });
+        success(res, user, StatusCodes.CREATED)
     } catch (err) {
         next(err);
     }
@@ -36,7 +38,7 @@ router.post("/login", async (req, res, next) => {
         const { id, password } = req.body;
 
         const user = await userService.login(id, password);
-        
+
         const accessToken = jwt.sign(
             { id: user.userId },
             JWT_SECRET,
@@ -55,14 +57,11 @@ router.post("/login", async (req, res, next) => {
             maxAge: 6 * 3600000,
         });
 
-        return res.status(200).json({
-            success: true,
-            message: "Login successful",
-            user    //without password
-        });
+        success(res, user,)
 
     } catch (err) {
-        next(err)
+        req.log.error({err:err})
+        error(res,StatusCodes.INTERNAL_SERVER_ERROR,ERROR_CODES.UNAUTHORIZED,)
     }
 });
 
@@ -73,7 +72,7 @@ router.post("/login", async (req, res, next) => {
  * after a page refresh without requiring the user to log in again.
  * It relies on the JWT stored in the HttpOnly cookie to identify the user.
  */
-router.post('/me', optionalAuthJWT, async (req, res) => {
+router.get('/me', optionalAuthJWT, async (req, res) => {
     try {
         const userId = req.user?.userId;
         if (!userId) {
@@ -83,11 +82,9 @@ router.post('/me', optionalAuthJWT, async (req, res) => {
         const user = await userService.findUser(userId.toString())
         if (!user) throw new AppError(ERROR_CODES.USER_NOT_FOUND, "User not found", 404);
 
-        return res.status(200).json({
-            success: true,
-            message: "Relogin successful",
-            user    //without password
-        });
+
+        success(res, user)
+
     } catch (err: any) {
         console.error("relogin error:", err);
         res.status(500).json({ success: false, error: "Internal server error" });
@@ -102,60 +99,12 @@ router.post('/logout', (_, res) => {
             // secure: process.env.NODE_ENV === 'production', // 如果 login 时用了 secure
         });
 
-        return res.status(200).json({ success: true, message: 'Logout successful' });
+        success(res,'')
     } catch (err) {
         console.error('Logout error:', err);
         return res.status(500).json({ success: false, error: 'Internal server error' });
     }
 });
 
-router.get("/", async (req, res) => {
-    try {
-        const users = await userService.getAllUsers();
-        res.json(users);
-    } catch (err) {
-        console.error("Get users error:", err);
-        res.status(500).json({ error: "Failed to fetch users" });
-    }
-});
-
-router.post("/:userId/favorites", async (req, res) => {
-    try {
-        const { userId } = req.params;
-        const { artworkId } = req.body;
-        if (!artworkId) {
-            return res.status(400).json({ error: "artworkId is required" });
-        }
-        const favorite = await userService.addFavorite(Number(userId), Number(artworkId));
-        res.json({ success: true, favorite });
-    } catch (err: any) {
-        console.error("Add favorite error:", err);
-        res.status(400).json({ success: false, error: err.message });
-    }
-});
-
-
-router.delete("/:userId/favorites/:artworkId", async (req, res) => {
-    try {
-        const { userId, artworkId } = req.params;
-        const result = await userService.removeFavorite(Number(userId), Number(artworkId));
-        res.json({ success: true, result });
-    } catch (err: any) {
-        console.error("Remove favorite error:", err);
-        res.status(400).json({ success: false, error: err.message });
-    }
-});
-
-
-router.get("/:userId/favorites", async (req, res) => {
-    try {
-        const { userId } = req.params;
-        const favorites = await userService.getUserFavorites(Number(userId));
-        res.json(favorites);
-    } catch (err) {
-        console.error("Get favorites error:", err);
-        res.status(500).json({ error: "Failed to fetch favorites" });
-    }
-});
 
 export default router;

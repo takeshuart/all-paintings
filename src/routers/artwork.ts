@@ -1,5 +1,8 @@
 import express from "express";
 import Database from "better-sqlite3";
+import { success } from "@utils/responseHandler.js";
+import { HttpStatusCode } from "axios";
+import { StatusCodes } from "http-status-codes";
 
 
 const router = express.Router();
@@ -15,15 +18,15 @@ router.get('/', (req: any, res) => {
         console.log(`request:${req.query}`)
 
         // page number from 1
-        const offset = page-1 * pageSize;
+        const offset = page - 1 * pageSize;
 
         // 查询当前页的数据
         const querySql = buildSqlQuery(artMovements)
         const dataStmt = db.prepare(querySql);
         const data = dataStmt.all(pageSize, offset);
 
-        const countSql = buildSqlQuery(artMovements,true)
-        const countStmt = db.prepare(countSql); 
+        const countSql = buildSqlQuery(artMovements, true)
+        const countStmt = db.prepare(countSql);
         const total = countStmt.get() as { total_count: number };
         res.json({ data, total });
     } catch (error) {
@@ -31,7 +34,7 @@ router.get('/', (req: any, res) => {
     }
 });
 
-function buildSqlQuery(artMovementsSelected:string[], isCountQuery = false) {
+function buildSqlQuery(artMovementsSelected: string[], isCountQuery = false) {
     let baseSql = isCountQuery ? 'SELECT COUNT(*) AS total FROM art_work' : 'SELECT * FROM art_work';
     let whereClauses = [];
 
