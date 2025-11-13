@@ -118,8 +118,9 @@ router.get('/:id', optionalAuthJWT, async (req: any, res) => {
         if (!artwork) {
             return error(res, StatusCodes.NOT_FOUND, ERROR_CODES.NOT_FOUND);
         }
-        let jsonObj:any = artwork.toJSON()
-        
+        let jsonObj: any = artwork.toJSON()
+        jsonObj.isFavorited = false
+
         if (userId) {
             const favorite = await prisma.userFavorites.findFirst({
                 where: {
@@ -138,7 +139,7 @@ router.get('/:id', optionalAuthJWT, async (req: any, res) => {
         req.log.info({ userId, artworkID })
         success(res, jsonObj)
     } catch (err) {
-        req.log.error({err:err})
+        req.log.error({ err: err })
         error(res, StatusCodes.INTERNAL_SERVER_ERROR, ERROR_CODES.NOT_FOUND)
     }
 })
