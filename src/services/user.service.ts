@@ -27,9 +27,9 @@ class UserService {
   }
 
   async findUser(userId: string) {
-    const user = await prisma.user.findUnique({ 
+    const user = await prisma.user.findUnique({
       where: { userId: userId },
-      select:userSelect    
+      select: userSelect
     })
     if (!user) { return null }
     return user as SafeUser;
@@ -134,7 +134,7 @@ class UserService {
 
   async getUserFavorites(userId: number) {
     const favorites = await prisma.userFavorites.findMany({
-      where: { userId },
+      where: { userId, deletedAt: null },
       include: { artwork: true },
       orderBy: { createdAt: "desc" },
     });
