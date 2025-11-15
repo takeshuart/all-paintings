@@ -44,10 +44,13 @@ class UserService {
 
     const user = await prisma.user.findFirst({ where: { email: identifier } });
 
-    const isMatch = user && await bcrypt.compare(password, user.passwordHash);
+    if (!user) {
+      throw new AppError(ERROR_CODES.USER_NOT_FOUND, 'Invalid User ID', 401);
+    }
+    const isMatch =  await bcrypt.compare(password, user.passwordHash);
 
-    if (!user || !isMatch) {
-      throw new AppError(ERROR_CODES.INVALID_CREDENTIALS, 'Invalid credentials (ID or password mismatch)', 401);
+    if (!isMatch) {
+      throw new AppError(ERROR_CODES.INVALID_PASSWORD, 'Invalid password)', 401);
     }
 
     const updatedUser = await prisma.user.update({

@@ -28,7 +28,12 @@ router.post("/register", validate(RegisterSchema), async (req, res, next) => {
         const user = await userService.register(password, email, phone);
         success(res, user, StatusCodes.CREATED)
     } catch (err) {
-        next(err);
+        req.log.error({ err: err })
+        if (err instanceof AppError) {
+            error(res, StatusCodes.BAD_REQUEST, err.code)
+        } else {
+            error(res, StatusCodes.INTERNAL_SERVER_ERROR, "Internal server error")
+        }
     }
 });
 
@@ -60,8 +65,12 @@ router.post("/login", async (req, res, next) => {
         success(res, user,)
 
     } catch (err) {
-        req.log.error({err:err})
-        error(res,StatusCodes.INTERNAL_SERVER_ERROR,ERROR_CODES.UNAUTHORIZED,)
+        req.log.error({ err: err })
+        if (err instanceof AppError) {
+            error(res, StatusCodes.UNAUTHORIZED, err.code)
+        } else {
+            error(res, StatusCodes.INTERNAL_SERVER_ERROR, "Internal server error")
+        }
     }
 });
 
@@ -99,7 +108,7 @@ router.post('/logout', (_, res) => {
             // secure: process.env.NODE_ENV === 'production', // 如果 login 时用了 secure
         });
 
-        success(res,'')
+        success(res, '')
     } catch (err) {
         console.error('Logout error:', err);
         return res.status(500).json({ success: false, error: 'Internal server error' });
