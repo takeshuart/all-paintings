@@ -1,6 +1,6 @@
 import express from "express";
 import { prisma } from "../lib/prismaDB.js";
-import { error, success } from "@utils/responseHandler.js";
+import { error, success } from "../utils/responseHandler.js";
 import { AppError } from "error/AppError.js";
 import { ERROR_CODES } from "error/errorCodes.js";
 import { validate } from "middleware/validate.js";
