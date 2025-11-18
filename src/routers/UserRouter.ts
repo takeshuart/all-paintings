@@ -5,7 +5,7 @@ import { optionalAuthJWT } from "../middleware/auth.js";
 import { AppError } from "../error/AppError.js";
 import { ERROR_CODES } from "../error/errorCodes.js";
 import { validate } from "../middleware/validate.js";
-import { RegisterSchema } from "../schemas/user.schema.js";
+import { RegisterSchema, UpdateUserSchema } from "../schemas/user.schema.js";
 import { error, success } from "../utils/responseHandler.js";
 import { StatusCodes } from "http-status-codes";
 
@@ -114,6 +114,51 @@ router.post('/logout', (_, res) => {
         return res.status(500).json({ success: false, error: 'Internal server error' });
     }
 });
+
+/**
+ * PUT /update
+ * 
+ * Update user information (nickname, email, or password)
+ * Authentication required
+ * 
+ * Body:
+ * - nickname: optional string (2-20 chars, letters/numbers/underscores/Chinese)
+ * - email: optional string (valid email format)
+ * - password: optional string (8-16 chars, with validation rules)
+ * - currentPassword: required if updating password or email
+ */
+router.patch('/update', optionalAuthJWT, validate(UpdateUserSchema), async (req, res) => {
+  try {
+    const userId = req.user?.userId;
+    if (!userId) {
+      throw new AppError(ERROR_CODES.UNAUTHORIZED, "Please log in first", 401);
+    }
+
+    const { nickname, email, password, currentPassword } = req.body;
+    
+    // At least one field must be provided
+    if (!nickname && !email && !password) {
+      throw new AppError(ERROR_CODES.INVALID_INPUT, "At least one field must be provided for update", 400);
+    }
+
+    const updatedUser = await userService.updateUser(userId.toString(), {
+      nickname,
+      email,
+      password,
+      currentPassword,
+    });
+
+    success(res, updatedUser, StatusCodes.OK);
+  } catch (err) {
+    req.log.error({ err: err });
+    if (err instanceof AppError) {
+      error(res, StatusCodes.BAD_REQUEST, err.code);
+    } else {
+      error(res, StatusCodes.INTERNAL_SERVER_ERROR, "Internal server error");
+    }
+  }
+});
+
 
 
 export default router;

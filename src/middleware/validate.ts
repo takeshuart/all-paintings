@@ -24,7 +24,7 @@ export const validate = (schema: ZodTypeAny) => {
       return error(
         res,
         statusCode,
-        ERROR_CODES.INVALID_PASSWORD_FORMAT,
+        ERROR_CODES.INVALID_PARAMS,
         message,
         validationErrors
       );

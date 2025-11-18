@@ -195,6 +195,78 @@ class UserService {
     return true;
   }
 
+  async updateUser(
+    userId: string,
+    updates: {
+      nickname?: string;
+      email?: string;
+      password?: string;
+      currentPassword?: string;
+    }
+  ) {
+    const user = await prisma.user.findUnique({
+      where: { userId: userId }
+    });
+
+    if (!user) {
+      throw new AppError(ERROR_CODES.USER_NOT_FOUND, "User not found", 404);
+    }
+
+    // If updating password or email, verify current password
+    if ((updates.password || updates.email) && updates.currentPassword) {
+      const isMatch = await bcrypt.compare(updates.currentPassword, user.passwordHash);
+      if (!isMatch) {
+        throw new AppError(ERROR_CODES.INVALID_PASSWORD, "Current password is incorrect", 401);
+      }
+    }
+
+    const updateData: any = {};
+
+    // Update nickname
+    if (updates.nickname !== undefined) {
+      const nicknameRegex = /^[\u4e00-\u9fa5a-zA-Z0-9_]{2,20}$/;
+      if (!nicknameRegex.test(updates.nickname)) {
+        throw new AppError(ERROR_CODES.INVALID_INPUT, "Nickname must be 2–20 characters (letters, numbers, underscores, or Chinese)", 400);
+      }
+      updateData.nickName = updates.nickname;
+    }
+
+    // Update email
+    if (updates.email !== undefined) {
+      if (!validator.isEmail(updates.email)) {
+        throw new AppError(ERROR_CODES.INVALID_INPUT, "Invalid email format", 400);
+      }
+
+      const emailExists = await prisma.user.findFirst({
+        where: { 
+          email: updates.email,
+          userId: { not: userId }
+        }
+      });
+
+      if (emailExists) {
+        throw new AppError(ERROR_CODES.EMAIL_ALREADY_EXISTS, "This email has already been registered", 400);
+      }
+
+      updateData.email = updates.email;
+    }
+
+    // Update password
+    if (updates.password !== undefined) {
+      if (!this.validatePassword(updates.password)) {
+        throw new AppError(ERROR_CODES.INVALID_INPUT, "Password format is invalid", 400);
+      }
+      updateData.passwordHash = await bcrypt.hash(updates.password, 10);
+    }
+
+    const updatedUser = await prisma.user.update({
+      where: { userId: userId },
+      data: updateData,
+      select: userSelect
+    });
+
+    return updatedUser as SafeUser;
+  }
 
 }
 

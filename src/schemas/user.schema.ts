@@ -32,4 +32,27 @@ export const RegisterSchema = z.object({
     }, {
         message: "Password invalid: 8-16 chars, no spaces, no identical chars, no sequential letters/numbers",
     }),
-})
+});
+
+//basic format validation for updating user info
+export const UpdateUserSchema = z.object({
+  nickname: z
+    .string().min(2).max(20)
+    .regex(/^[\u4e00-\u9fa5a-zA-Z0-9_]{2,20}$/, "昵称只能包含中文、字母、数字或下划线")
+    .optional(),
+
+  email: z.string().email().optional(),
+  password: z.string().min(8).max(16).optional(),
+  currentPassword: z.string().min(1).optional(),
+}).refine(
+  (data) => {
+    if ((data.password || data.email) && !data.currentPassword) {
+      return false;
+    }
+    return true;
+  },
+  {
+    message: "修改密码或邮箱需要输入当前密码",
+    path: ["currentPassword"],
+  }
+);
